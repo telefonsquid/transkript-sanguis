@@ -110,7 +110,7 @@
 						</td>
 						<td class="border-b border-line px-2 py-1 whitespace-nowrap text-ink-3">{unitOf(a, settings.units)}</td>
 						{#each columns as c (c.d.id)}
-							{const m = byDraw.get(c.d.id)}
+							{const m = $derived(byDraw.get(c.d.id))}
 							{#if m}
 								<td
 									class="cursor-pointer border-b border-l border-line px-2 py-1 text-right whitespace-nowrap text-ink hover:outline-2 hover:-outline-offset-2 hover:outline-[var(--ink)]"

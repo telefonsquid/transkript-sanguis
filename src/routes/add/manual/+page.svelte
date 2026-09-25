@@ -220,9 +220,9 @@
 
 		<ul class="divide-y divide-line">
 			{#each rows as row (row.key)}
-				{const a = row.analyte ? current.lookup(row.analyte) : undefined}
-				{const err = errors.get(row.key)}
-				{const show = tried || !!row.value}
+				{const a = $derived(row.analyte ? current.lookup(row.analyte) : undefined)}
+				{const err = $derived(errors.get(row.key))}
+				{const show = $derived(tried || !!row.value)}
 				<li class="grid gap-2 px-4 py-2 md:grid-cols-[minmax(0,2.2fr)_7rem_9rem_8rem_4rem_minmax(0,1.2fr)_2rem] md:items-start">
 					<AnalytePicker
 						value={row.analyte}

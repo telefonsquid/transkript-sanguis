@@ -291,7 +291,7 @@
 
 			{#if showPhases && !compact}
 				{#each phaseRegions as r (r.p.id)}
-					{const text = phaseLabel(r.p, r.x1 - r.x0)}
+					{const text = $derived(phaseLabel(r.p, r.x1 - r.x0))}
 					{#if text}
 						<text x={(r.x0 + r.x1) / 2} y={plotTop - 8} text-anchor="middle" class="fill-ink-3 text-[10px] font-medium">{text}</text>
 					{/if}
@@ -324,8 +324,8 @@
 				<!-- Curated reference bands -->
 				{#each bands as b (b.id)}
 					{#if b.filled || highlight === b.id}
-						{const y0 = yOf(b.high, plotTop)}
-						{const y1 = yOf(b.low, plotBottom)}
+						{const y0 = $derived(yOf(b.high, plotTop))}
+						{const y1 = $derived(yOf(b.low, plotBottom))}
 						<rect x={plotLeft} y={y0} width={plotW} height={Math.max(0, y1 - y0)} fill="var(--ref-{b.kind})" opacity={highlight === b.id ? 0.16 : 0.09} />
 						{#if b.high !== undefined}<line x1={plotLeft} x2={plotRight} y1={y0} y2={y0} stroke="var(--ref-{b.kind})" stroke-width={highlight === b.id ? 1.5 : 1} />{/if}
 						{#if b.low !== undefined}<line x1={plotLeft} x2={plotRight} y1={y1} y2={y1} stroke="var(--ref-{b.kind})" stroke-width={highlight === b.id ? 1.5 : 1} />{/if}
@@ -335,7 +335,7 @@
 				<!-- Regimen changes, dotted when the date is approximate -->
 				{#if showEvents}
 					{#each phases.filter((p) => p.start) as p, i (p.id)}
-						{const ex = xs.x(toTime(p.start))}
+						{const ex = $derived(xs.x(toTime(p.start)))}
 						<line x1={ex} x2={ex} y1={plotTop} y2={plotBottom} stroke="var(--ink-3)" stroke-width={i === 0 ? 1.5 : 1} stroke-dasharray={p.approx ? '2 3' : undefined} opacity={compact ? 0.6 : 1}>
 							<title>{p.label}{p.approx ? ` (${t.common.approx})` : ''}{p.regimen ? `: ${p.regimen}` : ''}</title>
 						</line>
@@ -356,9 +356,9 @@
 			<!-- Markers stay outside the clip so edge points keep their ring -->
 			{#each series as s (s.id)}
 				{#each s.points as p (p.m.drawId + p.m.analyte)}
-					{const r = (compact ? 3.5 : 4.5) + (hoverT === p.t ? 1.5 : 0)}
-					{const cx = xs.x(p.t)}
-					{const cy = y(p.v)}
+					{const r = $derived((compact ? 3.5 : 4.5) + (hoverT === p.t ? 1.5 : 0))}
+					{const cx = $derived(xs.x(p.t))}
+					{const cy = $derived(y(p.v))}
 					{#if p.status === 'high' || p.status === 'low'}
 						<circle {cx} {cy} r={r + 3.2} fill="none" stroke="var(--{p.status})" stroke-width="1.5" />
 					{/if}
@@ -376,7 +376,7 @@
 			<!-- Value labels -->
 			{#each series as s (s.id)}
 				{#each s.points.filter((p) => labelled.has(p)) as p (p.m.drawId + p.m.analyte)}
-					{const above = y(p.v) - plotTop > 18}
+					{const above = $derived(y(p.v) - plotTop > 18)}
 					<text
 						x={xs.x(p.t)}
 						y={y(p.v) + (above ? -10 : 17)}
@@ -410,10 +410,10 @@
 
 			<!-- Reference rails in the right gutter -->
 			{#each railBands as b, i (b.id)}
-				{const rx = plotRight + 14 + i * railStep}
-				{const ry0 = yOf(b.high, plotTop - 4)}
-				{const ry1 = yOf(b.low, plotBottom + 4)}
-				{const active = highlight === b.id || b.filled}
+				{const rx = $derived(plotRight + 14 + i * railStep)}
+				{const ry0 = $derived(yOf(b.high, plotTop - 4))}
+				{const ry1 = $derived(yOf(b.low, plotBottom + 4))}
+				{const active = $derived(highlight === b.id || b.filled)}
 				<g
 					role="presentation"
 					onpointerenter={() => onbandhover?.(b.id)}
@@ -444,9 +444,9 @@
 		</svg>
 
 		{#if isSource && hoverT !== null && tipPoints.length}
-			{const first = tipPoints[0].p!}
-			{const phase = phases.find((p) => p.id === first.m.phase)}
-			{const start = hrtStartTime()}
+			{const first = $derived(tipPoints[0].p!)}
+			{const phase = $derived(phases.find((p) => p.id === first.m.phase))}
+			{const start = $derived(hrtStartTime())}
 			<div
 				class="pointer-events-none absolute z-30 min-w-44 max-w-72 rounded-md border border-line bg-surface px-3 py-2 text-xs shadow-[var(--shadow)]"
 				style:top="{Math.max(0, margin.top - 4)}px"

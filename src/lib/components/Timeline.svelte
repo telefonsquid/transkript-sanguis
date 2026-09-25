@@ -125,8 +125,8 @@
 					class="pointer-events-none"
 				/>
 				{#if s.x1 - s.x0 > 50}
-					{const name = s.p.implicit ? baseline : s.p.label}
-					{const room = Math.floor((s.x1 - s.x0 - 8) / 5.8)}
+					{const name = $derived(s.p.implicit ? baseline : s.p.label)}
+					{const room = $derived(Math.floor((s.x1 - s.x0 - 8) / 5.8))}
 					<text x={s.x0 + 2} y={m.top + 8} class="pointer-events-none fill-ink-3 text-[10px] font-medium">
 						{name.length > room ? name.slice(0, room - 1) + '…' : name}{s.p.approx ? ' ≈' : ''}
 					</text>
@@ -146,8 +146,8 @@
 			{/if}
 
 			{#each drawList as d (d.id)}
-				{const cx = x(d.t)}
-				{const shown = !settings.hiddenLabs.includes(d.lab)}
+				{const cx = $derived(x(d.t))}
+				{const shown = $derived(!settings.hiddenLabs.includes(d.lab))}
 				<g
 					role="presentation"
 					onpointerenter={() => {

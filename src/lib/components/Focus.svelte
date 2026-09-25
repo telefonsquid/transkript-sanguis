@@ -161,7 +161,7 @@
 				<div class="num mt-0.5 text-[11px] text-ink-3">
 					{fmtDate(last.t)}{#if hrtText(last.t)} · {hrtText(last.t)}{/if} · {last.lab || t.common.noLab}
 					{#if st.prev && !last.censor && !st.prev.censor}
-						{const d = convert(a, last.value, units) - convert(a, st.prev.value, units)}
+						{const d = $derived(convert(a, last.value, units) - convert(a, st.prev.value, units))}
 						· {d >= 0 ? '+' : '−'}{fmtNum(Math.abs(d), dec)} {t.focus.vs(fmtDate(st.prev.t))}
 					{/if}
 				</div>
@@ -231,9 +231,9 @@
 							</tr>
 						{/if}
 						{#each refs as r (r.id)}
-							{const b = bands.find((x) => x.id === r.id)}
-							{const s = last ? statusOf(last, { low: r.low, high: r.high, label: tx(r.label), kind: r.kind }) : 'none'}
-							{const src = sourceById.get(r.source)}
+							{const b = $derived(bands.find((x) => x.id === r.id))}
+							{const s = $derived(last ? statusOf(last, { low: r.low, high: r.high, label: tx(r.label), kind: r.kind }) : 'none')}
+							{const src = $derived(sourceById.get(r.source))}
 							<tr
 								class={['cursor-pointer border-b border-line align-top last:border-0', highlight === r.id ? 'bg-hover' : 'hover:bg-hover', !b && 'opacity-45']}
 								onpointerenter={() => (highlight = r.id)}
@@ -291,8 +291,8 @@
 					</thead>
 					<tbody>
 						{#each [...ms].reverse() as m (m.drawId)}
-							{const s = statusOf(m, boundsFor(a, m, settings.basis))}
-							{const report = m.report ? reports.get(m.report) : undefined}
+							{const s = $derived(statusOf(m, boundsFor(a, m, settings.basis)))}
+							{const report = $derived(m.report ? reports.get(m.report) : undefined)}
 							<tr class="border-b border-line align-top last:border-0 hover:bg-hover">
 								<td class="px-3 py-1.5 whitespace-nowrap text-ink">{fmtDate(m.t)}</td>
 								{#if start !== undefined}<td class="px-2 py-1.5 whitespace-nowrap text-ink-3">{hrtText(m.t)}</td>{/if}
@@ -307,7 +307,7 @@
 								<td class="max-w-40 truncate px-2 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if report?.file && current.profile}
-										{const key = fileKey(current.profile.id, report.id)}
+										{const key = $derived(fileKey(current.profile.id, report.id))}
 										<button type="button" onclick={() => openFile(key)} class="text-[11px] text-ink-3 underline decoration-line-strong underline-offset-2 hover:text-ink" title={report.file.name}>{t.focus.openPdf}</button>
 									{/if}
 								</td>
@@ -378,7 +378,7 @@
 						<dt class="text-ink-3">{t.focus.stats.pre}</dt><dd class="text-right text-ink">{conv(st.preMean)}</dd>
 						<dt class="text-ink-3">{t.focus.stats.hrt}</dt><dd class="text-right text-ink">{conv(st.hrtMean)}</dd>
 						{#if st.preMean !== undefined && st.hrtMean !== undefined && st.preMean !== 0}
-							{const diff = st.hrtMean - st.preMean}
+							{const diff = $derived(st.hrtMean - st.preMean)}
 							<dt class="text-ink-3">{t.focus.stats.change}</dt>
 							<dd class="text-right text-ink">{diff >= 0 ? '+' : '−'}{conv(Math.abs(diff))} <span class="text-ink-3">({diff >= 0 ? '+' : '−'}{fmtNum(Math.abs((diff / st.preMean) * 100), 0)} %)</span></dd>
 						{/if}
@@ -392,7 +392,7 @@
 	</div>
 
 	{#if a.related?.length}
-		{const related = a.related.filter((r) => current.built.measurements.some((m) => m.analyte === r))}
+		{const related = $derived(a.related.filter((r) => current.built.measurements.some((m) => m.analyte === r)))}
 		{#if related.length}
 			<section class="mt-6">
 				<h2 class="mb-2 text-sm font-semibold">{t.focus.related}</h2>

@@ -127,8 +127,8 @@
 
 	<div class="min-h-0 flex-1 overflow-y-auto px-1.5 py-2">
 		{#each byGroup as { g, items } (g.id)}
-			{const on = items.filter((a) => selected.has(a.id)).length}
-			{const collapsed = settings.collapsed.includes(g.id) && !settings.search}
+			{const on = $derived(items.filter((a) => selected.has(a.id)).length)}
+			{const collapsed = $derived(settings.collapsed.includes(g.id) && !settings.search)}
 			<section class="mb-1">
 				<div class="group flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-hover">
 					<input
@@ -147,9 +147,9 @@
 				{#if !collapsed}
 					<ul>
 						{#each items as a (a.id)}
-							{const n = filtered.byAnalyte.get(a.id)?.length ?? 0}
-							{const s = latest(a)}
-							{const alt = altNameOf(a)}
+							{const n = $derived(filtered.byAnalyte.get(a.id)?.length ?? 0)}
+							{const s = $derived(latest(a))}
+							{const alt = $derived(altNameOf(a))}
 							<li class={['group flex items-center gap-1.5 rounded py-0.5 pr-1 pl-5', active === a.id ? 'bg-surface-3' : 'hover:bg-hover']}>
 								<input type="checkbox" checked={selected.has(a.id)} onchange={() => toggleOne(a.id)} aria-label={t.sidebar.showOne(nameOf(a))} class="size-3.5 {CHECK}" />
 								<a href={resolve('/analyte/[id]', { id: a.id })} class={['min-w-0 flex-1 truncate text-xs', n ? 'text-ink' : 'text-ink-3']} title={alt ? `${nameOf(a)} · ${alt}` : nameOf(a)}>

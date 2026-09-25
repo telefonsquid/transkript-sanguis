@@ -95,9 +95,9 @@
 					</thead>
 					<tbody>
 						{#each draws as d (d.id)}
-							{const ms = counts.get(d.id) ?? []}
-							{const computed = ms.filter((m) => m.derived).length}
-							{const report = reportOf(d)}
+							{const ms = $derived(counts.get(d.id) ?? [])}
+							{const computed = $derived(ms.filter((m) => m.derived).length)}
+							{const report = $derived(reportOf(d))}
 							<tr class="border-b border-line align-top last:border-0 hover:bg-hover">
 								<td class="num px-3 py-2 whitespace-nowrap text-ink">{fmtDate(toTime(d.date, d.time))}{d.time ? ` ${d.time}` : ''}</td>
 								<td class="px-2 py-2 whitespace-nowrap text-ink-2">{d.lab || '—'}{d.rangesFor ? ` · ${t.profile.sexes[d.rangesFor]}` : ''}</td>
@@ -132,7 +132,7 @@
 			<p class="mb-2 text-xs text-ink-2">{t.data.issuesIntro}</p>
 			<ul class="rounded-lg border border-line bg-surface text-xs">
 				{#each issues as i, n (n)}
-					{const a = current.lookup(i.analyte)}
+					{const a = $derived(current.lookup(i.analyte))}
 					<li class="flex flex-wrap gap-2 border-b border-line px-3 py-1.5 last:border-0">
 						<span class="num text-ink-3">{fmtIso(i.date)}</span>
 						<span class="font-medium">{a ? nameOf(a) : i.analyte}</span>

@@ -66,7 +66,7 @@
 	{/if}
 
 	{#each draws as d (d.key)}
-		{const dp = drawProblem(d)}
+		{const dp = $derived(drawProblem(d))}
 		<section class={['rounded-lg border bg-surface', d.mode === 'skip' ? 'border-dashed border-line opacity-60' : 'border-line']}>
 			<header class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-2.5 text-sm">
 				<input type="date" bind:value={d.date} class={['h-8 rounded-md bg-surface px-2 text-sm', dp ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.date} />
@@ -102,7 +102,7 @@
 					</thead>
 					<tbody>
 						{#each d.rows as row (row.key)}
-							{const p = rowProblem(row, d.rows, current.lookup)}
+							{const p = $derived(rowProblem(row, d.rows, current.lookup))}
 							<tr class={['border-t border-line align-top', row.action === 'drop' && 'opacity-45']}>
 								<td class="w-[40%] px-4 py-1.5">
 									{#if row.action === 'custom'}

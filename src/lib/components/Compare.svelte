@@ -92,7 +92,7 @@
 	<section class="rounded-lg border border-line bg-surface p-3">
 		<div class="mb-3 flex flex-wrap items-center gap-2">
 			{#each settings.compare as id (id)}
-				{const a = lookup(id)}
+				{const a = $derived(lookup(id))}
 				{#if a}
 					<span class="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface-2 py-0.5 pr-1 pl-2 text-xs">
 						<span class="inline-block h-0.5 w-3 rounded" style:background={color(id)}></span>
@@ -111,7 +111,7 @@
 			>
 				<option value="">{settings.compare.length >= MAX ? t.compare.max(MAX) : t.compare.addAnalyte}</option>
 				{#each groups as g (g.id)}
-					{const items = available.filter((a) => a.group === g.id)}
+					{const items = $derived(available.filter((a) => a.group === g.id))}
 					{#if items.length}
 						<optgroup label={tx(g.label)}>
 							{#each items as a (a.id)}<option value={a.id}>{nameOf(a)}{altNameOf(a) ? ` · ${altNameOf(a)}` : ''}</option>{/each}
@@ -158,7 +158,7 @@
 			/>
 			<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
 				{#each normalized as s (s.id)}
-					{const last = s.points.at(-1)}
+					{const last = $derived(s.points.at(-1))}
 					<span class="inline-flex items-center gap-1.5">
 						<span class="inline-block h-0.5 w-4 rounded" style:background={s.color}></span>
 						<span class="text-ink">{s.name}</span>
@@ -180,8 +180,8 @@
 		<h2 class="mb-2 text-sm font-semibold">{t.compare.ownUnits} <span class="font-normal text-ink-3">· {t.compare.aligned}</span></h2>
 		<div class="grid gap-3" style:grid-template-columns="repeat(auto-fill, minmax(340px, 1fr))">
 			{#each settings.compare.filter((id) => lookup(id)) as id (id)}
-				{const a = lookup(id)!}
-				{const s = seriesFor(id, color(id))}
+				{const a = $derived(lookup(id)!)}
+				{const s = $derived(seriesFor(id, color(id)))}
 				<article class="rounded-lg border border-line bg-surface p-2">
 					<div class="flex items-baseline gap-2 px-1">
 						<span class="inline-block h-0.5 w-3 rounded" style:background={color(id)}></span>

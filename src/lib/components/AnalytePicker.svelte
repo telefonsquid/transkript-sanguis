@@ -97,7 +97,7 @@
 	{#if open && options}
 		<ul id="{uid}-list" role="listbox" class="absolute top-full left-0 z-40 mt-1 max-h-80 w-full min-w-80 overflow-y-auto rounded-md border border-line bg-surface py-1 text-sm shadow-[var(--shadow)]">
 			{#each results as a, i (a.id)}
-				{const alt = altNameOf(a)}
+				{const alt = $derived(altNameOf(a))}
 				<li role="option" aria-selected={i === active}>
 					<button
 						type="button"
