@@ -152,11 +152,11 @@
 						<td class="px-2.5 py-1.5 whitespace-nowrap">
 							{#if status === 'high' || status === 'low'}<span style:color="var(--{status})">{status === 'high' ? '▲' : '▼'} {t.status[status]}</span>{:else if status === 'in'}<span class="text-ink-3">{t.status.in}</span>{/if}
 						</td>
-						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-2">{b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '—'}</td>
-						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-2">
+						<td class={['px-2.5 py-1.5 whitespace-nowrap', b ? 'text-ink-2' : 'text-ink-3']}>{b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '—'}</td>
+						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.labRef ? 'text-ink-2' : 'text-ink-3']}>
 							{m.labRef?.text ?? '—'}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> {m.rangesFor === 'male' ? '♂' : '♀'}</span>{/if}
 						</td>
-						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-2">{m.lab || '—'}</td>
+						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
 						<td class="max-w-40 truncate px-2.5 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>
 						<td class="max-w-sm px-2.5 py-1.5 font-sans text-ink-2">
 							{#if m.derived}◇ {tx(m.derived)}{/if}

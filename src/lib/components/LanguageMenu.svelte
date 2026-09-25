@@ -6,8 +6,6 @@
 
 	const uid = $props.id();
 
-	const label = $derived([prefs.lang, prefs.second].filter(Boolean).join(' + ').toUpperCase());
-
 	// A second language equal to the main one adds nothing, so the two swap
 	function setMain(lang: Lang) {
 		if (prefs.second === lang) prefs.second = prefs.lang;
@@ -18,7 +16,7 @@
 	const radio = 'border-line-strong bg-surface text-[var(--ref-target)] checked:bg-[var(--ref-target)]';
 </script>
 
-<Popover {label} title={t.nav.language} align="right">
+<Popover label={prefs.lang.toUpperCase()} title={t.nav.language} align="right" variant="quiet">
 	<div class="grid w-64 gap-3 text-xs">
 		<div role="radiogroup" aria-labelledby="{uid}-main">
 			<div id="{uid}-main" class="label mb-1">{t.nav.languageMain}</div>

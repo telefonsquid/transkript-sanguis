@@ -79,7 +79,7 @@
 		{#if therapy !== 'none' && !editing}
 			<div class="grid gap-1">
 				<label for="{uid}-hrt" class="text-sm font-medium">{t.profile.hrtStart} <span class="font-normal text-ink-3">({t.common.optional})</span></label>
-				<input id="{uid}-hrt" type="date" bind:value={hrtStart} class={input} />
+				<input id="{uid}-hrt" type="date" bind:value={hrtStart} class={[input, !hrtStart && 'empty']} />
 				<label class="flex items-center gap-2 text-xs text-ink-2">
 					<input type="checkbox" bind:checked={hrtStartApprox} class="rounded border-line-strong" />
 					{t.profile.approx}
@@ -90,7 +90,7 @@
 
 		<div class="grid gap-1">
 			<label for="{uid}-sex" class="text-sm font-medium">{t.profile.sex}</label>
-			<select id="{uid}-sex" bind:value={sex} class={input} aria-describedby="{uid}-sex-hint">
+			<select id="{uid}-sex" bind:value={sex} class={[input, !sex && !impliedSex && 'empty']} aria-describedby="{uid}-sex-hint">
 				<option value="">{impliedSex ? `${t.profile.sexes[impliedSex]} (${t.profile.therapyShort[therapy]})` : t.profile.sexes.unset}</option>
 				<option value="female">{t.profile.sexes.female}</option>
 				<option value="male">{t.profile.sexes.male}</option>

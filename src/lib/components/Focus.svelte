@@ -300,10 +300,10 @@
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if s === 'high' || s === 'low'}<span style:color="var(--{s})">{s === 'high' ? '▲' : '▼'} {t.status[s]}</span>{:else if s === 'in'}<span class="text-ink-3">{t.status.in}</span>{/if}
 								</td>
-								<td class="px-2 py-1.5 whitespace-nowrap text-ink-2">
+								<td class={['px-2 py-1.5 whitespace-nowrap', m.labRef ? 'text-ink-2' : 'text-ink-3']}>
 									{m.labRef?.text ?? '—'}{#if m.printedUnit}<span class="text-ink-3"> {m.printedUnit}</span>{/if}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> ({t.profile.sexes[m.rangesFor]})</span>{/if}{#if m.labFlag}<span class="ml-1 text-ink-3">[{m.labFlag}]</span>{/if}
 								</td>
-								<td class="px-2 py-1.5 whitespace-nowrap text-ink-2">{m.lab || '—'}</td>
+								<td class={['px-2 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
 								<td class="max-w-40 truncate px-2 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if report?.file && current.profile}

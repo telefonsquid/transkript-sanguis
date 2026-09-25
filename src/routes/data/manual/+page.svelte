@@ -159,13 +159,13 @@
 	<section class="grid gap-4 rounded-lg border border-line bg-surface p-4 sm:grid-cols-2 lg:grid-cols-3">
 		<label class="grid content-start gap-1">
 			<span class="text-sm font-medium">{t.manual.date}</span>
-			<input type="date" bind:value={date} class={[field, tried && dateError && 'border-[var(--critical)]']} required />
+			<input type="date" bind:value={date} class={[field, !date && 'empty', tried && dateError && 'border-[var(--critical)]']} required />
 			<span class="text-xs text-ink-3">{tried && dateError ? dateError : t.manual.dateHint}</span>
 			{#if sameDay}<span class="text-xs text-[var(--serious)]">{t.manual.existing(fmtIso(date))}</span>{/if}
 		</label>
 		<label class="grid content-start gap-1">
 			<span class="text-sm font-medium">{t.manual.time} <span class="font-normal text-ink-3">({t.common.optional})</span></span>
-			<input type="time" bind:value={time} class={field} />
+			<input type="time" bind:value={time} class={[field, !time && 'empty']} />
 		</label>
 		<label class="grid content-start gap-1">
 			<span class="text-sm font-medium">{t.manual.lab} <span class="font-normal text-ink-3">({t.common.optional})</span></span>
@@ -175,7 +175,7 @@
 		</label>
 		<label class="grid content-start gap-1">
 			<span class="text-sm font-medium">{t.manual.rangesFor}</span>
-			<select bind:value={rangesFor} class={field}>
+			<select bind:value={rangesFor} class={[field, !rangesFor && 'empty']}>
 				<option value="">{t.profile.sexes.unset}</option>
 				<option value="female">{t.profile.sexes.female}</option>
 				<option value="male">{t.profile.sexes.male}</option>
@@ -184,7 +184,7 @@
 		</label>
 		<label class="grid content-start gap-1">
 			<span class="text-sm font-medium">{t.manual.fasting}</span>
-			<select bind:value={fasting} class={field}>
+			<select bind:value={fasting} class={[field, fasting === 'unknown' && 'empty']}>
 				{#each ['unknown', 'yes', 'no'] as const as f (f)}<option value={f}>{t.manual.fastingOptions[f]}</option>{/each}
 			</select>
 		</label>

@@ -204,5 +204,6 @@ export interface Profile {
 	reports: ReportMeta[];
 	draws: Draw[];
 	custom: CustomAnalyte[];
+	/** Shipped with the app, can be reset but not deleted */
 	demo?: boolean;
 }

@@ -1,7 +1,7 @@
 import { SLUG } from './app';
 import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, todayIso, type Built } from './data';
 import type { Analyte, CustomAnalyte, Draw, Phase, Profile, Sex, Therapy } from './data/types';
-import { demoProfiles } from './demo';
+import { DEMO_IDS, DEMO_VERSION, demoProfiles } from './demo';
 import { deleteProfileFiles } from './files';
 
 interface Db {
@@ -10,19 +10,27 @@ interface Db {
 	/** When both disclaimers were accepted */
 	consent: string | null;
 	lastExport: string | null;
+	demoVersion: number;
 }
 
 const KEY = `${SLUG}:db:v1`;
 
 function load(): Db {
-	const empty: Db = { profiles: [], active: null, consent: null, lastExport: null };
+	const empty: Db = { profiles: [], active: null, consent: null, lastExport: null, demoVersion: 0 };
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
-		if (!saved || !Array.isArray(saved.profiles)) return empty;
-		return { ...empty, ...saved, profiles: saved.profiles.map(normalizeProfile) };
+		if (!saved || !Array.isArray(saved.profiles)) return withDemos(empty);
+		return withDemos({ ...empty, ...saved, profiles: saved.profiles.map(normalizeProfile) });
 	} catch {
-		return empty;
+		return withDemos(empty);
 	}
+}
+
+/** Demo profiles always exist, and an app update with new demo data replaces the stored copies */
+function withDemos(db: Db): Db {
+	const kept = db.demoVersion === DEMO_VERSION ? db.profiles : db.profiles.filter((p) => !p.demo);
+	const missing = demoProfiles().filter((d) => !kept.some((p) => p.id === d.id));
+	return { ...db, profiles: [...kept, ...missing], demoVersion: DEMO_VERSION };
 }
 
 /** Fills fields older or hand written data may lack */
@@ -34,7 +42,8 @@ export function normalizeProfile(p: Partial<Profile> & { id: string; name: strin
 		phases: p.phases ?? [],
 		reports: p.reports ?? [],
 		draws: (p.draws ?? []).map((d) => ({ ...d, results: d.results ?? [] })),
-		custom: p.custom ?? []
+		custom: p.custom ?? [],
+		demo: DEMO_IDS.includes(p.id) || undefined
 	};
 }
 
@@ -97,20 +106,30 @@ export function profileById(id: string | null | undefined): Profile | undefined 
 }
 
 export async function deleteProfile(id: string) {
+	if (profileById(id)?.demo) return;
 	db.profiles = db.profiles.filter((p) => p.id !== id);
-	if (db.active === id) db.active = db.profiles[0]?.id ?? null;
+
+	// Without an own profile left the start page offers the demo or a new profile
+	if (db.active === id) db.active = db.profiles.find((p) => !p.demo)?.id ?? null;
+
+	await deleteFiles(id);
+}
+
+/** Puts a demo profile back the way it shipped */
+export async function resetDemo(id: string) {
+	const fresh = demoProfiles().find((p) => p.id === id);
+	const i = db.profiles.findIndex((p) => p.id === id);
+	if (!fresh || i < 0) return;
+	db.profiles[i] = fresh;
+	await deleteFiles(id);
+}
+
+async function deleteFiles(profileId: string) {
 	try {
-		await deleteProfileFiles(id);
+		await deleteProfileFiles(profileId);
 	} catch {
 		// Missing file store only means there were no PDFs
 	}
-}
-
-/** Adds the demo profiles, replacing earlier copies of them */
-export function loadDemos(activate = true) {
-	const demos = demoProfiles();
-	db.profiles = [...db.profiles.filter((p) => !demos.some((d) => d.id === p.id)), ...demos];
-	if (activate || !profileById(db.active)) db.active = demos[0].id;
 }
 
 export function setActive(id: string) {

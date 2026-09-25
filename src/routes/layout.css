@@ -91,6 +91,7 @@
 		--phase-a: rgba(255, 255, 255, 0.03);
 		--pre: rgba(255, 255, 255, 0.05);
 		--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+		--flag-chip: var(--surface-3);
 	}
 }
 
@@ -133,6 +134,7 @@
 	--phase-a: rgba(255, 255, 255, 0.03);
 	--pre: rgba(255, 255, 255, 0.05);
 	--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+	--flag-chip: var(--surface-3);
 }
 
 @theme inline {
@@ -202,4 +204,40 @@ body {
 
 ::selection {
 	background: color-mix(in srgb, var(--ref-target) 30%, transparent);
+}
+
+/* Trans flag stripes, one per letter, on a dark chip so the white one stays visible */
+.trans-flag {
+	margin-right: 1px;
+	padding: 0 3px;
+	border-radius: 4px;
+	background: var(--flag-chip, #1b1b1a);
+}
+.trans-flag > :nth-child(1),
+.trans-flag > :nth-child(5) {
+	color: #5bcefa;
+}
+.trans-flag > :nth-child(2),
+.trans-flag > :nth-child(4) {
+	color: #f5a9b8;
+}
+.trans-flag > :nth-child(3) {
+	color: #ffffff;
+}
+
+/* Empty date and time fields and unset choices read as hints, not as values */
+input.empty:not(:focus),
+select.empty {
+	color: var(--ink-3);
+}
+select option {
+	color: var(--ink);
+}
+
+@layer base {
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--ink-3);
+		opacity: 1;
+	}
 }

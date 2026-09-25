@@ -163,14 +163,17 @@ export function fmtBounds(a: Analyte, b: { low?: number; high?: number }, units:
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
-function dateFormat(kind: 'long' | 'short'): Intl.DateTimeFormat {
+const DATE_FORMATS: Record<'long' | 'short' | 'day', Intl.DateTimeFormatOptions> = {
+	long: { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' },
+	short: { month: 'short', year: '2-digit', timeZone: 'UTC' },
+	day: { day: 'numeric', month: 'short', timeZone: 'UTC' }
+};
+
+function dateFormat(kind: keyof typeof DATE_FORMATS): Intl.DateTimeFormat {
 	const key = `${locale()}:${kind}`;
 	let f = formatters.get(key);
 	if (!f) {
-		f = new Intl.DateTimeFormat(
-			locale(),
-			kind === 'long' ? { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' } : { month: 'short', year: '2-digit', timeZone: 'UTC' }
-		);
+		f = new Intl.DateTimeFormat(locale(), DATE_FORMATS[kind]);
 		formatters.set(key, f);
 	}
 	return f;
@@ -178,6 +181,7 @@ function dateFormat(kind: 'long' | 'short'): Intl.DateTimeFormat {
 
 export const fmtDate = (t: number) => dateFormat('long').format(t);
 export const fmtMonth = (t: number) => dateFormat('short').format(t);
+export const fmtDay = (t: number) => dateFormat('day').format(t);
 export const fmtIso = (date: string) => fmtDate(toTime(date));
 
 const MONTH = 30.4375 * 86_400_000;

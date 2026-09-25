@@ -69,9 +69,9 @@
 		{const dp = $derived(drawProblem(d))}
 		<section class={['rounded-lg border bg-surface', d.mode === 'skip' ? 'border-dashed border-line opacity-60' : 'border-line']}>
 			<header class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-2.5 text-sm">
-				<input type="date" bind:value={d.date} class={['h-8 rounded-md bg-surface px-2 text-sm', dp ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.date} />
+				<input type="date" bind:value={d.date} class={['h-8 rounded-md bg-surface px-2 text-sm', !d.date && 'empty', dp ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.date} />
 				<input bind:value={d.lab} placeholder={t.manual.lab} class="h-8 w-48 rounded-md border-line bg-surface px-2 text-sm" aria-label={t.manual.lab} />
-				<select bind:value={d.rangesFor} class="h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs" aria-label={t.manual.rangesFor}>
+				<select bind:value={d.rangesFor} class={['h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs', !d.rangesFor && 'empty']} aria-label={t.manual.rangesFor}>
 					<option value={undefined}>{t.manual.rangesFor}: {t.profile.sexes.unset}</option>
 					<option value="female">{t.manual.rangesFor}: {t.profile.sexes.female}</option>
 					<option value="male">{t.manual.rangesFor}: {t.profile.sexes.male}</option>

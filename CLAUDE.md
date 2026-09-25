@@ -22,11 +22,13 @@ Transkript Sanguis (the repo folder is still called laborwerte) is a SvelteKit a
 - 2026-09-25, generalisation: profiles, all data in local storage, onboarding (profile, then manual or agent import), two disclaimers, agent instructions that turn PDFs into importable JSON, manual entry UI, JSON export/import, more analytes beyond the owner's own, English and German with the second language's names toggleable, hosting on the owner's server, all personal data purged.
 - Answers from the owner: audience fem + masc HRT + no HRT; extras demo profile, PDFs kept locally, installable offline app; deployment via Docker image; git history rebuilt clean.
 - 2026-09-25, first feedback round: chart markers must follow x mode and date changes, one language dropdown with main and second language, About out of the top bar (footer only), "Add results" and "Data" merged into "My data", overview filters moved to the sidebar bottom and hidden on focus pages, onboarding as medical disclaimer → local disclaimer → View demo or Create profile, disclaimers with an "I understand" button instead of checkboxes, demo profiles for a cis woman and a cis man, renamable profiles, "None" as default therapy.
+- 2026-09-25, second feedback round: profile menu wider with right aligned details and truncated names, language button shows only the main language next to theme and help, view tabs centred, My data and the profile menu more prominent, profile editing moved into My data, demo profiles always present and separate (reset, never deleted, no buttons that add them), browser title without "Welcome", My data redesigned, the value picker lists the whole catalogue under the suggestions, empty and unset fields muted, "Trans" in the name in trans flag colours on HRT profiles.
 - App name: "Transkript Sanguis" in both languages, chosen by the owner "for now". Rejected: Drawn, Levels, HRTbeat, Bloodwork, Plasma Screen, Sanguine, Hemoglowbin. "Hemogram" names only the blood count, "He/Shemogram" echoes a slur.
 
 ## Decisions
 
 - **Name and slug:** `src/lib/app.ts` holds `APP_NAME` (display, free to change) and `SLUG` (`transkript-sanguis`). Storage keys, file formats, the IndexedDB name and the service worker cache all derive from `SLUG`, so it must never change once people store data.
+- **Demo profiles:** the four demos always exist (`withDemos` in `profiles.svelte.ts`). They can be edited and reset but not deleted, and are left out of "export all". Raising `DEMO_VERSION` in `demo.ts` replaces stored copies with the new demo data. Deleting the last own profile leads back to the start page.
 - **Storage:** profiles, draws, phases and consent in localStorage (`transkript-sanguis:db:v1`). UI settings in `…:settings:v1`, language, second language and theme in `…:prefs:v1`. PDFs in IndexedDB (`transkript-sanguis-files`, key `profileId/reportId`), because localStorage is too small.
 - **Values are stored exactly as printed** (`Result.value` is a string like `"<0,3"`, plus printed unit and range). Parsing and unit conversion happen at build time of the view (`src/lib/data/build.ts`), so fixing a unit table fixes old data too. Unreadable values become issues on the Data page, never errors.
 - **Canonical units:** each analyte has one canonical unit, `units` lists printed alternatives with a factor to canonical, `si` is the display alternative. Lab ranges convert with the same factor. Quantities without a fixed factor (Lp(a) mg/dl vs nmol/l, HbA1c % vs mmol/mol) are separate analytes.
@@ -45,13 +47,13 @@ Transkript Sanguis (the repo folder is still called laborwerte) is a SvelteKit a
 - `src/lib/data/analytes/*.ts`: the catalogue by area (hormones, blood incl. clotting, chemistry, metabolism, nutrients). `refs.ts` holds the reference helpers.
 - `src/lib/data/catalogue.ts`: analytes, groups, presets. `sources.ts`: every cited source. `parse.ts`: values, ranges, units, dates. `build.ts`: profile to measurements, phases, derived series, issues.
 - `src/lib/profiles.svelte.ts`: the `db` state, profile and draw operations, `current` (everything derived from the active profile, including custom values).
-- `src/lib/state.svelte.ts`: UI settings and the `filtered` view of the active profile. `prefs.svelte.ts`: language, alt names, theme.
+- `src/lib/state.svelte.ts`: UI settings and the `filtered` view of the active profile. `prefs.svelte.ts`: language, second language, theme.
 - `src/lib/analysis.ts`: reference resolution (`refsFor`, `primaryRef`, `fallbackRef`, `boundsFor`), status, formatting (locale aware), stats. `series.ts`: chart series and bands.
 - `src/lib/i18n/`: `t` (proxy over the active dictionary), `tx` for catalogue texts, `nameOf` / `altNameOf`.
 - `src/lib/io.ts`: export/import, agent JSON parsing, name matching, import preview. `files.ts`: IndexedDB. `checks.ts`: consistency checks.
-- `src/lib/chart/Chart.svelte`: the one chart component. Views in `src/lib/components/`.
+- `src/lib/chart/Chart.svelte`: the one chart component. Views in `src/lib/components/`, the My data sections (profile card, draw list, medication timeline, checks, backup) in `src/lib/components/mydata/`.
 - `src/lib/demo.ts`: four made up demo profiles ([DEMO] Raven fem HRT, Sam masc HRT, Lena cis woman, Max cis man), loaded together by `loadDemos`.
-- Routes: `/` dashboard (grid, compare, matrix, table), `/analyte/[id]`, `/welcome`, `/data` (My data: add results, draws, phases, checks, backup; subpages `/manual`, `/agent`, `/import`), `/profiles`, `/about` (linked from the footer only).
+- Routes: `/` dashboard (grid, compare, matrix, table), `/analyte/[id]`, `/welcome`, `/data` (My data: profile, add results, draws, medication timeline, checks, backup; subpages `/manual`, `/agent`, `/import`), `/profiles` (own and demo profiles, new profile via `?new`), `/about` (linked from the footer only).
 
 ## Adding a value to the catalogue
 
@@ -66,6 +68,7 @@ Transkript Sanguis (the repo folder is still called laborwerte) is a SvelteKit a
 - Reference kind colours are a validated palette in a fixed order: target blue, context orange, trans aqua, clinical yellow, cis women magenta, cis men violet, adults sienna (added 2026-09-25, passes the adjacent pair checks in light and dark), lab grey. Data line is ink. Status colours are never reused for series.
 - One y axis per chart. Different units are compared through normalisation (Compare view), never a second axis.
 - Route files import from `#lib/...` with an explicit `.js` extension (`#lib/data/index.js`).
+- Empty date and time inputs and unset selects get the `empty` class (muted until focused), placeholders use `--ink-3`.
 - Template declaration tags need `$derived`: `{const x = $derived(expr)}`. A bare `{const x = expr}` is computed once per block and goes stale (this froze chart markers when the x axis changed).
 - Files ending in `.svelte.ts` must not create `Date`, `Map` or `Set` instances that eslint's `prefer-svelte-reactivity` flags. Date helpers live in `data/parse.ts` (`nowIso`, `todayIso`).
 - Tests: `CHROMIUM=<path to chrome.exe> npx playwright test` runs the e2e tests against a production build when Playwright's pinned browser is not installed. The tests fail on any console error, which catches CSP violations.

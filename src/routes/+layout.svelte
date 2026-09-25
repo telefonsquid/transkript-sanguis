@@ -39,10 +39,10 @@
 	/** Charts and their filters only belong to the dashboard and the focus pages */
 	const chrome = $derived((onHome || route === '/analyte/[id]') && hasData);
 
-	// First visit, or every profile deleted: back to the start
+	// First visit, or the last own profile deleted: back to the start
 	$effect(() => {
 		const open = route === '/welcome' || route === '/about';
-		if (!open && (!db.consent || !db.profiles.length)) goto(resolve('/welcome'), { replace: true });
+		if (!open && (!db.consent || !current.profile)) goto(resolve('/welcome'), { replace: true });
 	});
 
 	// Everything survives reloads, every field read here becomes a dependency
@@ -106,7 +106,10 @@
 		return `${fmtDate(Date.parse(draws[0].date))} – ${fmtDate(Date.parse(draws.at(-1)!.date))}`;
 	});
 
-	const navLink = (active: boolean) => ['rounded-md px-2.5 py-1 text-[13px] font-medium', active ? 'bg-ink text-surface' : 'text-ink-2 hover:bg-hover hover:text-ink'];
+	// "Trans" in the name wears the flag colours on HRT profiles
+	const flagged = $derived(current.therapy !== 'none' && t.app.name.startsWith('Trans'));
+
+	const utility = 'rounded-md px-2 py-1 text-xs font-medium text-ink-2 hover:bg-hover hover:text-ink';
 </script>
 
 <svelte:head>
@@ -116,40 +119,74 @@
 <svelte:window {onkeydown} />
 
 <div class="flex h-dvh flex-col">
-	<header class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2">
-		<a href={resolve('/')} onclick={() => (settings.view = 'grid')} class="flex items-center gap-2.5">
-			<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-				<rect x="1" y="1" width="20" height="20" rx="5" fill="#1b1b1a" stroke="var(--border-strong)" />
-				<rect x="5" y="5" width="12" height="12" rx="2" fill="#5bcefa" />
-				<rect x="5" y="7.4" width="12" height="7.2" fill="#f5a9b8" />
-				<rect x="5" y="9.8" width="12" height="2.4" fill="#ffffff" />
-				<polyline points="7,14.5 9.5,11 12,12.5 15,8" fill="none" stroke="#1b1b1a" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
-			</svg>
-			<span class="text-[15px] font-semibold tracking-tight">{t.app.name}</span>
-		</a>
-		{#if chrome}
-			<button type="button" onclick={() => (drawer = true)} class="rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover lg:hidden">{t.nav.analytes}</button>
-			<button type="button" onclick={() => (filters = !filters)} aria-expanded={filters} class="rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover md:hidden">{t.nav.filters} {filters ? '▴' : '▾'}</button>
-			<span class="num hidden text-xs text-ink-3 xl:inline">{t.nav.summary(current.profile?.draws.length ?? 0, current.built.measurements.length, span)}</span>
+	<!-- View tabs sit exactly in the middle once both sides fit, before that in the space between them -->
+	<header
+		class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+	>
+		<div class="flex min-w-0 items-center gap-3">
+			<a href={resolve('/')} onclick={() => (settings.view = 'grid')} class="flex shrink-0 items-center gap-2.5">
+				<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+					<rect x="1" y="1" width="20" height="20" rx="5" fill="#1b1b1a" stroke="var(--border-strong)" />
+					<rect x="5" y="5" width="12" height="12" rx="2" fill="#5bcefa" />
+					<rect x="5" y="7.4" width="12" height="7.2" fill="#f5a9b8" />
+					<rect x="5" y="9.8" width="12" height="2.4" fill="#ffffff" />
+					<polyline points="7,14.5 9.5,11 12,12.5 15,8" fill="none" stroke="#1b1b1a" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+				</svg>
+				<span class="text-[15px] font-semibold tracking-tight">
+					{#if flagged}<span class="trans-flag">{#each [...t.app.name.slice(0, 5)] as letter, i (i)}<span>{letter}</span>{/each}</span>{t.app.name.slice(5)}{:else}{t.app.name}{/if}
+				</span>
+			</a>
+			{#if chrome}
+				<button type="button" onclick={() => (drawer = true)} class="shrink-0 rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover lg:hidden">{t.nav.analytes}</button>
+				<button type="button" onclick={() => (filters = !filters)} aria-expanded={filters} class="shrink-0 rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover md:hidden">{t.nav.filters} {filters ? '▴' : '▾'}</button>
+				<span class="num hidden truncate text-xs text-ink-3 2xl:inline">{t.nav.summary(current.profile?.draws.length ?? 0, current.built.measurements.length, span)}</span>
+			{/if}
+		</div>
+
+		{#if hasData}
+			<nav class="order-last flex w-full justify-center lg:order-none lg:col-start-2 lg:w-auto" aria-label={t.nav.views}>
+				<div class="flex rounded-lg bg-surface-2 p-0.5 ring-1 ring-line ring-inset">
+					{#each tabs as tab (tab.view)}
+						{const active = $derived(onHome && settings.view === tab.view)}
+						<button
+							type="button"
+							onclick={() => show(tab.view)}
+							title={t.nav.shortcut(tab.key)}
+							aria-current={active ? 'page' : undefined}
+							class={['rounded-md px-3 py-1 text-[13px] font-medium', active ? 'bg-surface text-ink shadow-sm ring-1 ring-line-strong' : 'text-ink-2 hover:text-ink']}
+						>
+							{tab.label}
+						</button>
+					{/each}
+				</div>
+			</nav>
 		{/if}
 
-		<nav class="ml-auto flex flex-wrap items-center gap-0.5" aria-label={t.nav.views}>
-			{#if hasData}
-				{#each tabs as tab (tab.view)}
-					<button type="button" onclick={() => show(tab.view)} title={t.nav.shortcut(tab.key)} class={navLink(onHome && settings.view === tab.view)}>{tab.label}</button>
-				{/each}
-				<span class="mx-1.5 h-5 w-px bg-line"></span>
+		<div class="ml-auto flex min-w-0 items-center justify-end gap-2 lg:col-start-3 lg:ml-0">
+			{#if current.profile}
+				<a
+					href={resolve('/data')}
+					aria-current={route.startsWith('/data') ? 'page' : undefined}
+					class={[
+						'inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-[13px] font-semibold',
+						route.startsWith('/data') ? 'border-ink bg-ink text-surface' : 'border-line-strong bg-surface text-ink hover:bg-hover'
+					]}
+				>
+					<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M6 1.5h4M6.5 1.5v4.2L2.6 12.4A1.4 1.4 0 0 0 3.8 14.5h8.4a1.4 1.4 0 0 0 1.2-2.1L9.5 5.7V1.5" />
+						<path d="M4.3 10h7.4" />
+					</svg>
+					{t.nav.myData}
+				</a>
+				<div class="max-w-56 min-w-0"><ProfileMenu /></div>
 			{/if}
-			{#if db.profiles.length}
-				<a href={resolve('/data')} class={navLink(route.startsWith('/data'))}>{t.nav.myData}</a>
-				<div class="ml-2"><ProfileMenu /></div>
-			{/if}
-			<div class="ml-2"><LanguageMenu /></div>
-			<button type="button" onclick={cycleTheme} title={t.nav.themeTitle} class="ml-2 rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover hover:text-ink">
-				{t.nav.theme[prefs.theme]}
-			</button>
-			<button type="button" onclick={() => (help = !help)} title={t.nav.help} class="rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover hover:text-ink">?</button>
-		</nav>
+			<span class="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true"></span>
+			<div class="flex shrink-0 items-center">
+				<LanguageMenu />
+				<button type="button" onclick={cycleTheme} title={t.nav.themeTitle} class={utility}>{t.nav.theme[prefs.theme]}</button>
+				<button type="button" onclick={() => (help = !help)} title={t.nav.help} aria-label={t.nav.help} class={utility}>?</button>
+			</div>
+		</div>
 	</header>
 
 	{#if storage.error}

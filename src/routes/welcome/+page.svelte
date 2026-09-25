@@ -4,23 +4,20 @@
 	import { resolve } from '$app/paths';
 	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
+	import { DEMO_IDS } from '#lib/demo.js';
 	import { t } from '#lib/i18n/index.js';
-	import { createProfile, db, loadDemos } from '#lib/profiles.svelte.js';
+	import { createProfile, current, db, setActive } from '#lib/profiles.svelte.js';
 
 	let medicalOk = $state(false);
 	let creating = $state(false);
 
-	const step = $derived(
-		!db.consent ? (medicalOk ? 'local' : 'medical') : !db.profiles.length ? (creating ? 'profile' : 'choose') : 'ingest'
-	);
+	const step = $derived(!db.consent ? (medicalOk ? 'local' : 'medical') : !current.profile ? (creating ? 'profile' : 'choose') : 'ingest');
 
 	function demo() {
-		loadDemos();
+		setActive(DEMO_IDS[0]);
 		goto(resolve('/'));
 	}
 </script>
-
-<svelte:head><title>{t.welcome.title} · {t.app.name}</title></svelte:head>
 
 <div class="mx-auto flex min-h-full max-w-3xl flex-col justify-center gap-6 p-6">
 	{#if step === 'medical'}

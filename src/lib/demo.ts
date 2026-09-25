@@ -630,3 +630,8 @@ export function demoCisMan(): Profile {
 }
 
 export const demoProfiles = (): Profile[] => [demoFeminizing(), demoMasculinizing(), demoCisWoman(), demoCisMan()];
+
+export const DEMO_IDS = ['demo-fem', 'demo-masc', 'demo-cis-f', 'demo-cis-m'];
+
+/** Raise when the demo data changes, stored copies are then replaced */
+export const DEMO_VERSION = 1;

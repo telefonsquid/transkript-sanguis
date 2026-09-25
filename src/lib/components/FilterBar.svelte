@@ -58,7 +58,7 @@
 			aria-label={t.filters.from}
 			value={settings.from ?? ''}
 			onchange={(e) => setDate('from', e.currentTarget.value)}
-			class="num h-7 rounded-md border-line bg-surface px-1.5 py-0 text-xs text-ink-2"
+			class={['num h-7 rounded-md border-line bg-surface px-1.5 py-0 text-xs text-ink-2', !settings.from && 'empty']}
 		/>
 		<span class="text-ink-3">–</span>
 		<input
@@ -66,7 +66,7 @@
 			aria-label={t.filters.to}
 			value={settings.to ?? ''}
 			onchange={(e) => setDate('to', e.currentTarget.value)}
-			class="num h-7 rounded-md border-line bg-surface px-1.5 py-0 text-xs text-ink-2"
+			class={['num h-7 rounded-md border-line bg-surface px-1.5 py-0 text-xs text-ink-2', !settings.to && 'empty']}
 		/>
 	</div>
 

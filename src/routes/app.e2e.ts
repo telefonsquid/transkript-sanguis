@@ -11,6 +11,7 @@ function watchErrors(page: Page) {
 async function onboard(page: Page) {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/welcome$/);
+	await expect(page).toHaveTitle('Transkript Sanguis');
 	await expect(page.getByRole('heading', { name: 'This is not medical advice' })).toBeVisible();
 	await page.getByRole('button', { name: 'I understand' }).click();
 	await expect(page.getByRole('heading', { name: 'Your data stays on this device' })).toBeVisible();
@@ -44,6 +45,21 @@ test('first visit shows both disclaimers, then the demo fills the dashboard', as
 	expect(errors).toEqual([]);
 });
 
+test('demo profiles are edited on My data and can only be reset', async ({ page }) => {
+	await demo(page);
+	await page.getByRole('link', { name: 'My data' }).click();
+	await page.getByRole('button', { name: 'Edit profile' }).click();
+	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Renamed');
+	await page.getByRole('button', { name: 'Save profile' }).click();
+	await expect(page.getByRole('heading', { level: 1, name: 'Renamed' })).toBeVisible();
+
+	await page.goto('/profiles');
+	await expect(page.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+	page.once('dialog', (d) => d.accept());
+	await page.getByRole('listitem').filter({ hasText: 'Renamed' }).getByRole('button', { name: 'Reset' }).click();
+	await expect(page.getByRole('listitem').filter({ hasText: '[DEMO] Raven' })).toBeVisible();
+});
+
 test('chart markers follow the x axis mode', async ({ page }) => {
 	await demo(page);
 	const marker = page.locator('main svg[aria-roledescription="chart"]').first().locator('circle[stroke="var(--surface)"]').nth(2);
@@ -73,6 +89,12 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 	await page.getByRole('link', { name: /Type them in/ }).click();
 
 	await page.getByLabel('Date of the blood draw').fill('2025-05-01');
+
+	// Without typing, the list offers suggestions and then the whole catalogue
+	await page.getByRole('combobox', { name: 'Value' }).first().focus();
+	await expect(page.getByText('All values', { exact: true })).toBeVisible();
+	expect(await page.getByRole('option').count()).toBeGreaterThan(100);
+
 	await page.getByRole('combobox', { name: 'Value' }).first().fill('ferritin');
 	await page.keyboard.press('Enter');
 	await page.getByLabel('Result').first().fill('45');
@@ -84,10 +106,10 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 
 test('the interface switches to German', async ({ page }) => {
 	await demo(page);
-	await page.getByRole('button', { name: 'EN + DE' }).click();
+	await page.getByRole('button', { name: 'EN', exact: true }).click();
 	await page.getByRole('radiogroup', { name: 'App language' }).getByRole('radio', { name: 'Deutsch' }).check();
 	await expect(page.getByRole('heading', { name: /Sexualhormone/ })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'DE + EN' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'DE', exact: true })).toBeVisible();
 	await expect(page.getByText('Nur in diesem Browser gespeichert', { exact: false })).toBeVisible();
 });
 
