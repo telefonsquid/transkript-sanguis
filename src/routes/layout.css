@@ -1,3 +1,205 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Light theme, dark values follow below for both the OS setting and the manual toggle */
+:root {
+	color-scheme: light;
+	--page: #f4f3ef;
+	--surface: #fcfcfb;
+	--surface-2: #f6f5f1;
+	--surface-3: #ecebe6;
+	--ink: #0b0b0b;
+	--ink-2: #52514e;
+	--ink-3: #7a7873;
+	--grid: #e6e5de;
+	--axis: #c3c2b7;
+	--border: rgba(11, 11, 11, 0.1);
+	--border-strong: rgba(11, 11, 11, 0.2);
+	--hover: rgba(11, 11, 11, 0.045);
+	--line: #1b1b1a;
+	--ref-lab: #8a887f;
+	--ref-target: #2a78d6;
+	--ref-context: #eb6834;
+	--ref-trans: #1baf7a;
+	--ref-clinical: #eda100;
+	--ref-female: #e87ba4;
+	--ref-male: #4a3aa7;
+	--ref-adult: #a0522d;
+	--s1: #2a78d6;
+	--s2: #eb6834;
+	--s3: #1baf7a;
+	--s4: #eda100;
+	--s5: #e87ba4;
+	--s6: #008300;
+	--s7: #4a3aa7;
+	--s8: #e34948;
+	--good: #0ca30c;
+	--warning: #fab219;
+	--serious: #ec835a;
+	--critical: #d03b3b;
+	--high: #c43d2f;
+	--low: #2f63b8;
+	--div-low: #2a78d6;
+	--div-mid: #f0efec;
+	--div-high: #e34948;
+	--phase-a: rgba(11, 11, 11, 0.028);
+	--phase-b: rgba(11, 11, 11, 0);
+	--pre: rgba(11, 11, 11, 0.055);
+	--shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:where(:not([data-theme='light'])) {
+		color-scheme: dark;
+		--page: #0d0d0d;
+		--surface: #1a1a19;
+		--surface-2: #212120;
+		--surface-3: #2a2a28;
+		--ink: #ffffff;
+		--ink-2: #c3c2b7;
+		--ink-3: #8f8d86;
+		--grid: #2c2c2a;
+		--axis: #45453f;
+		--border: rgba(255, 255, 255, 0.1);
+		--border-strong: rgba(255, 255, 255, 0.2);
+		--hover: rgba(255, 255, 255, 0.06);
+		--line: #f2f1ec;
+		--ref-lab: #8f8d86;
+		--ref-target: #3987e5;
+		--ref-context: #d95926;
+		--ref-trans: #199e70;
+		--ref-clinical: #c98500;
+		--ref-female: #d55181;
+		--ref-male: #9085e9;
+		--ref-adult: #c0673f;
+		--s1: #3987e5;
+		--s2: #d95926;
+		--s3: #199e70;
+		--s4: #c98500;
+		--s5: #d55181;
+		--s6: #008300;
+		--s7: #9085e9;
+		--s8: #e66767;
+		--high: #f07a6a;
+		--low: #6aa5f0;
+		--div-low: #3987e5;
+		--div-mid: #383835;
+		--div-high: #e66767;
+		--phase-a: rgba(255, 255, 255, 0.03);
+		--pre: rgba(255, 255, 255, 0.05);
+		--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--page: #0d0d0d;
+	--surface: #1a1a19;
+	--surface-2: #212120;
+	--surface-3: #2a2a28;
+	--ink: #ffffff;
+	--ink-2: #c3c2b7;
+	--ink-3: #8f8d86;
+	--grid: #2c2c2a;
+	--axis: #45453f;
+	--border: rgba(255, 255, 255, 0.1);
+	--border-strong: rgba(255, 255, 255, 0.2);
+	--hover: rgba(255, 255, 255, 0.06);
+	--line: #f2f1ec;
+	--ref-lab: #8f8d86;
+	--ref-target: #3987e5;
+	--ref-context: #d95926;
+	--ref-trans: #199e70;
+	--ref-clinical: #c98500;
+	--ref-female: #d55181;
+	--ref-male: #9085e9;
+	--ref-adult: #c0673f;
+	--s1: #3987e5;
+	--s2: #d95926;
+	--s3: #199e70;
+	--s4: #c98500;
+	--s5: #d55181;
+	--s6: #008300;
+	--s7: #9085e9;
+	--s8: #e66767;
+	--high: #f07a6a;
+	--low: #6aa5f0;
+	--div-low: #3987e5;
+	--div-mid: #383835;
+	--div-high: #e66767;
+	--phase-a: rgba(255, 255, 255, 0.03);
+	--pre: rgba(255, 255, 255, 0.05);
+	--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@theme inline {
+	--font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', monospace;
+	--color-page: var(--page);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-surface-3: var(--surface-3);
+	--color-ink: var(--ink);
+	--color-ink-2: var(--ink-2);
+	--color-ink-3: var(--ink-3);
+	--color-grid: var(--grid);
+	--color-line: var(--border);
+	--color-line-strong: var(--border-strong);
+	--color-hover: var(--hover);
+	--color-high: var(--high);
+	--color-low: var(--low);
+}
+
+html {
+	background: var(--page);
+	color: var(--ink);
+	font-family: var(--font-sans);
+	font-feature-settings: 'cv11', 'ss01';
+	-webkit-font-smoothing: antialiased;
+}
+
+body {
+	background: var(--page);
+	min-height: 100vh;
+}
+
+.num {
+	font-variant-numeric: tabular-nums;
+}
+
+.label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+
+:focus-visible {
+	outline: 2px solid var(--ref-target);
+	outline-offset: 2px;
+}
+
+/* The forms plugin paints controls white, which disappears on the dark theme */
+@layer base {
+	[type='checkbox'],
+	[type='radio'] {
+		background-color: var(--surface);
+		border-color: var(--border-strong);
+		color: var(--ref-target);
+	}
+
+	[type='checkbox']:checked,
+	[type='checkbox']:indeterminate,
+	[type='radio']:checked {
+		background-color: var(--ref-target);
+		border-color: transparent;
+	}
+}
+
+::selection {
+	background: color-mix(in srgb, var(--ref-target) 30%, transparent);
+}

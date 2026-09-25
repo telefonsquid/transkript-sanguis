@@ -1,0 +1,11 @@
+services:
+  laborwerte:
+    build: .
+    image: laborwerte
+    ports:
+      - '8080:8080'
+    restart: unless-stopped
+    # Static files only, so the container needs no writable disk beyond nginx's temp files
+    read_only: true
+    tmpfs:
+      - /tmp
