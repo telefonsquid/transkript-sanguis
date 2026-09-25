@@ -159,15 +159,13 @@ export const de: Dict = {
 	ingest: {
 		title: 'Werte hinzufügen',
 		intro: 'Drei Wege, einen Laborbefund hineinzubekommen. Alle enden ausschließlich in diesem Browser.',
-		manualTitle: 'Selbst eintippen',
-		manualShort: 'Werte wählen und Zahlen eintippen',
-		manualBody: 'Wähle Werte aus dem Katalog und tippe ab, was auf dem Befund steht. Ideal für wenige Werte oder einen einzelnen Befund.',
-		agentTitle: 'Einen KI-Agenten das PDF lesen lassen',
+		manualTitle: 'Ergebnisse von Hand eintragen',
+		agentTitle: 'Automatische KI-Transkription',
 		agentShort: 'ChatGPT, Claude & Co. lesen deine PDFs',
 		agentBody: 'Kopiere unsere Anleitung zusammen mit deinen PDFs in ChatGPT, Claude oder einen anderen Assistenten und füge das zurückgegebene JSON ein.',
 		importTitle: 'Datei importieren',
-		importShort: 'Eine Sicherung oder das JSON eines Agenten',
-		importBody: 'Ein Export aus dieser App (zum Beispiel von einem anderen Gerät) oder eine JSON-Datei von einem Agenten.'
+		importShort: 'Eine Sicherung oder das JSON einer KI',
+		importBody: 'Ein Export aus dieser App (zum Beispiel von einem anderen Gerät) oder eine JSON-Datei von einer KI.'
 	},
 	manual: {
 		title: 'Werte eingeben',
@@ -400,7 +398,7 @@ export const de: Dict = {
 		resetAll: 'Alle Einstellungen zurücksetzen'
 	},
 	basis: {
-		primary: 'Beste Wahl für dieses Profil',
+		primary: 'Beste Wahl',
 		lab: 'Laborbereich (wie gedruckt)',
 		target: 'HRT-Ziel',
 		trans: 'Trans Kohorte unter HRT',

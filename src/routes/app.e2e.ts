@@ -40,8 +40,8 @@ test('first visit shows both disclaimers, then the demo fills the dashboard', as
 	await expect(page.getByRole('heading', { name: /Sex hormones/ })).toBeVisible();
 	expect(await page.locator('svg[aria-roledescription="chart"]').count()).toBeGreaterThan(30);
 
-	await page.getByRole('button', { name: '[DEMO] Raven' }).click();
-	for (const name of ['[DEMO] Sam', '[DEMO] Lena', '[DEMO] Max']) await expect(page.getByRole('button', { name })).toBeVisible();
+	await page.getByRole('button', { name: 'Raven Demo' }).click();
+	for (const name of [/^Sam\b/, /^Lena\b/, /^Max\b/]) await expect(page.getByRole('button', { name })).toBeVisible();
 	expect(errors).toEqual([]);
 });
 
@@ -57,7 +57,7 @@ test('demo profiles are edited on My data and can only be reset', async ({ page 
 	await expect(page.getByRole('button', { name: 'Delete' })).toHaveCount(0);
 	page.once('dialog', (d) => d.accept());
 	await page.getByRole('listitem').filter({ hasText: 'Renamed' }).getByRole('button', { name: 'Reset' }).click();
-	await expect(page.getByRole('listitem').filter({ hasText: '[DEMO] Raven' })).toBeVisible();
+	await expect(page.getByRole('listitem').filter({ hasText: 'Raven' })).toBeVisible();
 });
 
 test('chart markers follow the x axis mode', async ({ page }) => {
@@ -68,12 +68,25 @@ test('chart markers follow the x axis mode', async ({ page }) => {
 	await expect(marker).not.toHaveAttribute('cx', before!);
 });
 
+test('the filter bar only offers what the current view uses', async ({ page }) => {
+	await demo(page);
+	await expect(page.getByRole('button', { name: 'Display' })).toBeVisible();
+	await page.getByRole('button', { name: 'Table', exact: true }).click();
+	await expect(page.getByRole('button', { name: 'Display' })).toHaveCount(0);
+	await expect(page.getByRole('radiogroup', { name: 'X', exact: true })).toHaveCount(0);
+	await expect(page.getByRole('button', { name: /^Data/ })).toBeVisible();
+});
+
 test('focus view explains the value and lists profile specific references', async ({ page }) => {
 	await demo(page);
 	await page.goto('/analyte/estradiol');
 	await expect(page.getByRole('heading', { level: 1, name: /Estradiol/ })).toBeVisible();
 	await expect(page.getByRole('row', { name: /HRT target \(Endocrine Society, WPATH\)/ })).toBeVisible();
 	await expect(page.getByRole('row', { name: /Monotherapy suppression zone/ })).toBeVisible();
+
+	// LH has no guideline target, the trans cohort range stands in
+	await page.goto('/analyte/lh');
+	await expect(page.getByRole('row', { name: /Trans women on HRT/ })).toBeVisible();
 
 	// Masculinizing targets belong to the other therapy and stay hidden
 	await page.goto('/analyte/testosterone');
@@ -86,7 +99,7 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
 	await expect(page.getByRole('radio', { name: 'None' })).toBeChecked();
 	await page.getByRole('button', { name: 'Create profile' }).click();
-	await page.getByRole('link', { name: /Type them in/ }).click();
+	await page.getByRole('link', { name: /Add results by hand/ }).click();
 
 	await page.getByLabel('Date of the blood draw').fill('2025-05-01');
 

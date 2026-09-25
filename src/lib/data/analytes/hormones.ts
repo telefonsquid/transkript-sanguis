@@ -331,6 +331,7 @@ export const hormones: Analyte[] = [
 		decimals: 1,
 		group: 'hormones',
 		scale: 'log',
+		primary: { feminizing: 'trans-f', masculinizing: 'trans-m' },
 		related: ['fsh', 'testosterone', 'estradiol'],
 		info: {
 			en: {
@@ -351,6 +352,18 @@ export const hormones: Analyte[] = [
 			}
 		},
 		refs: [
+			transWomen([undefined, 40], 'greene2021-tw', {
+				note: T(
+					'On estrogen for 12 months or more, whatever the regimen or draw timing. Describes the cohort, not a target. With spironolactone up to 14, on estrogen alone up to 41. Roche immunoassay, the lower limit sits at the assay floor (0.09) and is left open.',
+					'Mindestens 12 Monate Östrogen, unabhängig von Therapieschema und Abnahmezeitpunkt. Beschreibt die Kohorte, kein Ziel. Mit Spironolacton bis 14, mit Östrogen allein bis 41. Roche-Immunoassay, die Untergrenze liegt an der Messgrenze (0,09) und bleibt offen.'
+				)
+			}),
+			transMen([undefined, 42], 'greene2021-tm', {
+				note: T(
+					'On testosterone for 12 months or more. Roche immunoassay, the lower limit lies below what the assay measures (<0.1) and is left open.',
+					'Mindestens 12 Monate Testosteron. Roche-Immunoassay, die Untergrenze liegt unter der Messgrenze (<0,1) und bleibt offen.'
+				)
+			}),
 			male([1.7, 8.6], 'roche-lh'),
 			female([2.4, 12.6], 'roche-lh', { id: 'female-follicular', label: T('Cis women, follicular phase', 'Cis Frauen, Follikelphase') }),
 			female([14, 95.6], 'roche-lh', { id: 'female-ovulation', label: T('Cis women, ovulation', 'Cis Frauen, Ovulation') }),
@@ -371,6 +384,7 @@ export const hormones: Analyte[] = [
 		decimals: 1,
 		group: 'hormones',
 		scale: 'log',
+		primary: { feminizing: 'trans-f', masculinizing: 'trans-m' },
 		related: ['lh', 'estradiol', 'amh'],
 		info: {
 			en: {
@@ -389,6 +403,13 @@ export const hormones: Analyte[] = [
 			}
 		},
 		refs: [
+			transWomen([undefined, 60], 'greene2021-tw', {
+				note: T(
+					'On estrogen for 12 months or more, whatever the regimen or draw timing. Describes the cohort, not a target. With spironolactone up to 14, on estrogen alone up to 80. Roche immunoassay, the lower limit sits at the assay floor (0.09) and is left open.',
+					'Mindestens 12 Monate Östrogen, unabhängig von Therapieschema und Abnahmezeitpunkt. Beschreibt die Kohorte, kein Ziel. Mit Spironolacton bis 14, mit Östrogen allein bis 80. Roche-Immunoassay, die Untergrenze liegt an der Messgrenze (0,09) und bleibt offen.'
+				)
+			}),
+			transMen([0.3, 28], 'greene2021-tm', { note: T('On testosterone for 12 months or more. Roche immunoassay.', 'Mindestens 12 Monate Testosteron. Roche-Immunoassay.') }),
 			male([1.5, 12.4], 'roche-lh'),
 			female([3.5, 12.5], 'roche-lh', { id: 'female-follicular', label: T('Cis women, follicular phase', 'Cis Frauen, Follikelphase') }),
 			female([4.7, 21.5], 'roche-lh', { id: 'female-ovulation', label: T('Cis women, ovulation', 'Cis Frauen, Ovulation') }),
@@ -433,7 +454,7 @@ export const hormones: Analyte[] = [
 			}
 		},
 		refs: [
-			transWomen([4.9, 32], 'greene2021-tw', { note: T('On estrogen for 12 months or more, mostly with spironolactone.', 'Mindestens 12 Monate Östrogen, überwiegend mit Spironolacton.') }),
+			transWomen([4.9, 32], 'greene2021-tw', { note: T('On estrogen for 12 months or more, a third of them with spironolactone.', 'Mindestens 12 Monate Östrogen, ein Drittel davon mit Spironolacton.') }),
 			transWomen([4.7, 48.1], 'boekhout2023', {
 				id: 'trans-f-cpa',
 				label: T('Trans women after 12 months (Amsterdam)', 'Trans Frauen nach 12 Monaten (Amsterdam)'),
@@ -477,7 +498,7 @@ export const hormones: Analyte[] = [
 			}
 		},
 		refs: [
-			transWomen([0.1, 3.1], 'greene2021-tw', { note: T('On estrogen for 12 months or more. Progesterone use in the cohort not reported separately.', 'Mindestens 12 Monate Östrogen. Progesteron-Einnahme in der Kohorte nicht getrennt berichtet.') }),
+			transWomen([0.1, 3.1], 'greene2021-tw', { note: T('On estrogen for 12 months or more, 11 of the 93 also took progesterone.', 'Mindestens 12 Monate Östrogen, 11 der 93 nahmen zusätzlich Progesteron.') }),
 			transMen([0.1, 0.5], 'greene2021-tm', { note: T('On testosterone for 12 months or more.', 'Mindestens 12 Monate Testosteron.') }),
 			female([undefined, 0.193], 'roche-prog', { id: 'female-follicular', label: T('Cis women, follicular phase', 'Cis Frauen, Follikelphase') }),
 			female([0.055, 4.14], 'roche-prog', { id: 'female-ovulation', label: T('Cis women, ovulation', 'Cis Frauen, Ovulation') }),

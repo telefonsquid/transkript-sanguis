@@ -3,14 +3,13 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
+	import TherapyName from '#lib/components/TherapyName.svelte';
 	import type { Profile } from '#lib/data/types.js';
 	import { t } from '#lib/i18n/index.js';
-	import { createProfile, db, deleteProfile, resetDemo, setActive } from '#lib/profiles.svelte.js';
+	import { createProfile, db, deleteProfile, lists, resetDemo, setActive } from '#lib/profiles.svelte.js';
 	import Avatar from '#lib/ui/Avatar.svelte';
 
 	const adding = $derived(page.url.searchParams.has('new'));
-	const own = $derived(db.profiles.filter((p) => !p.demo));
-	const demos = $derived(db.profiles.filter((p) => p.demo));
 
 	function openData(p: Profile) {
 		setActive(p.id);
@@ -54,9 +53,9 @@
 
 	<section class="space-y-3">
 		<h2 class="label">{t.profile.own}</h2>
-		{#if own.length}
+		{#if lists.own.length}
 			<ul class="divide-y divide-line rounded-xl border border-line bg-surface">
-				{#each own as p (p.id)}
+				{#each lists.own as p (p.id)}
 					{@render row(p)}
 				{/each}
 			</ul>
@@ -71,7 +70,7 @@
 			<p class="mt-1 text-xs text-ink-3">{t.profile.demosHint}</p>
 		</div>
 		<ul class="divide-y divide-dashed divide-line-strong rounded-xl border border-dashed border-line-strong">
-			{#each demos as p (p.id)}
+			{#each lists.demos as p (p.id)}
 				{@render row(p)}
 			{/each}
 		</ul>
@@ -83,7 +82,7 @@
 		<Avatar profile={p} size={32} />
 		<div class="min-w-0 flex-1">
 			<div class="truncate font-semibold">{p.name}</div>
-			<div class="text-xs text-ink-3">{t.profile.therapyShort[p.therapy]} · {t.profile.draws(p.draws.length)}</div>
+			<div class="text-xs text-ink-3"><TherapyName therapy={p.therapy} short />{` · ${t.profile.draws(p.draws.length)}`}</div>
 		</div>
 		<div class="flex flex-wrap items-center gap-2 text-xs">
 			{#if p.id === db.active}

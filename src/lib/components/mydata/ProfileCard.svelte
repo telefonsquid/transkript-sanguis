@@ -5,7 +5,9 @@
 	import { t } from '../../i18n';
 	import { current, db, deleteProfile, resetDemo, type NewProfile } from '../../profiles.svelte';
 	import Avatar from '../../ui/Avatar.svelte';
+	import DemoBadge from '../DemoBadge.svelte';
 	import ProfileForm from '../ProfileForm.svelte';
+	import { TINT } from '../TherapyName.svelte';
 
 	let { profile }: { profile: Profile } = $props();
 
@@ -20,8 +22,8 @@
 	});
 	const storageKb = $derived(Math.round(JSON.stringify(db).length / 1024));
 
-	const facts = $derived([
-		{ label: t.profile.therapy, value: t.profile.therapies[profile.therapy] },
+	const facts = $derived<{ label: string; value?: string | number; hint?: string; tint?: string }[]>([
+		{ label: t.profile.therapy, value: t.profile.therapies[profile.therapy], tint: TINT[profile.therapy] },
 		{ label: t.profile.sex, value: profile.sex && t.profile.sexes[profile.sex] },
 		{ label: t.profile.born, value: profile.birth && (current.age === undefined ? profile.birth : `${profile.birth} · ${t.profile.age(Math.floor(current.age))}`) },
 		{ label: t.profile.heightShort, value: profile.height && `${profile.height} cm` },
@@ -51,7 +53,7 @@
 			<div class="label">{t.data.title}</div>
 			<div class="flex min-w-0 items-center gap-2">
 				<h1 id="profile-name" class="truncate text-2xl font-semibold tracking-tight">{profile.name}</h1>
-				{#if profile.demo}<span class="shrink-0 rounded border border-dashed border-ink-3 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-ink-2 uppercase">{t.profile.demoBadge}</span>{/if}
+				{#if profile.demo}<DemoBadge />{/if}
 			</div>
 			<p class="num mt-0.5 text-xs text-ink-3">
 				{t.profile.draws(profile.draws.length)} · {t.data.values(measured)}{span ? ` · ${span}` : ''} · {t.data.storage(storageKb)}
@@ -85,7 +87,7 @@
 			{#each facts as f (f.label)}
 				<div class="min-w-0">
 					<dt class="text-[11px] text-ink-3">{f.label}</dt>
-					<dd class={['mt-0.5 truncate text-sm', f.value ? 'font-medium text-ink' : 'text-ink-3']} title={!f.value && f.hint ? f.hint : undefined}>{f.value || t.common.notSet}</dd>
+					<dd class={['mt-0.5 truncate text-sm', f.value ? ['font-medium', f.tint || 'text-ink'] : 'text-ink-3']} title={!f.value && f.hint ? f.hint : undefined}>{f.value || t.common.notSet}</dd>
 				</div>
 			{/each}
 		</dl>

@@ -105,6 +105,16 @@ export function profileById(id: string | null | undefined): Profile | undefined 
 	return db.profiles.find((p) => p.id === id);
 }
 
+/** Own profiles in the order they were made, demos in their fixed order */
+export const lists = {
+	get own() {
+		return db.profiles.filter((p) => !p.demo);
+	},
+	get demos() {
+		return DEMO_IDS.map(profileById).filter((p) => p !== undefined);
+	}
+};
+
 export async function deleteProfile(id: string) {
 	if (profileById(id)?.demo) return;
 	db.profiles = db.profiles.filter((p) => p.id !== id);

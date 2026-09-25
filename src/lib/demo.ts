@@ -20,7 +20,7 @@ export function demoFeminizing(): Profile {
 	const f = 'female';
 	return {
 		id: 'demo-fem',
-		name: '[DEMO] Raven',
+		name: 'Raven',
 		created: new Date().toISOString(),
 		therapy: 'feminizing',
 		sex: 'male',
@@ -190,7 +190,7 @@ export function demoMasculinizing(): Profile {
 	const m = 'male';
 	return {
 		id: 'demo-masc',
-		name: '[DEMO] Sam',
+		name: 'Sam',
 		created: new Date().toISOString(),
 		therapy: 'masculinizing',
 		sex: 'female',
@@ -331,7 +331,7 @@ export function demoCisWoman(): Profile {
 	const f = 'female';
 	return {
 		id: 'demo-cis-f',
-		name: '[DEMO] Lena',
+		name: 'Lena',
 		created: new Date().toISOString(),
 		therapy: 'none',
 		sex: 'female',
@@ -484,7 +484,7 @@ export function demoCisMan(): Profile {
 	const m = 'male';
 	return {
 		id: 'demo-cis-m',
-		name: '[DEMO] Max',
+		name: 'Max',
 		created: new Date().toISOString(),
 		therapy: 'none',
 		sex: 'male',
@@ -629,9 +629,9 @@ export function demoCisMan(): Profile {
 	};
 }
 
-export const demoProfiles = (): Profile[] => [demoFeminizing(), demoMasculinizing(), demoCisWoman(), demoCisMan()];
+export const demoProfiles = (): Profile[] => [demoCisWoman(), demoCisMan(), demoFeminizing(), demoMasculinizing()];
 
-export const DEMO_IDS = ['demo-fem', 'demo-masc', 'demo-cis-f', 'demo-cis-m'];
+export const DEMO_IDS = ['demo-cis-f', 'demo-cis-m', 'demo-fem', 'demo-masc'];
 
 /** Raise when the demo data changes, stored copies are then replaced */
-export const DEMO_VERSION = 1;
+export const DEMO_VERSION = 2;

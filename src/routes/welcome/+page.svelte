@@ -4,7 +4,6 @@
 	import { resolve } from '$app/paths';
 	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
-	import { DEMO_IDS } from '#lib/demo.js';
 	import { t } from '#lib/i18n/index.js';
 	import { createProfile, current, db, setActive } from '#lib/profiles.svelte.js';
 
@@ -13,8 +12,9 @@
 
 	const step = $derived(!db.consent ? (medicalOk ? 'local' : 'medical') : !current.profile ? (creating ? 'profile' : 'choose') : 'ingest');
 
+	// The feminizing demo shows the most of what the app does
 	function demo() {
-		setActive(DEMO_IDS[0]);
+		setActive('demo-fem');
 		goto(resolve('/'));
 	}
 </script>

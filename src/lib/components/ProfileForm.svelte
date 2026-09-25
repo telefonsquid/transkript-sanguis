@@ -3,6 +3,7 @@
 	import type { Sex, Therapy } from '../data/types';
 	import { t } from '../i18n';
 	import type { NewProfile } from '../profiles.svelte';
+	import { TINT } from './TherapyName.svelte';
 
 	interface Props {
 		initial?: Partial<NewProfile>;
@@ -50,6 +51,10 @@
 	}
 
 	const input = 'h-9 w-full rounded-md border-line bg-surface px-2.5 text-sm';
+
+	// The chosen therapy card wears its flag colour
+	const picked = { none: 'border-ink bg-surface-2', feminizing: 'border-fem-ink bg-fem/15', masculinizing: 'border-masc-ink bg-masc/15' };
+	const dot = { none: 'checked:bg-ink', feminizing: 'checked:bg-fem-ink', masculinizing: 'checked:bg-masc-ink' };
 </script>
 
 <form onsubmit={submit} class="grid gap-5" novalidate>
@@ -63,9 +68,9 @@
 		<legend class="mb-1 text-sm font-medium">{t.profile.therapy}</legend>
 		<div class="grid gap-2 sm:grid-cols-3">
 			{#each ['none', 'feminizing', 'masculinizing'] as const as value (value)}
-				<label class={['flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3', therapy === value ? 'border-ink bg-surface-2' : 'border-line hover:bg-hover']}>
-					<span class="flex items-center gap-2 text-sm font-medium">
-						<input type="radio" name="therapy" {value} bind:group={therapy} class="border-line-strong text-ink" />
+				<label class={['flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3', therapy === value ? picked[value] : 'border-line hover:bg-hover']}>
+					<span class={['flex items-center gap-2 text-sm font-medium', TINT[value]]}>
+						<input type="radio" name="therapy" {value} bind:group={therapy} class={['border-line-strong', dot[value]]} />
 						{t.profile.therapies[value]}
 					</span>
 					<span class="pl-6 text-xs text-ink-3">{t.profile.therapyDesc[value]}</span>

@@ -158,15 +158,13 @@ export const en = {
 	ingest: {
 		title: 'Add results',
 		intro: 'Three ways to get a lab report in. All of them end in this browser only.',
-		manualTitle: 'Type them in',
-		manualShort: 'Pick values and type the numbers',
-		manualBody: 'Pick values from the catalogue and type what the report says. Best for a few values or a single report.',
-		agentTitle: 'Let an AI agent read the PDF',
+		manualTitle: 'Add results by hand',
+		agentTitle: 'Automated AI transcription',
 		agentShort: 'ChatGPT, Claude & co. read your PDFs',
 		agentBody: 'Copy our instructions into ChatGPT, Claude or any other assistant together with your PDFs, then paste the JSON it returns.',
 		importTitle: 'Import a file',
-		importShort: 'A backup or an agent’s JSON',
-		importBody: 'An export from this app (for example from another device) or a JSON file an agent produced.'
+		importShort: 'A backup or an AI’s JSON',
+		importBody: 'An export from this app (for example from another device) or a JSON file an AI produced.'
 	},
 	manual: {
 		title: 'Enter results',
@@ -399,7 +397,7 @@ export const en = {
 		resetAll: 'Reset every setting'
 	},
 	basis: {
-		primary: 'Best fit for this profile',
+		primary: 'Best fit',
 		lab: 'Lab range (as printed)',
 		target: 'HRT target',
 		trans: 'Trans cohort on HRT',

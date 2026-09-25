@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import ImportPreview from '#lib/components/ImportPreview.svelte';
 	import JsonInput from '#lib/components/JsonInput.svelte';
+	import { TINT } from '#lib/components/TherapyName.svelte';
 	import type { Profile } from '#lib/data/types.js';
 	import { deleteProfileFiles } from '#lib/files.js';
 	import { t } from '#lib/i18n/index.js';
@@ -74,7 +75,7 @@
 				{#each backup.profiles as p (p.id)}
 					<li class="flex flex-wrap items-center gap-3 py-2">
 						<span class="font-medium">{p.name}</span>
-						<span class="text-xs text-ink-3">{t.profile.therapyShort[p.therapy] ?? ''} · {t.profile.draws(p.draws?.length ?? 0)}</span>
+						<span class="text-xs text-ink-3"><span class={TINT[p.therapy]}>{t.profile.therapyShort[p.therapy] ?? ''}</span>{` · ${t.profile.draws(p.draws?.length ?? 0)}`}</span>
 						{#if profileById(p.id)}
 							<select bind:value={replace[p.id]} class="ml-auto h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs">
 								<option value={false}>{t.io.existsKeep}</option>

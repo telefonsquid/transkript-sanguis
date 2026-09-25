@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { BASES, KIND_ORDER } from '../analysis';
 	import { t } from '../i18n';
 	import { current } from '../profiles.svelte';
@@ -7,6 +8,10 @@
 	import Segmented from '../ui/Segmented.svelte';
 
 	const CHECK = 'rounded border-line-strong bg-surface text-[var(--ref-target)] checked:bg-[var(--ref-target)] indeterminate:bg-[var(--ref-target)]';
+
+	// Axis, reference and display options only matter where charts are drawn
+	const view = $derived(page.route.id === '/analyte/[id]' ? 'focus' : settings.view);
+	const charts = $derived(view !== 'matrix' && view !== 'table');
 
 	const hasHrt = $derived(!!current.built.hrtStart);
 	const phases = $derived(current.built.phases);
@@ -38,7 +43,7 @@
 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
 	<div class="flex flex-wrap items-center gap-1.5">
 		<span class="label">{t.filters.dates}</span>
-		<div class="inline-flex flex-wrap rounded-md border border-line bg-surface p-0.5" role="radiogroup" aria-label={t.filters.dates}>
+		<div class="inline-flex h-7 rounded-md border border-line bg-surface p-0.5" role="radiogroup" aria-label={t.filters.dates}>
 			{#each datePresets as p (p.value)}
 				<button
 					type="button"
@@ -47,7 +52,7 @@
 					title={p.title}
 					onclick={() => applyDatePreset(p.value)}
 					class={[
-						'rounded-[5px] px-2 py-1 text-xs font-medium whitespace-nowrap',
+						'rounded-[5px] px-2 text-xs font-medium whitespace-nowrap',
 						settings.datePreset === p.value ? 'bg-ink text-surface' : 'text-ink-2 hover:bg-hover hover:text-ink'
 					]}>{p.label}</button
 				>
@@ -70,34 +75,36 @@
 		/>
 	</div>
 
-	<Segmented
-		label={t.filters.x}
-		bind:value={settings.xMode}
-		options={(['time', 'draws', 'points'] as const).map((value) => ({ value, label: t.filters.xModes[value], title: t.filters.xModeTitles[value] }))}
-	/>
-	{#if hasHrt}
+	{#if charts}
 		<Segmented
-			bind:value={settings.xLabel}
+			label={t.filters.x}
+			bind:value={settings.xMode}
+			options={(['time', 'draws', 'points'] as const).map((value) => ({ value, label: t.filters.xModes[value], title: t.filters.xModeTitles[value] }))}
+		/>
+		{#if hasHrt}
+			<Segmented
+				bind:value={settings.xLabel}
+				options={[
+					{ value: 'date', label: t.filters.xLabels.date },
+					{ value: 'hrt', label: t.filters.xLabels.hrt, title: t.filters.xLabelHrtTitle }
+				]}
+			/>
+		{/if}
+
+		<Segmented
+			label={t.filters.y}
+			bind:value={settings.yScale}
 			options={[
-				{ value: 'date', label: t.filters.xLabels.date },
-				{ value: 'hrt', label: t.filters.xLabels.hrt, title: t.filters.xLabelHrtTitle }
+				{ value: 'auto', label: t.filters.yScales.auto, title: t.filters.yAutoTitle },
+				{ value: 'linear', label: t.filters.yScales.linear },
+				{ value: 'log', label: t.filters.yScales.log }
 			]}
 		/>
+		<Segmented
+			bind:value={settings.yFit}
+			options={(['refs', 'data'] as const).map((value) => ({ value, label: t.filters.yFit[value], title: t.filters.yFitTitles[value] }))}
+		/>
 	{/if}
-
-	<Segmented
-		label={t.filters.y}
-		bind:value={settings.yScale}
-		options={[
-			{ value: 'auto', label: t.filters.yScales.auto, title: t.filters.yAutoTitle },
-			{ value: 'linear', label: t.filters.yScales.linear },
-			{ value: 'log', label: t.filters.yScales.log }
-		]}
-	/>
-	<Segmented
-		bind:value={settings.yFit}
-		options={(['refs', 'data'] as const).map((value) => ({ value, label: t.filters.yFit[value], title: t.filters.yFitTitles[value] }))}
-	/>
 
 	<Segmented
 		label={t.filters.units}
@@ -107,77 +114,89 @@
 
 	<label class="flex items-center gap-1.5">
 		<span class="label">{t.filters.judge}</span>
-		<select bind:value={settings.basis} class="h-7 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs font-medium text-ink">
+		<select bind:value={settings.basis} class="h-7 field-sizing-content rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs font-medium text-ink">
 			{#each BASES as value (value)}
 				<option {value}>{t.basis[value]}</option>
 			{/each}
 		</select>
 	</label>
 
-	<Popover label={t.filters.references} badge={hiddenKinds ? `−${hiddenKinds}` : undefined} title={t.filters.referencesTitle}>
-		<div class="space-y-1">
-			{#each KIND_ORDER as kind (kind)}
-				<label class="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-hover">
-					<input type="checkbox" checked={settings.kinds.includes(kind)} onchange={() => (settings.kinds = toggle(settings.kinds, kind))} class={CHECK} />
-					<span class="inline-block h-3 w-1 rounded-full" style:background="var(--ref-{kind})"></span>
-					<span class="text-ink">{t.kind[kind]}</span>
-				</label>
-			{/each}
-		</div>
-		<div class="mt-3 border-t border-line pt-3">
-			<Segmented
-				label={t.filters.fill}
-				size="sm"
-				bind:value={settings.bandFill}
-				options={[
-					{ value: 'primary', label: t.filters.fills.primary, title: t.filters.fillTitle },
-					{ value: 'all', label: t.filters.fills.all },
-					{ value: 'none', label: t.filters.fills.none }
-				]}
-			/>
-		</div>
-	</Popover>
+	{#if charts}
+		<Popover label={t.filters.references} badge={hiddenKinds ? `−${hiddenKinds}` : undefined} title={t.filters.referencesTitle}>
+			<div class="space-y-1">
+				{#each KIND_ORDER as kind (kind)}
+					<label class="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-hover">
+						<input type="checkbox" checked={settings.kinds.includes(kind)} onchange={() => (settings.kinds = toggle(settings.kinds, kind))} class={CHECK} />
+						<span class="inline-block h-3 w-1 rounded-full" style:background="var(--ref-{kind})"></span>
+						<span class="text-ink">{t.kind[kind]}</span>
+					</label>
+				{/each}
+			</div>
+			<div class="mt-3 border-t border-line pt-3">
+				<Segmented
+					label={t.filters.fill}
+					size="sm"
+					bind:value={settings.bandFill}
+					options={[
+						{ value: 'primary', label: t.filters.fills.primary, title: t.filters.fillTitle },
+						{ value: 'all', label: t.filters.fills.all },
+						{ value: 'none', label: t.filters.fills.none }
+					]}
+				/>
+			</div>
+		</Popover>
+	{/if}
 
-	<Popover label={t.filters.display} title={t.filters.displayTitle}>
-		<div class="grid gap-2.5">
-			<Segmented
-				label={t.filters.labels}
-				size="sm"
-				bind:value={settings.labels}
-				options={(['none', 'last', 'extremes', 'all'] as const).map((value) => ({ value, label: t.filters.labelModes[value] }))}
-			/>
-			<Segmented
-				label={t.filters.line}
-				size="sm"
-				bind:value={settings.curve}
-				options={(['linear', 'step', 'monotone'] as const).map((value) => ({ value, label: t.filters.curves[value] }))}
-			/>
-			<Segmented
-				label={t.filters.cards}
-				size="sm"
-				bind:value={settings.cardSize}
-				options={[
-					{ value: 's', label: 'S' },
-					{ value: 'm', label: 'M' },
-					{ value: 'l', label: 'L' }
-				]}
-			/>
-			<Segmented
-				label={t.filters.sort}
-				size="sm"
-				bind:value={settings.sort}
-				options={(['group', 'name', 'count', 'status', 'recent'] as const).map((value) => ({ value, label: t.filters.sorts[value] }))}
-			/>
-			<label class="flex items-center gap-2 text-xs text-ink">
-				<input type="checkbox" bind:checked={settings.showPhases} class={CHECK} />
-				{t.filters.shadePhases}
-			</label>
-			<label class="flex items-center gap-2 text-xs text-ink">
-				<input type="checkbox" bind:checked={settings.showEvents} class={CHECK} />
-				{t.filters.phaseLines}
-			</label>
-		</div>
-	</Popover>
+	{#if view !== 'table'}
+		<Popover label={t.filters.display} title={t.filters.displayTitle}>
+			<div class="grid gap-2.5">
+				{#if charts}
+					<Segmented
+						label={t.filters.labels}
+						size="sm"
+						bind:value={settings.labels}
+						options={(['none', 'last', 'extremes', 'all'] as const).map((value) => ({ value, label: t.filters.labelModes[value] }))}
+					/>
+					<Segmented
+						label={t.filters.line}
+						size="sm"
+						bind:value={settings.curve}
+						options={(['linear', 'step', 'monotone'] as const).map((value) => ({ value, label: t.filters.curves[value] }))}
+					/>
+				{/if}
+				{#if view === 'grid'}
+					<Segmented
+						label={t.filters.cards}
+						size="sm"
+						bind:value={settings.cardSize}
+						options={[
+							{ value: 's', label: 'S' },
+							{ value: 'm', label: 'M' },
+							{ value: 'l', label: 'L' }
+						]}
+					/>
+				{/if}
+				{#if view === 'grid' || view === 'matrix'}
+					<Segmented
+						label={t.filters.sort}
+						size="sm"
+						bind:value={settings.sort}
+						options={(['group', 'name', 'count', 'status', 'recent'] as const).map((value) => ({ value, label: t.filters.sorts[value] }))}
+					/>
+				{/if}
+				{#if charts}
+					<label class="flex items-center gap-2 text-xs text-ink">
+						<input type="checkbox" bind:checked={settings.showPhases} class={CHECK} />
+						{t.filters.shadePhases}
+					</label>
+					<label class="flex items-center gap-2 text-xs text-ink">
+						<input type="checkbox" bind:checked={settings.showEvents} class={CHECK} />
+						{t.filters.phaseLines}
+					</label>
+				{/if}
+			</div>
+		</Popover>
+	{/if}
 
 	<Popover label={t.filters.data} badge={extraFilters} title={t.filters.dataTitle}>
 		<div class="grid gap-3 text-xs">

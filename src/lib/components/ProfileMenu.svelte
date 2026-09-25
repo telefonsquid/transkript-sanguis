@@ -2,29 +2,31 @@
 	import { resolve } from '$app/paths';
 	import type { Profile } from '../data/types';
 	import { t } from '../i18n';
-	import { current, db, setActive } from '../profiles.svelte';
+	import { current, db, lists, setActive } from '../profiles.svelte';
 	import Avatar from '../ui/Avatar.svelte';
 	import Popover from '../ui/Popover.svelte';
-
-	const own = $derived(db.profiles.filter((p) => !p.demo));
-	const demos = $derived(db.profiles.filter((p) => p.demo));
+	import DemoBadge from './DemoBadge.svelte';
+	import TherapyName from './TherapyName.svelte';
 
 	const link = 'block rounded px-2 py-1.5 text-ink-2 hover:bg-hover hover:text-ink';
 </script>
 
-<Popover label={current.profile?.name ?? t.profile.empty} title={t.profile.switch} align="right" variant="strong" compactLabel={!!current.profile} menu>
+<Popover label={current.profile?.name ?? t.profile.empty} title={t.profile.switch} align="right" variant="joined" compactLabel={!!current.profile} menu>
 	{#snippet icon()}
 		{#if current.profile}<Avatar profile={current.profile} size={20} />{/if}
 	{/snippet}
+	{#snippet trail()}
+		{#if current.profile?.demo}<DemoBadge />{/if}
+	{/snippet}
 	<div class="grid w-80 gap-0.5 text-xs">
-		{#if own.length}
+		{#if lists.own.length}
 			<div class="label px-2 pt-0.5 pb-1">{t.profile.own}</div>
 		{/if}
-		{#each own as p (p.id)}
+		{#each lists.own as p (p.id)}
 			{@render item(p)}
 		{/each}
-		<div class={['label px-2 pb-1', own.length ? 'mt-2 border-t border-line pt-2.5' : 'pt-0.5']}>{t.profile.demos}</div>
-		{#each demos as p (p.id)}
+		<div class={['label px-2 pb-1', lists.own.length ? 'mt-2 border-t border-line pt-2.5' : 'pt-0.5']}>{t.profile.demos}</div>
+		{#each lists.demos as p (p.id)}
 			{@render item(p)}
 		{/each}
 		<div class="mt-1 border-t border-line pt-1.5">
@@ -43,6 +45,6 @@
 	>
 		<Avatar profile={p} size={20} />
 		<span class="min-w-0 flex-1 truncate font-medium" title={p.name}>{p.name}</span>
-		<span class="shrink-0 text-right text-[11px] whitespace-nowrap text-ink-3">{t.profile.therapyShort[p.therapy]} · {t.profile.draws(p.draws.length)}</span>
+		<span class="shrink-0 text-right text-[11px] whitespace-nowrap text-ink-3"><TherapyName therapy={p.therapy} short />{` · ${t.profile.draws(p.draws.length)}`}</span>
 	</button>
 {/snippet}
