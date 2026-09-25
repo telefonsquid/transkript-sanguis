@@ -14,10 +14,10 @@ export const tx = (text: Text | undefined): string => (text ? (text[prefs.lang] 
 
 export const nameOf = (a: Analyte): string => tx(a.name);
 
-/** The name in the other language, when it adds something */
+/** The name in the second language, when it adds something */
 export function altNameOf(a: Analyte): string | undefined {
-	if (!prefs.altNames || a.custom) return undefined;
-	const other = a.name[prefs.lang === 'en' ? 'de' : 'en'];
+	if (!prefs.second || prefs.second === prefs.lang || a.custom) return undefined;
+	const other = a.name[prefs.second];
 	return other && other !== nameOf(a) ? other : undefined;
 }
 

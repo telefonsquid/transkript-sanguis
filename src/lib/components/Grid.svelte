@@ -36,7 +36,7 @@
 	{#if !current.built.measurements.length}
 		<div class="rounded-lg border border-dashed border-line-strong p-10 text-center text-sm text-ink-2">
 			<p class="mb-4">{t.grid.noData}</p>
-			<a href={resolve('/add')} class="inline-block rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-surface hover:opacity-90">{t.grid.addFirst}</a>
+			<a href={resolve('/data')} class="inline-block rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-surface hover:opacity-90">{t.grid.addFirst}</a>
 		</div>
 	{:else if !filtered.visible.length}
 		<div class="rounded-lg border border-dashed border-line-strong p-10 text-center text-sm text-ink-2">

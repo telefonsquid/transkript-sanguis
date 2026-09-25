@@ -147,7 +147,7 @@
 <form onsubmit={save} class="mx-auto max-w-5xl space-y-5 p-6" novalidate>
 	<header class="flex flex-wrap items-baseline justify-between gap-2">
 		<div>
-			<a href={editing ? resolve('/data') : resolve('/add')} class="text-xs text-ink-3 hover:text-ink">← {editing ? t.data.title : t.ingest.title}</a>
+			<a href={resolve('/data')} class="text-xs text-ink-3 hover:text-ink">← {t.data.title}</a>
 			<h1 class="text-2xl font-semibold tracking-tight">{editing ? t.manual.editTitle : t.manual.title}</h1>
 			{#if profile}<p class="text-xs text-ink-3">{t.profile.title}: <strong class="text-ink-2">{profile.name}</strong></p>{/if}
 		</div>

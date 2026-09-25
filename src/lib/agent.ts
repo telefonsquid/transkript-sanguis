@@ -1,3 +1,4 @@
+import { APP_NAME } from './app';
 import { analytes } from './data';
 import { DRAWS_FORMAT } from './io';
 
@@ -39,9 +40,9 @@ const EXAMPLE = {
 };
 
 export function agentInstructions(): string {
-	return `# Laborwerte: extract blood test results
+	return `# ${APP_NAME}: extract blood test results
 
-You get one or more laboratory reports as PDF or images. Extract every numeric result and answer with a single JSON document in the format below. The user imports it into Laborwerte, an app that runs only in their browser. They review everything before it is saved, so completeness and exact copying matter more than interpretation.
+You get one or more laboratory reports as PDF or images. Extract every numeric result and answer with a single JSON document in the format below. The user imports it into ${APP_NAME}, an app that runs only in their browser. They review everything before it is saved, so completeness and exact copying matter more than interpretation.
 
 ## Rules
 
@@ -80,7 +81,7 @@ export function importSchema() {
 	const ids = analytes.filter((a) => !APP_ONLY.has(a.id)).map((a) => a.id);
 	return {
 		$schema: 'https://json-schema.org/draft/2020-12/schema',
-		title: 'Laborwerte draws import',
+		title: `${APP_NAME} draws import`,
 		type: 'object',
 		required: ['format', 'version', 'draws'],
 		properties: {

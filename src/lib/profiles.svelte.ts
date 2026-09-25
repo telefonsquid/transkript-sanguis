@@ -1,6 +1,7 @@
+import { SLUG } from './app';
 import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, todayIso, type Built } from './data';
 import type { Analyte, CustomAnalyte, Draw, Phase, Profile, Sex, Therapy } from './data/types';
-import { demoProfile } from './demo';
+import { demoProfiles } from './demo';
 import { deleteProfileFiles } from './files';
 
 interface Db {
@@ -11,7 +12,7 @@ interface Db {
 	lastExport: string | null;
 }
 
-const KEY = 'laborwerte:db:v1';
+const KEY = `${SLUG}:db:v1`;
 
 function load(): Db {
 	const empty: Db = { profiles: [], active: null, consent: null, lastExport: null };
@@ -105,11 +106,11 @@ export async function deleteProfile(id: string) {
 	}
 }
 
-/** Adds a demo profile, replacing an earlier copy of the same one */
-export function loadDemo(kind: 'feminizing' | 'masculinizing') {
-	const demo = demoProfile(kind);
-	db.profiles = [...db.profiles.filter((p) => p.id !== demo.id), demo];
-	db.active = demo.id;
+/** Adds the demo profiles, replacing earlier copies of them */
+export function loadDemos(activate = true) {
+	const demos = demoProfiles();
+	db.profiles = [...db.profiles.filter((p) => !demos.some((d) => d.id === p.id)), ...demos];
+	if (activate || !profileById(db.active)) db.active = demos[0].id;
 }
 
 export function setActive(id: string) {

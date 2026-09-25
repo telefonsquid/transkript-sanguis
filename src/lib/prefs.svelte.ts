@@ -1,15 +1,16 @@
+import { SLUG } from './app';
 import type { Lang } from './data/types';
 
 export type Theme = 'system' | 'light' | 'dark';
 
 interface Prefs {
 	lang: Lang;
-	/** Show the analyte name in the other language next to the main one */
-	altNames: boolean;
+	/** Language shown next to the main one for analyte names */
+	second: Lang | null;
 	theme: Theme;
 }
 
-const KEY = 'laborwerte:prefs:v1';
+const KEY = `${SLUG}:prefs:v1`;
 
 function detectLang(): Lang {
 	try {
@@ -20,12 +21,14 @@ function detectLang(): Lang {
 }
 
 function load(): Prefs {
-	const defaults: Prefs = { lang: detectLang(), altNames: true, theme: 'system' };
+	const lang = detectLang();
+	const defaults: Prefs = { lang, second: lang === 'de' ? 'en' : 'de', theme: 'system' };
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+		const isLang = (v: unknown): v is Lang => v === 'de' || v === 'en';
 		return {
-			lang: saved.lang === 'de' || saved.lang === 'en' ? saved.lang : defaults.lang,
-			altNames: typeof saved.altNames === 'boolean' ? saved.altNames : defaults.altNames,
+			lang: isLang(saved.lang) ? saved.lang : defaults.lang,
+			second: isLang(saved.second) || saved.second === null ? saved.second : defaults.second,
 			theme: ['system', 'light', 'dark'].includes(saved.theme) ? saved.theme : defaults.theme
 		};
 	} catch {

@@ -1,3 +1,4 @@
+import { APP_NAME } from '../app';
 import type { Dict } from './en';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -5,7 +6,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 export const de: Dict = {
 	locale: 'de-DE',
 	app: {
-		name: 'Laborwerte',
+		name: APP_NAME,
 		tagline: 'Deine Blutwerte im Verlauf',
 		skip: 'Zum Inhalt springen'
 	},
@@ -45,8 +46,7 @@ export const de: Dict = {
 		matrix: 'Matrix',
 		table: 'Tabelle',
 		views: 'Ansichten',
-		data: 'Daten',
-		addData: 'Werte hinzufügen',
+		myData: 'Meine Daten',
 		profiles: 'Profile',
 		about: 'Über',
 		help: 'Tastenkürzel',
@@ -57,10 +57,12 @@ export const de: Dict = {
 		theme: { system: '◐ Auto', light: '○ Hell', dark: '● Dunkel' },
 		themeTitle: 'Design (d)',
 		language: 'Sprache',
-		altNames: 'Englische Namen',
-		altNamesTitle: 'Neben jedem deutschen Namen den englischen zeigen',
+		languageMain: 'App-Sprache',
+		languageSecond: 'Wertnamen zusätzlich auf',
+		languageSecondHint: 'Zeigt jeden Laborwert zusätzlich unter einem zweiten Namen, praktisch wenn deine Befunde eine andere Sprache nutzen.',
+		languageNone: 'Keine zweite Sprache',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'Abnahme', 'Abnahmen')} · ${plural(values, 'Wert', 'Werte')} · ${span}`,
-		storageError: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung auf der Datenseite.'
+		storageError: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.'
 	},
 	disclaimer: {
 		localTitle: 'Deine Daten bleiben auf diesem Gerät',
@@ -70,23 +72,31 @@ export const de: Dict = {
 		medicalBody:
 			'Die Erklärungen und Referenzbereiche stammen aus veröffentlichten Leitlinien, Studien und Methodenblättern der Testhersteller und sind bei jedem Wert zitiert. Sie dienen der allgemeinen Orientierung, nicht der Diagnose. Labore, Methoden und deine Situation unterscheiden sich: sprich mit deiner Ärztin oder deinem Arzt, bevor du etwas änderst.',
 		accept: 'Verstanden',
+		medicalPoints: [
+			'Bereiche und Erklärungen stammen aus veröffentlichten Leitlinien, Studien und Methodenblättern.',
+			'Sie dienen der Orientierung, nicht der Diagnose. Labore, Methoden und Körper unterscheiden sich.',
+			'Sprich mit deiner Ärztin oder deinem Arzt, bevor du etwas änderst.'
+		],
+		localPoints: [
+			'Alles, was du eingibst, bleibt nur in diesem Browser. Nichts wird jemals an den Server geschickt.',
+			'Keine Konten, kein Tracking, keine Analyse.',
+			'Wenn du die Browserdaten löschst, ist alles weg. Exportiere ab und zu eine Sicherung.'
+		],
 		footer: 'Nur in diesem Browser gespeichert · Keine medizinische Beratung',
 		agentPrivacy:
 			'Beim Agent-Weg gibst du deine PDFs einem KI-Assistenten deiner Wahl. Deine Dateien gehen dann an diesen Anbieter, nicht an diese App. Das Importformat enthält keine Namen oder Kennungen, und du kannst persönliche Angaben vor dem Hochladen schwärzen.'
 	},
 	welcome: {
-		title: 'Willkommen bei Laborwerte',
+		title: `Willkommen bei ${APP_NAME}`,
 		intro: 'Sammle deine Blutwerte, sieh sie im Verlauf und vergleiche sie mit recherchierten Referenzbereichen, auch mit Bereichen für Menschen unter Hormontherapie.',
-		step: (n: number, of: number) => `Schritt ${n} von ${of}`,
-		stepDisclaimers: 'Bevor du loslegst',
+		step: (n: number, of: number) => `${n} von ${of}`,
+		choose: 'Wie möchtest du anfangen?',
+		demoTitle: 'Demo ansehen',
+		demoBody: 'Vier erfundene Menschen mit Werten aus ein paar Jahren: unter feminisierender HRT, unter maskulinisierender HRT, eine cis Frau und ein cis Mann. Jederzeit löschbar.',
+		createTitle: 'Profil anlegen',
+		createBody: 'Starte mit deinen eigenen Werten. Tippe sie ein, lass einen KI-Agenten deine PDFs lesen oder importiere eine Sicherung.',
 		stepProfile: 'Profil anlegen',
 		stepIngest: 'Erste Werte hinzufügen',
-		continue: 'Weiter',
-		acceptBoth: 'Bitte bestätige beide Punkte, um fortzufahren.',
-		demoTitle: 'Erst mal umschauen?',
-		demoBody: 'Lade ein erfundenes Demo-Profil mit Werten aus ein paar Jahren. Du kannst es jederzeit löschen.',
-		demoFem: 'Demo: feminisierende HRT',
-		demoMasc: 'Demo: maskulinisierende HRT',
 		later: 'Später, erst mal zur leeren Übersicht'
 	},
 	profile: {
@@ -116,15 +126,17 @@ export const de: Dict = {
 		height: 'Größe (cm)',
 		heightHint: 'Nur für die Berechnung des BMI.',
 		hrtStart: 'HRT-Beginn',
-		hrtStartHint: 'Abnahmen vor diesem Datum gelten als Ausgangswerte. Spätere Dosisänderungen kannst du auf der Datenseite ergänzen.',
+		hrtStartHint: 'Abnahmen vor diesem Datum gelten als Ausgangswerte. Spätere Dosisänderungen kannst du unter Meine Daten ergänzen.',
 		approx: 'Datum ist ungefähr',
 		created: 'Profil angelegt',
 		deleteTitle: 'Profil löschen',
 		deleteBody: (name: string) => `„${name}“ mit allen Werten und angehängten PDFs aus diesem Browser löschen?`,
 		switch: 'Profil wechseln',
 		manage: 'Profile verwalten',
-		demo: 'Demo',
 		empty: 'Noch kein Profil',
+		rename: 'Umbenennen',
+		loadDemos: 'Demo-Profile hinzufügen',
+		loadDemosHint: 'Vier erfundene Menschen zum Ausprobieren. Erneutes Hinzufügen setzt sie zurück.',
 		count: (n: number) => plural(n, 'Profil', 'Profile'),
 		draws: (n: number) => plural(n, 'Blutabnahme', 'Blutabnahmen'),
 		save: 'Profil speichern',
@@ -134,15 +146,13 @@ export const de: Dict = {
 	},
 	ingest: {
 		title: 'Werte hinzufügen',
-		intro: 'Drei Wege, einen Laborbefund in die App zu bringen. Alle enden ausschließlich in diesem Browser.',
+		intro: 'Drei Wege, einen Laborbefund hineinzubekommen. Alle enden ausschließlich in diesem Browser.',
 		manualTitle: 'Selbst eintippen',
 		manualBody: 'Wähle Werte aus dem Katalog und tippe ab, was auf dem Befund steht. Ideal für wenige Werte oder einen einzelnen Befund.',
 		agentTitle: 'Einen KI-Agenten das PDF lesen lassen',
 		agentBody: 'Kopiere unsere Anleitung zusammen mit deinen PDFs in ChatGPT, Claude oder einen anderen Assistenten und füge das zurückgegebene JSON ein.',
 		importTitle: 'Datei importieren',
-		importBody: 'Ein Export aus dieser App (zum Beispiel von einem anderen Gerät) oder eine JSON-Datei von einem Agenten.',
-		demoTitle: 'Demo-Daten laden',
-		demoBody: 'Ein erfundenes Profil zum Ausprobieren.'
+		importBody: 'Ein Export aus dieser App (zum Beispiel von einem anderen Gerät) oder eine JSON-Datei von einem Agenten.'
 	},
 	manual: {
 		title: 'Werte eingeben',
@@ -216,7 +226,7 @@ export const de: Dict = {
 		check: 'Prüfen',
 		dropFile: 'oder Datei wählen',
 		invalidJson: 'Das ist kein gültiges JSON. Kopiere nur den Codeblock aus der Antwort.',
-		wrongFormat: 'Dieses JSON hat nicht das Laborwerte-Format.',
+		wrongFormat: `Dieses JSON hat nicht das ${APP_NAME}-Format.`,
 		preview: 'Vor dem Import prüfen',
 		previewIntro: 'Alle Werte, die der Assistent gefunden hat, dem Katalog zugeordnet. Korrigiere oder verwirf alles, was falsch aussieht.',
 		importInto: 'Importieren in',
@@ -257,7 +267,8 @@ export const de: Dict = {
 		neverExported: 'Noch nie exportiert'
 	},
 	data: {
-		title: 'Daten',
+		title: 'Meine Daten',
+		manage: 'Deine Werte',
 		draws: 'Blutabnahmen',
 		noDraws: 'Noch keine Werte.',
 		values: (n: number) => plural(n, 'Wert', 'Werte'),
@@ -392,9 +403,9 @@ export const de: Dict = {
 		search: 'Werte suchen',
 		searchHint: 'Deutscher oder englischer Name, Abkürzung',
 		presets: 'Sammlungen',
-		onlyOut: 'Nur jemals auffällige Werte',
-		minPoints: 'Mindestens',
-		minPointsUnit: 'Werte',
+		onlyOut: 'Nur Werte mit Ergebnissen außerhalb des Bereichs',
+		onlyOutTitle: 'Mindestens ein Ergebnis im gewählten Zeitraum liegt über oder unter dem Bereich, an dem es gemessen wird',
+		minPoints: 'Mindestanzahl Ergebnisse pro Wert',
 		groups: 'Gruppen',
 		only: 'nur',
 		onlyTitle: 'Nur diesen zeigen',
@@ -571,7 +582,7 @@ export const de: Dict = {
 	},
 	about: {
 		title: 'Über & Quellen',
-		intro: 'Laborwerte zeigt Blutwerte im Verlauf und stellt sie neben recherchierte Referenzbereiche. Gebaut für Menschen unter Hormontherapie, die auf ihren Befunden selten passende Bereiche finden, und genauso nutzbar für alle anderen.',
+		intro: `${APP_NAME} zeigt Blutwerte im Verlauf und stellt sie neben recherchierte Referenzbereiche. Gebaut für Menschen unter Hormontherapie, die auf ihren Befunden selten passende Bereiche finden, und genauso nutzbar für alle anderen.`,
 		howTitle: 'Wie Referenzen funktionieren',
 		how: 'Jeder Wert kann mehrere Referenzen tragen: den Bereich deines Labors, HRT-Ziele aus Leitlinien, Bereiche von trans Menschen unter stabiler HRT, klinische Grenzwerte sowie cis weibliche und cis männliche Bereiche von Testherstellern oder großen Laboren. „Beste Wahl“ nimmt die passende für das aktive Profil, jede Auswahl lässt sich ändern.',
 		catalogue: 'Katalog',

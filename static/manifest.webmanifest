@@ -1,6 +1,6 @@
 {
-	"name": "Laborwerte",
-	"short_name": "Laborwerte",
+	"name": "Transkript Sanguis",
+	"short_name": "Sanguis",
 	"description": "Blood test results over time, with researched reference ranges. Stored only on this device.",
 	"start_url": "./",
 	"scope": "./",

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { SLUG } from '../app';
 	import { boundsFor, convert, fmtBounds, fmtDate, fmtNum, fmtValue, monthsOnHrt, phaseName, statusOf, unitOf } from '../analysis';
 	import { groupById } from '../data';
 	import type { Measurement } from '../data/types';
@@ -82,11 +83,11 @@
 		const recs = rows.map((r) => record(r.m));
 		const head = Object.keys(recs[0] ?? {});
 		const body = recs.map((r) => head.map((k) => csvCell(r[k as keyof typeof r])).join(','));
-		download(`laborwerte-${settings.units}.csv`, [head.join(','), ...body].join('\n'), 'text/csv');
+		download(`${SLUG}-${settings.units}.csv`, [head.join(','), ...body].join('\n'), 'text/csv');
 	}
 
 	function exportJson() {
-		download(`laborwerte-${settings.units}.json`, JSON.stringify(rows.map((r) => record(r.m)), null, 2), 'application/json');
+		download(`${SLUG}-${settings.units}.json`, JSON.stringify(rows.map((r) => record(r.m)), null, 2), 'application/json');
 	}
 
 	const headers = $derived<{ key?: Key; label: string; right?: boolean }[]>([

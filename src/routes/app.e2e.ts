@@ -11,35 +11,49 @@ function watchErrors(page: Page) {
 async function onboard(page: Page) {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/welcome$/);
-	for (const box of await page.getByLabel('I understand').all()) await box.check();
-	await page.getByRole('button', { name: 'Continue' }).click();
+	await expect(page.getByRole('heading', { name: 'This is not medical advice' })).toBeVisible();
+	await page.getByRole('button', { name: 'I understand' }).click();
+	await expect(page.getByRole('heading', { name: 'Your data stays on this device' })).toBeVisible();
+	await page.getByRole('button', { name: 'I understand' }).click();
+}
+
+async function demo(page: Page) {
+	await onboard(page);
+	await page.getByRole('button', { name: /View demo/ }).click();
+	await expect(page).toHaveURL(/\/$/);
 }
 
 test.beforeEach(async ({ page }) => {
 	await page.addInitScript(() => {
 		if (!sessionStorage.getItem('seeded')) {
 			localStorage.clear();
-			localStorage.setItem('laborwerte:prefs:v1', JSON.stringify({ lang: 'en' }));
+			localStorage.setItem('transkript-sanguis:prefs:v1', JSON.stringify({ lang: 'en', second: 'de' }));
 			sessionStorage.setItem('seeded', '1');
 		}
 	});
 });
 
-test('first visit asks for consent, then a profile, and the demo fills the dashboard', async ({ page }) => {
+test('first visit shows both disclaimers, then the demo fills the dashboard', async ({ page }) => {
 	const errors = watchErrors(page);
-	await onboard(page);
-	await expect(page.getByRole('heading', { name: 'Create a profile' })).toBeVisible();
-
-	await page.getByRole('button', { name: 'Demo: feminizing HRT' }).click();
-	await expect(page).toHaveURL(/\/$/);
+	await demo(page);
 	await expect(page.getByRole('heading', { name: /Sex hormones/ })).toBeVisible();
 	expect(await page.locator('svg[aria-roledescription="chart"]').count()).toBeGreaterThan(30);
+
+	await page.getByRole('button', { name: '[DEMO] Raven' }).click();
+	for (const name of ['[DEMO] Sam', '[DEMO] Lena', '[DEMO] Max']) await expect(page.getByRole('button', { name })).toBeVisible();
 	expect(errors).toEqual([]);
 });
 
+test('chart markers follow the x axis mode', async ({ page }) => {
+	await demo(page);
+	const marker = page.locator('main svg[aria-roledescription="chart"]').first().locator('circle[stroke="var(--surface)"]').nth(2);
+	const before = await marker.getAttribute('cx');
+	await page.getByRole('radio', { name: 'Draws' }).click();
+	await expect(marker).not.toHaveAttribute('cx', before!);
+});
+
 test('focus view explains the value and lists profile specific references', async ({ page }) => {
-	await onboard(page);
-	await page.getByRole('button', { name: 'Demo: feminizing HRT' }).click();
+	await demo(page);
 	await page.goto('/analyte/estradiol');
 	await expect(page.getByRole('heading', { level: 1, name: /Estradiol/ })).toBeVisible();
 	await expect(page.getByRole('row', { name: /HRT target \(Endocrine Society, WPATH\)/ })).toBeVisible();
@@ -52,7 +66,9 @@ test('focus view explains the value and lists profile specific references', asyn
 
 test('a manually entered draw is stored and charted', async ({ page }) => {
 	await onboard(page);
+	await page.getByRole('button', { name: /Create profile/ }).click();
 	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
+	await expect(page.getByRole('radio', { name: 'None' })).toBeChecked();
 	await page.getByRole('button', { name: 'Create profile' }).click();
 	await page.getByRole('link', { name: /Type them in/ }).click();
 
@@ -67,10 +83,11 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 });
 
 test('the interface switches to German', async ({ page }) => {
-	await onboard(page);
-	await page.getByRole('button', { name: 'Demo: masculinizing HRT' }).click();
-	await page.getByRole('radio', { name: 'Deutsch' }).click();
+	await demo(page);
+	await page.getByRole('button', { name: 'EN + DE' }).click();
+	await page.getByRole('radiogroup', { name: 'App language' }).getByRole('radio', { name: 'Deutsch' }).check();
 	await expect(page.getByRole('heading', { name: /Sexualhormone/ })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'DE + EN' })).toBeVisible();
 	await expect(page.getByText('Nur in diesem Browser gespeichert', { exact: false })).toBeVisible();
 });
 
@@ -79,6 +96,6 @@ test('agent instructions and schema are served as static files', async ({ reques
 	expect(md.ok()).toBe(true);
 	expect(await md.text()).toContain('| estradiol |');
 
-	const schema = await request.get('/laborwerte-import.schema.json');
-	expect((await schema.json()).properties.format.const).toBe('laborwerte/draws');
+	const schema = await request.get('/import-schema.json');
+	expect((await schema.json()).properties.format.const).toBe('transkript-sanguis/draws');
 });

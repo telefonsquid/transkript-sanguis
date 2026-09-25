@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { fmtDate, fmtIso, fmtNum } from '#lib/analysis.js';
+	import { SLUG } from '#lib/app.js';
+	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import { runChecks } from '#lib/checks.js';
 	import { toTime } from '#lib/data/index.js';
 	import type { Draw } from '#lib/data/types.js';
@@ -27,7 +29,7 @@
 		const list = all ? db.profiles : [profile];
 		const file = await buildExport($state.snapshot(list), withPdfs);
 		const stamp = new Date().toISOString().slice(0, 10);
-		download(`laborwerte-${all ? 'backup' : profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${stamp}.json`, JSON.stringify(file, null, 1));
+		download(`${SLUG}-${all ? 'backup' : profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${stamp}.json`, JSON.stringify(file, null, 1));
 		db.lastExport = new Date().toISOString();
 		exporting = false;
 	}
@@ -73,8 +75,13 @@
 			<h1 class="text-2xl font-semibold tracking-tight">{t.data.title}</h1>
 			{#if profile}<p class="text-xs text-ink-3">{t.profile.title}: <strong class="text-ink-2">{profile.name}</strong> · {t.data.storage(storageKb)}</p>{/if}
 		</div>
-		<a href={resolve('/add')} class="rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-surface hover:opacity-90">+ {t.nav.addData}</a>
 	</header>
+
+	<section>
+		<h2 class="text-base font-semibold">{t.ingest.title}</h2>
+		<p class="mb-3 text-xs text-ink-2">{t.ingest.intro}</p>
+		<IngestChoices />
+	</section>
 
 	<section>
 		<h2 class="mb-2 text-base font-semibold">{t.data.draws}</h2>
@@ -115,7 +122,7 @@
 									{/if}
 								</td>
 								<td class="px-3 py-2 text-right whitespace-nowrap">
-									<a href="{resolve('/add/manual')}?draw={d.id}" class="rounded-md border border-line px-2 py-0.5 hover:bg-surface-3">{t.data.editDraw}</a>
+									<a href="{resolve('/data/manual')}?draw={d.id}" class="rounded-md border border-line px-2 py-0.5 hover:bg-surface-3">{t.data.editDraw}</a>
 									<button type="button" onclick={() => removeDraw(d)} class="ml-1 rounded-md border border-line px-2 py-0.5 text-[var(--critical)] hover:bg-surface-3">{t.common.delete}</button>
 								</td>
 							</tr>
@@ -138,7 +145,7 @@
 						<span class="font-medium">{a ? nameOf(a) : i.analyte}</span>
 						<span class="num">"{i.value}"{i.detail ? ` ${i.detail}` : ''}</span>
 						<span class="text-[var(--critical)]">{t.data.issueKind[i.kind]}</span>
-						<a href="{resolve('/add/manual')}?draw={i.drawId}" class="ml-auto underline">{t.data.editDraw}</a>
+						<a href="{resolve('/data/manual')}?draw={i.drawId}" class="ml-auto underline">{t.data.editDraw}</a>
 					</li>
 				{/each}
 			</ul>
@@ -236,7 +243,7 @@
 		<div class="rounded-lg border border-line bg-surface p-4">
 			<h2 class="text-base font-semibold">{t.io.importTitle}</h2>
 			<p class="mt-1 text-xs text-ink-2">{t.io.importBody}</p>
-			<a href={resolve('/add/import')} class="mt-3 inline-block rounded-md border border-line px-3 py-1.5 text-xs font-medium hover:bg-hover">{t.io.chooseFile}</a>
+			<a href={resolve('/data/import')} class="mt-3 inline-block rounded-md border border-line px-3 py-1.5 text-xs font-medium hover:bg-hover">{t.io.chooseFile}</a>
 		</div>
 	</section>
 </div>

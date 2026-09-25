@@ -6,11 +6,12 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import FilterBar from '#lib/components/FilterBar.svelte';
+	import LanguageMenu from '#lib/components/LanguageMenu.svelte';
 	import ProfileMenu from '#lib/components/ProfileMenu.svelte';
 	import Sidebar from '#lib/components/Sidebar.svelte';
 	import Timeline from '#lib/components/Timeline.svelte';
 	import { fmtDate } from '#lib/analysis.js';
-	import { LANGS, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
 	import { persistPrefs, prefs } from '#lib/prefs.svelte.js';
 	import { current, db, persistDb, storage } from '#lib/profiles.svelte.js';
 	import { persist, resetProfileFilters, settings, type View } from '#lib/state.svelte.js';
@@ -140,30 +141,10 @@
 				<span class="mx-1.5 h-5 w-px bg-line"></span>
 			{/if}
 			{#if db.profiles.length}
-				<a href={resolve('/add')} class={navLink(route.startsWith('/add'))}>{t.nav.addData}</a>
-				<a href={resolve('/data')} class={navLink(route === '/data')}>{t.nav.data}</a>
-			{/if}
-			<a href={resolve('/about')} class={navLink(route === '/about')}>{t.nav.about}</a>
-			{#if db.profiles.length}
+				<a href={resolve('/data')} class={navLink(route.startsWith('/data'))}>{t.nav.myData}</a>
 				<div class="ml-2"><ProfileMenu /></div>
 			{/if}
-			<div class="ml-2 inline-flex rounded-md border border-line bg-surface p-0.5" role="radiogroup" aria-label={t.nav.language}>
-				{#each LANGS as l (l.id)}
-					<button
-						type="button"
-						role="radio"
-						aria-checked={prefs.lang === l.id}
-						title={l.label}
-						aria-label={l.label}
-						onclick={() => (prefs.lang = l.id)}
-						class={['rounded-[5px] px-1.5 py-0.5 text-[11px] font-semibold uppercase', prefs.lang === l.id ? 'bg-ink text-surface' : 'text-ink-2 hover:bg-hover']}>{l.id}</button
-					>
-				{/each}
-			</div>
-			<label class="ml-1 flex items-center gap-1 text-[11px] text-ink-2" title={t.nav.altNamesTitle}>
-				<input type="checkbox" bind:checked={prefs.altNames} class="size-3.5 rounded border-line-strong bg-surface text-[var(--ref-target)] checked:bg-[var(--ref-target)]" />
-				{t.nav.altNames}
-			</label>
+			<div class="ml-2"><LanguageMenu /></div>
 			<button type="button" onclick={cycleTheme} title={t.nav.themeTitle} class="ml-2 rounded-md border border-line px-2 py-1 text-xs text-ink-2 hover:bg-hover hover:text-ink">
 				{t.nav.theme[prefs.theme]}
 			</button>

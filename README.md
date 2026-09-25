@@ -1,10 +1,10 @@
-# Laborwerte
+# Transkript Sanguis
 
 Your blood test results over time, next to researched reference ranges. Built for people on hormone therapy, who rarely find ranges that fit them on their lab reports, and useful for everyone else too.
 
 - **Stays on your device.** Everything is stored in your browser (localStorage, PDFs in IndexedDB). There is no backend, no account, no tracking. The content security policy blocks any connection to other servers.
 - **Not medical advice.** The explanations and ranges are collected from guidelines, studies and assay method sheets, cited on every value. Talk to your doctor before changing anything.
-- **English and German**, with the other language's lab names shown alongside if you like.
+- **English and German**, with value names in a second language alongside if you like.
 
 ## Features
 
@@ -14,6 +14,7 @@ Your blood test results over time, next to researched reference ranges. Built fo
 - Computed series: eGFR with both equations, eGFR from cystatin C, calculated free testosterone, free androgen index, non-HDL, HOMA-IR, transferrin saturation, BMI.
 - Views: overview grid, compare (normalised to % of range, index or z-score), matrix heatmap, sortable table with CSV and JSON export, a focus page per value.
 - X axis true to time or evenly spaced per draw, log or linear, conventional or SI units, filters by date range, lab, phase, group and preset.
+- Four made-up demo profiles (feminizing HRT, masculinizing HRT, a cis woman, a cis man) to look around first.
 - Three ways in: type results in, let an AI assistant read your PDFs and paste its JSON (instructions and schema built into the app), or import a backup. Values are stored exactly as printed and converted on the fly.
 - Consistency checks that recompute printed values (red cell indices, lipids, FAI, HbA1c, eGFR) to catch typos.
 - Installable and usable offline.
@@ -40,8 +41,8 @@ The image builds with bun and serves the files with an unprivileged nginx (SPA f
 ## Data formats
 
 - `/agent-instructions.md`: the prompt for AI assistants, generated from the catalogue.
-- `/laborwerte-import.schema.json`: JSON schema of the draws format (`laborwerte/draws`, version 1). It has no fields for names or other identifiers on purpose.
-- Backups use `laborwerte/export`, version 1: profiles and, optionally, the attached PDFs.
+- `/import-schema.json`: JSON schema of the draws format (`transkript-sanguis/draws`, version 1). It has no fields for names or other identifiers on purpose.
+- Backups use `transkript-sanguis/export`, version 1: profiles and, optionally, the attached PDFs.
 
 ## Development
 

@@ -64,9 +64,9 @@
 		<h2 class="mb-2 text-base font-semibold">{t.agent.title}</h2>
 		<p class="max-w-3xl text-ink-2">{t.ingest.agentBody}</p>
 		<div class="mt-2 flex flex-wrap gap-3 text-xs">
-			<a href={resolve('/add/agent')} class="underline">{t.agent.step1}</a>
+			<a href={resolve('/data/agent')} class="underline">{t.agent.step1}</a>
 			<a href={resolve('/agent-instructions.md')} class="underline" target="_blank">agent-instructions.md</a>
-			<a href={resolve('/laborwerte-import.schema.json')} class="underline" target="_blank">laborwerte-import.schema.json</a>
+			<a href={resolve('/import-schema.json')} class="underline" target="_blank">import-schema.json</a>
 		</div>
 	</section>
 

@@ -1,9 +1,11 @@
+import { APP_NAME } from '../app';
+
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 export const en = {
 	locale: 'en-GB',
 	app: {
-		name: 'Laborwerte',
+		name: APP_NAME,
 		tagline: 'Your blood tests, charted',
 		skip: 'Skip to content'
 	},
@@ -43,8 +45,7 @@ export const en = {
 		matrix: 'Matrix',
 		table: 'Table',
 		views: 'Views',
-		data: 'Data',
-		addData: 'Add results',
+		myData: 'My data',
 		profiles: 'Profiles',
 		about: 'About',
 		help: 'Keyboard shortcuts',
@@ -55,10 +56,12 @@ export const en = {
 		theme: { system: '◐ Auto', light: '○ Light', dark: '● Dark' },
 		themeTitle: 'Theme (d)',
 		language: 'Language',
-		altNames: 'German names',
-		altNamesTitle: 'Show the German lab name next to every English one',
+		languageMain: 'App language',
+		languageSecond: 'Value names also in',
+		languageSecondHint: 'Shows every lab value under a second name too, handy when your reports use another language.',
+		languageNone: 'No second language',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'draw', 'draws')} · ${plural(values, 'value', 'values')} · ${span}`,
-		storageError: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup on the Data page.'
+		storageError: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.'
 	},
 	disclaimer: {
 		localTitle: 'Your data stays on this device',
@@ -68,23 +71,31 @@ export const en = {
 		medicalBody:
 			'The explanations and reference ranges are collected from published guidelines, studies and lab method sheets, cited on every value. They are general orientation, not a diagnosis. Labs, methods and your situation differ: talk to your doctor before changing anything.',
 		accept: 'I understand',
+		medicalPoints: [
+			'Ranges and explanations are collected from published guidelines, studies and lab method sheets.',
+			'They give orientation, not a diagnosis. Labs, methods and bodies differ.',
+			'Talk to your doctor before changing anything.'
+		],
+		localPoints: [
+			'Everything you enter is stored only in this browser. Nothing is ever sent to the server.',
+			'No accounts, no tracking, no analytics.',
+			'Clearing your browser data deletes it, so export a backup now and then.'
+		],
 		footer: 'Stored only in this browser · Not medical advice',
 		agentPrivacy:
 			'The agent route means you hand your PDFs to an AI assistant of your choice. Your files then go to that provider, not to this app. The import format carries no names or identifiers, and you can black out personal details before uploading.'
 	},
 	welcome: {
-		title: 'Welcome to Laborwerte',
+		title: `Welcome to ${APP_NAME}`,
 		intro: 'Collect your blood test results, see them over time and compare them with researched reference ranges, including ranges for people on hormone therapy.',
-		step: (n: number, of: number) => `Step ${n} of ${of}`,
-		stepDisclaimers: 'Before you start',
+		step: (n: number, of: number) => `${n} of ${of}`,
+		choose: 'How do you want to start?',
+		demoTitle: 'View demo',
+		demoBody: 'Four made-up people with a few years of results: on feminizing HRT, on masculinizing HRT, a cis woman and a cis man. Delete them any time.',
+		createTitle: 'Create profile',
+		createBody: 'Start with your own results. Type them in, let an AI agent read your PDFs, or import a backup.',
 		stepProfile: 'Create a profile',
 		stepIngest: 'Add your first results',
-		continue: 'Continue',
-		acceptBoth: 'Please confirm both points to continue.',
-		demoTitle: 'Just looking around?',
-		demoBody: 'Load a made-up demo profile with a few years of results. You can delete it any time.',
-		demoFem: 'Demo: feminizing HRT',
-		demoMasc: 'Demo: masculinizing HRT',
 		later: 'Skip for now, go to the empty dashboard'
 	},
 	profile: {
@@ -114,15 +125,17 @@ export const en = {
 		height: 'Height (cm)',
 		heightHint: 'Only used to compute BMI.',
 		hrtStart: 'HRT start',
-		hrtStartHint: 'Draws before this date count as baseline. You can add later regimen changes on the data page.',
+		hrtStartHint: 'Draws before this date count as baseline. You can add later regimen changes under My data.',
 		approx: 'Date is approximate',
 		created: 'Profile created',
 		deleteTitle: 'Delete profile',
 		deleteBody: (name: string) => `Delete "${name}" with all its results and attached PDFs from this browser?`,
 		switch: 'Switch profile',
 		manage: 'Manage profiles',
-		demo: 'Demo',
 		empty: 'No profile yet',
+		rename: 'Rename',
+		loadDemos: 'Add demo profiles',
+		loadDemosHint: 'Four made-up people to explore the app with. Adding them again resets them.',
 		count: (n: number) => plural(n, 'profile', 'profiles'),
 		draws: (n: number) => plural(n, 'blood draw', 'blood draws'),
 		save: 'Save profile',
@@ -132,15 +145,13 @@ export const en = {
 	},
 	ingest: {
 		title: 'Add results',
-		intro: 'Three ways to get a lab report into the app. All of them end in this browser only.',
+		intro: 'Three ways to get a lab report in. All of them end in this browser only.',
 		manualTitle: 'Type them in',
 		manualBody: 'Pick values from the catalogue and type what the report says. Best for a few values or a single report.',
 		agentTitle: 'Let an AI agent read the PDF',
 		agentBody: 'Copy our instructions into ChatGPT, Claude or any other assistant together with your PDFs, then paste the JSON it returns.',
 		importTitle: 'Import a file',
-		importBody: 'An export from this app (for example from another device) or a JSON file an agent produced.',
-		demoTitle: 'Load demo data',
-		demoBody: 'A made-up profile to explore the app.'
+		importBody: 'An export from this app (for example from another device) or a JSON file an agent produced.'
 	},
 	manual: {
 		title: 'Enter results',
@@ -214,7 +225,7 @@ export const en = {
 		check: 'Check',
 		dropFile: 'or choose a file',
 		invalidJson: 'This is not valid JSON. Copy only the code block from the answer.',
-		wrongFormat: 'This JSON is not in the Laborwerte format.',
+		wrongFormat: `This JSON is not in the ${APP_NAME} format.`,
 		preview: 'Check before importing',
 		previewIntro: 'Every value the assistant found, matched to the catalogue. Fix or drop anything that looks wrong.',
 		importInto: 'Import into',
@@ -255,7 +266,8 @@ export const en = {
 		neverExported: 'Never exported'
 	},
 	data: {
-		title: 'Data',
+		title: 'My data',
+		manage: 'Your results',
 		draws: 'Blood draws',
 		noDraws: 'No results yet.',
 		values: (n: number) => plural(n, 'value', 'values'),
@@ -390,9 +402,9 @@ export const en = {
 		search: 'Search values',
 		searchHint: 'English or German name, abbreviation',
 		presets: 'Sets',
-		onlyOut: 'Only values ever out of range',
-		minPoints: 'At least',
-		minPointsUnit: 'values',
+		onlyOut: 'Only values with results outside the range',
+		onlyOutTitle: 'At least one result in the selected dates lies above or below the range it is judged against',
+		minPoints: 'Minimum results per value',
 		groups: 'Groups',
 		only: 'only',
 		onlyTitle: 'Show only this',
@@ -569,7 +581,7 @@ export const en = {
 	},
 	about: {
 		title: 'About & sources',
-		intro: 'Laborwerte charts blood test results over time and puts them next to researched reference ranges. It is built for people on hormone therapy, who rarely find ranges that fit them on their lab reports, and works for everyone else too.',
+		intro: `${APP_NAME} charts blood test results over time and puts them next to researched reference ranges. It is built for people on hormone therapy, who rarely find ranges that fit them on their lab reports, and works for everyone else too.`,
 		howTitle: 'How references work',
 		how: 'Every value can carry several reference contexts: the range your lab printed, HRT targets from guidelines, ranges measured in trans people on stable HRT, clinical cutoffs, and cis female and cis male ranges from assay manufacturers or large labs. "Best fit" picks the one that suits the active profile, and every choice can be changed.',
 		catalogue: 'Catalogue',

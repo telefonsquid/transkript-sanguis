@@ -2,8 +2,9 @@
  * PDFs attached to reports, kept in IndexedDB because localStorage is too small for them.
  * Keyed by profile and report id, nothing here ever leaves the browser.
  */
+import { SLUG } from './app';
 
-const DB = 'laborwerte-files';
+const DB = `${SLUG}-files`;
 const STORE = 'files';
 
 let opening: Promise<IDBDatabase> | undefined;

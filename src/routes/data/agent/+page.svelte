@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { agentInstructions, importSchema } from '#lib/agent.js';
+	import { SLUG } from '#lib/app.js';
 	import ImportPreview from '#lib/components/ImportPreview.svelte';
 	import JsonInput from '#lib/components/JsonInput.svelte';
 	import { t } from '#lib/i18n/index.js';
@@ -34,7 +35,7 @@
 
 <div class="mx-auto max-w-5xl space-y-4 p-6">
 	<header>
-		<a href={resolve('/add')} class="text-xs text-ink-3 hover:text-ink">← {t.ingest.title}</a>
+		<a href={resolve('/data')} class="text-xs text-ink-3 hover:text-ink">← {t.data.title}</a>
 		<h1 class="text-2xl font-semibold tracking-tight">{t.agent.title}</h1>
 		<p class="mt-1 max-w-3xl text-sm text-ink-2">{t.agent.intro}</p>
 	</header>
@@ -47,8 +48,8 @@
 			<p class="text-sm text-ink-2">{t.agent.step1Body}</p>
 			<div class="flex flex-wrap gap-2">
 				<button type="button" onclick={copy} class="rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-surface hover:opacity-90">{copied ? `✓ ${t.common.copied}` : t.agent.copyPrompt}</button>
-				<button type="button" onclick={() => download('laborwerte-agent-instructions.md', agentInstructions(), 'text/markdown')} class="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-hover">{t.agent.downloadPrompt}</button>
-				<button type="button" onclick={() => download('laborwerte-import.schema.json', JSON.stringify(importSchema(), null, 2))} class="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-hover">{t.agent.downloadSchema}</button>
+				<button type="button" onclick={() => download(`${SLUG}-agent-instructions.md`, agentInstructions(), 'text/markdown')} class="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-hover">{t.agent.downloadPrompt}</button>
+				<button type="button" onclick={() => download(`${SLUG}-import-schema.json`, JSON.stringify(importSchema(), null, 2))} class="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-hover">{t.agent.downloadSchema}</button>
 			</div>
 		</section>
 
@@ -62,7 +63,7 @@
 			<p class="text-sm text-ink-2">{t.agent.step3Body}</p>
 			<JsonInput {onresult} />
 			{#if isBackup}
-				<p class="text-xs text-ink-2">{t.agent.isBackup} <a href={resolve('/add/import')} class="underline">{t.ingest.importTitle}</a></p>
+				<p class="text-xs text-ink-2">{t.agent.isBackup} <a href={resolve('/data/import')} class="underline">{t.ingest.importTitle}</a></p>
 			{/if}
 		</section>
 	{:else}

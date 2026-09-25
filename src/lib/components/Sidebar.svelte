@@ -109,20 +109,6 @@
 				>
 			{/each}
 		</div>
-
-		<div class="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-2">
-			<label class="flex items-center gap-1.5">
-				<input type="checkbox" bind:checked={settings.onlyOut} class={CHECK} />
-				{t.sidebar.onlyOut}
-			</label>
-			<label class="flex items-center gap-1.5">
-				{t.sidebar.minPoints}
-				<select bind:value={settings.minPoints} class="h-6 rounded border-line bg-surface py-0 pr-6 pl-1.5 text-xs">
-					{#each [1, 2, 3, 5] as n (n)}<option value={n}>{n}</option>{/each}
-				</select>
-				{t.sidebar.minPointsUnit}
-			</label>
-		</div>
 	</div>
 
 	<div class="min-h-0 flex-1 overflow-y-auto px-1.5 py-2">
@@ -181,6 +167,23 @@
 			<input type="checkbox" bind:checked={settings.showEmpty} class={CHECK} />
 			{t.sidebar.showEmpty}
 		</label>
+
+		<!-- Filters for the overview, a single value has nothing to filter -->
+		{#if !active}
+			<div class="space-y-1.5 border-t border-line pt-1.5 text-ink-2">
+				<label class="flex items-center gap-1.5" title={t.sidebar.onlyOutTitle}>
+					<input type="checkbox" bind:checked={settings.onlyOut} class={CHECK} />
+					{t.sidebar.onlyOut}
+				</label>
+				<label class="flex items-center justify-between gap-1.5">
+					{t.sidebar.minPoints}
+					<select bind:value={settings.minPoints} class="h-6 rounded border-line bg-surface py-0 pr-6 pl-1.5 text-[11px]">
+						{#each [1, 2, 3, 5] as n (n)}<option value={n}>{n}</option>{/each}
+					</select>
+				</label>
+			</div>
+		{/if}
+
 		<div class="flex items-center justify-between">
 			<span class="num">{t.sidebar.shown(filtered.visible.length, listed.length)}</span>
 			<button type="button" onclick={() => setSelection([])} class="hover:text-ink">{t.sidebar.selectNone}</button>

@@ -4,10 +4,11 @@
  */
 import { version } from '$app/env';
 import { assets, immutable, prerendered } from '$app/manifest';
+import { SLUG } from '#lib/app.js';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const CACHE = `laborwerte-${version}`;
+const CACHE = `${SLUG}-${version}`;
 
 // Manifest paths are relative to the base path, which is where this worker lives
 const url = (path: string) => new URL(path, sw.location.href).href;

@@ -60,7 +60,7 @@
 
 <div class="mx-auto max-w-5xl space-y-4 p-6">
 	<header>
-		<a href={resolve('/add')} class="text-xs text-ink-3 hover:text-ink">← {t.ingest.title}</a>
+		<a href={resolve('/data')} class="text-xs text-ink-3 hover:text-ink">← {t.data.title}</a>
 		<h1 class="text-2xl font-semibold tracking-tight">{t.ingest.importTitle}</h1>
 		<p class="mt-1 max-w-3xl text-sm text-ink-2">{t.ingest.importBody}</p>
 	</header>

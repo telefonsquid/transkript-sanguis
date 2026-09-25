@@ -1,9 +1,10 @@
+import { SLUG } from './app';
 import { analytes, isIsoDate, parseValue, unitFactor } from './data';
 import type { Analyte, Draw, Profile, Result, Sex } from './data/types';
 import { fileKey, getFile, putFile } from './files';
 
-export const EXPORT_FORMAT = 'laborwerte/export';
-export const DRAWS_FORMAT = 'laborwerte/draws';
+export const EXPORT_FORMAT = `${SLUG}/export`;
+export const DRAWS_FORMAT = `${SLUG}/draws`;
 
 export function download(name: string, data: string | Blob, type = 'application/json') {
 	const blob = typeof data === 'string' ? new Blob([data], { type }) : data;

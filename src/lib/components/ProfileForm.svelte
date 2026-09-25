@@ -18,7 +18,7 @@
 	// Form fields start from the initial values and are edited locally until saved
 	const init = untrack(() => initial);
 	let name = $state(init.name ?? '');
-	let therapy: Therapy = $state(init.therapy ?? 'feminizing');
+	let therapy: Therapy = $state(init.therapy ?? 'none');
 	let sex: Sex | '' = $state(init.sex ?? '');
 	let birth = $state(init.birth ?? '');
 	let height = $state(init.height ? String(init.height) : '');
@@ -62,7 +62,7 @@
 	<fieldset class="grid gap-2">
 		<legend class="mb-1 text-sm font-medium">{t.profile.therapy}</legend>
 		<div class="grid gap-2 sm:grid-cols-3">
-			{#each ['feminizing', 'masculinizing', 'none'] as const as value (value)}
+			{#each ['none', 'feminizing', 'masculinizing'] as const as value (value)}
 				<label class={['flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3', therapy === value ? 'border-ink bg-surface-2' : 'border-line hover:bg-hover']}>
 					<span class="flex items-center gap-2 text-sm font-medium">
 						<input type="radio" name="therapy" {value} bind:group={therapy} class="border-line-strong text-ink" />

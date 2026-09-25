@@ -16,7 +16,6 @@
 				class={['flex items-baseline gap-2 rounded px-2 py-1.5 text-left', p.id === db.active ? 'bg-surface-3 text-ink' : 'text-ink-2 hover:bg-hover hover:text-ink']}
 			>
 				<span class="font-medium">{p.name}</span>
-				{#if p.demo}<span class="rounded bg-surface-2 px-1 text-[10px] text-ink-3">{t.profile.demo}</span>{/if}
 				<span class="ml-auto text-[11px] text-ink-3">{t.profile.therapyShort[p.therapy]} · {t.profile.draws(p.draws.length)}</span>
 			</button>
 		{/each}

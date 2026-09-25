@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "laborwerte",
+      "name": "transkript-sanguis",
       "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@fontsource-variable/inter": "^5.3.0",

@@ -1,3 +1,4 @@
+import { SLUG } from './app';
 import { boundsFor, isoDate, statusOf, type Basis, type Kind, type Units } from './analysis';
 import { groupOrder, toTime } from './data';
 import type { Analyte, GroupId, Measurement } from './data/types';
@@ -50,7 +51,7 @@ const defaults = {
 
 export type Settings = typeof defaults;
 
-const KEY = 'laborwerte:settings:v2';
+const KEY = `${SLUG}:settings:v1`;
 
 const NULLABLE = new Set<keyof Settings>(['from', 'to', 'selection', 'preset']);
 

@@ -1,7 +1,7 @@
 services:
-  laborwerte:
+  transkript-sanguis:
     build: .
-    image: laborwerte
+    image: transkript-sanguis
     ports:
       - '8080:8080'
     restart: unless-stopped
