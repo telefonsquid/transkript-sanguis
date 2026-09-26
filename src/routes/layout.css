@@ -264,24 +264,25 @@ body {
 	--blood: #d93a45;
 }
 
-/* Swash under the hero wordmark, below the descenders */
+/* Pen swash behind the hero wordmark, a halo in the page colour fades it evenly around every letter */
 .logo .flourished {
 	position: relative;
 	display: inline-block;
-	padding-bottom: 0.4em;
+	isolation: isolate;
+	line-height: 1;
+	-webkit-text-stroke: 0.12em color-mix(in srgb, var(--page) 72%, transparent);
+	paint-order: stroke fill;
 }
 .logo .flourish {
 	position: absolute;
 	left: 0;
-	top: calc(100% - 0.45em);
+	top: 0;
+	z-index: -1;
 	width: 100%;
+	height: 1em;
 	overflow: visible;
-}
-.logo .flourish .swash {
 	fill: var(--ink-3);
-}
-.logo .flourish .dot {
-	fill: var(--blood);
+	pointer-events: none;
 }
 
 /* Page loader: the drop fills up and drains again, half full when motion is reduced */

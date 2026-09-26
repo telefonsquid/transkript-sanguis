@@ -8,10 +8,12 @@ function watchErrors(page: Page) {
 	return errors;
 }
 
-async function onboard(page: Page) {
+/** Landing page first, the disclaimers only once a choice is made */
+async function onboard(page: Page, choice: 'View demo' | 'Create profile') {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/welcome$/);
 	await expect(page).toHaveTitle('Transkript Sanguis');
+	await page.getByRole('button', { name: choice }).click();
 	await expect(page.getByRole('heading', { name: 'This is not medical advice' })).toBeVisible();
 	await page.getByRole('button', { name: 'I understand' }).click();
 	await expect(page.getByRole('heading', { name: 'Your data stays on this device' })).toBeVisible();
@@ -19,8 +21,7 @@ async function onboard(page: Page) {
 }
 
 async function demo(page: Page) {
-	await onboard(page);
-	await page.getByRole('button', { name: /View demo/ }).click();
+	await onboard(page, 'View demo');
 	await expect(page.getByRole('heading', { name: 'Which demo do you want to see?' })).toBeVisible();
 	await page.getByRole('button', { name: /Raven/ }).click();
 	await expect(page).toHaveURL(/\/$/);
@@ -123,8 +124,7 @@ test('reduce motion can be forced and is remembered', async ({ page }) => {
 });
 
 test('a manually entered draw is stored and charted', async ({ page }) => {
-	await onboard(page);
-	await page.getByRole('button', { name: /Create profile/ }).click();
+	await onboard(page, 'Create profile');
 	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
 	await expect(page.getByRole('radio', { name: 'None' })).toBeChecked();
 	await page.getByRole('button', { name: 'Create profile' }).click();
@@ -148,8 +148,7 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 
 test('an agent import only takes units the app can convert', async ({ page }) => {
 	const errors = watchErrors(page);
-	await onboard(page);
-	await page.getByRole('button', { name: /Create profile/ }).click();
+	await onboard(page, 'Create profile');
 	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
 	await page.getByRole('button', { name: 'Create profile' }).click();
 	await page.goto('/data/agent');
@@ -186,6 +185,29 @@ test('the interface switches to German', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: /Sexualhormone/ })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'DE', exact: true })).toBeVisible();
 	await expect(page.getByText('Nur in diesem Browser gespeichert', { exact: false })).toBeVisible();
+});
+
+test('the landing page opens first and leads with the own profile', async ({ page }) => {
+	await onboard(page, 'Create profile');
+	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
+	await page.getByRole('button', { name: 'Create profile' }).click();
+	await page.getByRole('link', { name: /Skip for now/ }).click();
+	await expect(page).toHaveURL(/\/$/);
+
+	// A reload stays put, the wordmark leads back to the landing page
+	await page.reload();
+	await expect(page).toHaveURL(/\/$/);
+	await page.getByRole('link', { name: 'Transkript Sanguis' }).click();
+	await expect(page).toHaveURL(/\/welcome$/);
+	await page.getByRole('button', { name: 'Manage my data' }).click();
+	await expect(page).toHaveURL(/\/data$/);
+
+	// A new session starts on the landing page again
+	await page.evaluate(() => sessionStorage.removeItem('transkript-sanguis:landed'));
+	await page.goto('/data');
+	await expect(page).toHaveURL(/\/welcome$/);
+	await page.getByRole('button', { name: /Tester/ }).click();
+	await expect(page).toHaveURL(/\/$/);
 });
 
 test('agent instructions and schema are served as static files', async ({ request }) => {

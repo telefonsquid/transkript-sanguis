@@ -5,58 +5,116 @@
 	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
 	import TherapyName from '#lib/components/TherapyName.svelte';
+	import { fmtIso } from '#lib/analysis.js';
 	import type { Profile } from '#lib/data/types.js';
 	import { t } from '#lib/i18n/index.js';
-	import { fly } from '#lib/motion.svelte.js';
-	import { createProfile, current, db, lists, setActive } from '#lib/profiles.svelte.js';
+	import { fly, slide } from '#lib/motion.svelte.js';
+	import { createProfile, db, lists, setActive } from '#lib/profiles.svelte.js';
 	import Avatar from '#lib/ui/Avatar.svelte';
 	import Logo from '#lib/ui/Logo.svelte';
 
-	let medicalOk = $state(false);
-	let creating = $state(false);
-	let demos = $state(false);
+	type Step = 'home' | 'medical' | 'local' | 'demo' | 'profile' | 'ingest';
 
-	// The demo picker stays until the dashboard takes over, the active profile alone would flash the ingest step
-	const step = $derived(
-		!db.consent ? (medicalOk ? 'local' : 'medical') : demos ? 'demo' : !current.profile ? (creating ? 'profile' : 'choose') : 'ingest'
-	);
+	let step = $state<Step>('home');
+	let about = $state(false);
+	let next: () => void = () => {};
 
-	function view(p: Profile) {
-		setActive(p.id);
-		goto(resolve('/'));
+	// The own profile used last leads, the others follow in a line
+	const mine = $derived(lists.own.find((p) => p.id === db.active) ?? lists.own[0]);
+	const others = $derived(lists.own.filter((p) => p !== mine));
+
+	// Both disclaimers come first, but only once a choice is made
+	function start(then: () => void) {
+		if (db.consent) return then();
+		next = then;
+		step = 'medical';
 	}
+
+	function consent() {
+		db.consent = new Date().toISOString();
+		next();
+	}
+
+	function open(p: Profile, path: '/' | '/data' = '/') {
+		setActive(p.id);
+		goto(resolve(path));
+	}
+
+	function summary(p: Profile) {
+		const values = p.draws.reduce((n, d) => n + d.results.length, 0);
+		if (!p.draws.length) return t.welcome.empty;
+		return t.nav.summary(p.draws.length, values, `${fmtIso(p.draws[0].date)} – ${fmtIso(p.draws.at(-1)!.date)}`);
+	}
+
+	const quiet =
+		'inline-flex h-9 items-center justify-center rounded-lg border border-line bg-surface px-3.5 text-sm font-medium text-ink-2 transition-colors hover:border-line-strong hover:bg-hover hover:text-ink';
 </script>
 
-<div class="mx-auto flex min-h-full max-w-3xl flex-col justify-center gap-6 p-6">
-	{#if step === 'medical'}
-		{@render disclaimer(1, 'var(--warning)', warn, t.disclaimer.medicalTitle, t.disclaimer.medicalPoints, () => (medicalOk = true))}
-	{:else if step === 'local'}
-		{@render disclaimer(2, 'var(--ref-target)', lock, t.disclaimer.localTitle, t.disclaimer.localPoints, () => (db.consent = new Date().toISOString()))}
-	{:else if step === 'choose'}
-		<header in:fly={{ y: 16 }}>
-			<h1>
-				<span class="block text-lg font-medium text-ink-2">{t.welcome.title}</span>
-				<Logo glint flourish class="mt-1 block text-[min(3rem,9.5vw)] leading-tight sm:text-6xl" />
-			</h1>
-			<p class="mt-2 max-w-2xl text-ink-2">{t.welcome.intro}</p>
+<div class="mx-auto flex min-h-full max-w-3xl flex-col justify-center gap-10 px-4 py-16 sm:px-6">
+	{#if step === 'home'}
+		<header class="flex flex-col items-center text-center" in:fly={{ y: 16 }}>
+			<h1><Logo glint flourish class="block text-[min(3.5rem,10.5vw)] sm:text-7xl" /></h1>
+			<button type="button" onclick={() => (about = !about)} aria-expanded={about} class="mt-8 inline-flex items-center gap-1 text-xs font-medium text-ink-3 hover:text-ink">
+				{t.welcome.about}<span class={['inline-block transition-transform duration-200', about && 'rotate-180']} aria-hidden="true">▾</span>
+			</button>
+			{#if about}
+				<p class="mt-2 max-w-md text-sm text-balance text-ink-2" transition:slide>{t.welcome.aboutText}</p>
+			{/if}
 		</header>
-		<section class="space-y-3" aria-label={t.welcome.choose} in:fly={{ y: 16, delay: 80 }}>
-			<h2 class="label">{t.welcome.choose}</h2>
-			<div class="grid gap-3 sm:grid-cols-2">
-				{@render choice(t.welcome.demoTitle, t.welcome.demoBody, () => (demos = true))}
-				{@render choice(t.welcome.createTitle, t.welcome.createBody, () => (creating = true))}
-			</div>
+
+		<section class="mx-auto flex w-full max-w-md flex-col items-center gap-3" in:fly={{ y: 16, delay: 80 }}>
+			{#if mine}
+				<button
+					type="button"
+					onclick={() => start(() => open(mine))}
+					class="group flex w-full items-center gap-4 rounded-xl border border-line-strong bg-surface p-4 text-left shadow-[var(--shadow)] transition-[border-color,background-color] duration-200 hover:bg-hover"
+				>
+					<Avatar profile={mine} size={44} />
+					<span class="min-w-0 flex-1">
+						<span class="block truncate text-lg font-semibold">{mine.name}</span>
+						<span class="block truncate text-xs text-ink-2">
+							{#if mine.therapy !== 'none'}<TherapyName therapy={mine.therapy} /> ·&nbsp;{/if}<span class="num">{summary(mine)}</span>
+						</span>
+					</span>
+					<span class="shrink-0 text-sm font-semibold">{t.welcome.open} <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span></span>
+				</button>
+				{#if others.length}
+					<div class="flex flex-wrap justify-center gap-2">
+						{#each others as p (p.id)}
+							<button type="button" onclick={() => start(() => open(p))} class="inline-flex items-center gap-2 rounded-full border border-line py-1 pr-3 pl-1 text-xs text-ink-2 hover:bg-hover hover:text-ink">
+								<Avatar profile={p} size={20} />{p.name}
+							</button>
+						{/each}
+					</div>
+				{/if}
+				<div class="mt-2 flex flex-wrap justify-center gap-2">
+					<button type="button" onclick={() => start(() => open(mine, '/data'))} class={quiet}>{t.welcome.manage}</button>
+					<button type="button" onclick={() => start(() => (step = 'demo'))} class={quiet}>{t.welcome.demo}</button>
+					<button type="button" onclick={() => start(() => (step = 'profile'))} class={quiet}>{t.profile.new}</button>
+				</div>
+			{:else}
+				<div class="grid w-full grid-cols-2 gap-3">
+					<button type="button" onclick={() => start(() => (step = 'demo'))} class={[quiet, 'h-11 text-base']}>{t.welcome.demo}</button>
+					<button type="button" onclick={() => start(() => (step = 'profile'))} class="h-11 rounded-lg bg-ink px-4 text-base font-semibold text-surface transition-opacity hover:opacity-90">
+						{t.welcome.create}
+					</button>
+				</div>
+			{/if}
 		</section>
+	{:else if step === 'medical'}
+		{@render disclaimer(1, 'var(--warning)', warn, t.disclaimer.medicalTitle, t.disclaimer.medicalPoints, () => (step = 'local'))}
+	{:else if step === 'local'}
+		{@render disclaimer(2, 'var(--ref-target)', lock, t.disclaimer.localTitle, t.disclaimer.localPoints, consent)}
 	{:else if step === 'demo'}
 		<section class="space-y-4" in:fly={{ y: 16 }}>
-			<button type="button" onclick={() => (demos = false)} class="text-xs text-ink-3 hover:text-ink">← {t.common.back}</button>
+			{@render back()}
 			<h1 class="text-2xl font-semibold tracking-tight">{t.welcome.pickDemo}</h1>
 			<ul class="grid gap-3 sm:grid-cols-2">
 				{#each lists.demos as p, i (p.id)}
 					<li class="rise" style:--i={i}>
 						<button
 							type="button"
-							onclick={() => view(p)}
+							onclick={() => open(p)}
 							class="group flex w-full items-center gap-4 rounded-xl border border-line bg-surface p-4 text-left transition-[border-color,background-color] duration-200 hover:border-line-strong hover:bg-hover"
 						>
 							<Avatar profile={p} size={40} />
@@ -73,9 +131,15 @@
 		</section>
 	{:else if step === 'profile'}
 		<section class="space-y-4 rounded-xl border border-line bg-surface p-6" in:fly={{ y: 16 }}>
-			<button type="button" onclick={() => (creating = false)} class="text-xs text-ink-3 hover:text-ink">← {t.common.back}</button>
+			{@render back()}
 			<h1 class="text-2xl font-semibold tracking-tight">{t.welcome.stepProfile}</h1>
-			<ProfileForm submitLabel={t.profile.create} onsave={(values) => createProfile(values)} />
+			<ProfileForm
+				submitLabel={t.profile.create}
+				onsave={(values) => {
+					createProfile(values);
+					step = 'ingest';
+				}}
+			/>
 		</section>
 	{:else}
 		<section class="space-y-4" in:fly={{ y: 16 }}>
@@ -86,40 +150,40 @@
 	{/if}
 </div>
 
-{#snippet disclaimer(n: number, accent: string, icon: Snippet, title: string, points: string[], onaccept: () => void)}
-	<section
-		class="rounded-2xl border-2 p-7 sm:p-10"
-		style:border-color={accent}
-		style:background="color-mix(in srgb, {accent} 8%, var(--surface))"
-		aria-labelledby="disclaimer-title"
-		in:fly={{ x: n === 1 ? 0 : 40, y: n === 1 ? 16 : 0, duration: 420 }}
-	>
-		<div class="flex items-center justify-between">
-			<span class="flex size-14 items-center justify-center rounded-full text-ink" style:background="color-mix(in srgb, {accent} 28%, var(--surface))">
-				{@render icon()}
-			</span>
-			<span class="num text-xs font-medium text-ink-3">{t.welcome.step(n, 2)}</span>
-		</div>
-		<h1 id="disclaimer-title" class="mt-6 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{title}</h1>
-		<ul class="mt-5 space-y-3 text-base text-ink">
-			{#each points as point, i (point)}
-				<li class="rise flex gap-3" style:--i={i + 2}>
-					<span class="mt-2 size-2 shrink-0 rounded-full" style:background={accent}></span>
-					{point}
-				</li>
-			{/each}
-		</ul>
-		<button type="button" onclick={onaccept} class="mt-8 w-full rounded-lg bg-ink px-6 py-3 text-base font-semibold text-surface hover:opacity-90 sm:w-auto">
-			{t.disclaimer.accept}
-		</button>
-	</section>
+{#snippet back()}
+	<button type="button" onclick={() => (step = 'home')} class="text-xs text-ink-3 hover:text-ink">← {t.common.back}</button>
 {/snippet}
 
-{#snippet choice(title: string, body: string, onclick: () => void)}
-	<button type="button" {onclick} class="group flex flex-col gap-2 rounded-xl border border-line bg-surface p-5 text-left transition-[translate,box-shadow,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-hover hover:shadow-[var(--shadow)]">
-		<span class="text-lg font-semibold text-ink">{title} <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span></span>
-		<span class="text-sm text-ink-2">{body}</span>
-	</button>
+{#snippet disclaimer(n: number, accent: string, icon: Snippet, title: string, points: string[], onaccept: () => void)}
+	<div class="space-y-4">
+		{@render back()}
+		<section
+			class="rounded-2xl border-2 p-7 sm:p-10"
+			style:border-color={accent}
+			style:background="color-mix(in srgb, {accent} 8%, var(--surface))"
+			aria-labelledby="disclaimer-title"
+			in:fly={{ x: n === 1 ? 0 : 40, y: n === 1 ? 16 : 0, duration: 420 }}
+		>
+			<div class="flex items-center justify-between">
+				<span class="flex size-14 items-center justify-center rounded-full text-ink" style:background="color-mix(in srgb, {accent} 28%, var(--surface))">
+					{@render icon()}
+				</span>
+				<span class="num text-xs font-medium text-ink-3">{t.welcome.step(n, 2)}</span>
+			</div>
+			<h1 id="disclaimer-title" class="mt-6 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{title}</h1>
+			<ul class="mt-5 space-y-3 text-base text-ink">
+				{#each points as point, i (point)}
+					<li class="rise flex gap-3" style:--i={i + 2}>
+						<span class="mt-2 size-2 shrink-0 rounded-full" style:background={accent}></span>
+						{point}
+					</li>
+				{/each}
+			</ul>
+			<button type="button" onclick={onaccept} class="mt-8 w-full rounded-lg bg-ink px-6 py-3 text-base font-semibold text-surface hover:opacity-90 sm:w-auto">
+				{t.disclaimer.accept}
+			</button>
+		</section>
+	</div>
 {/snippet}
 
 {#snippet warn()}
