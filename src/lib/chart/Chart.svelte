@@ -122,11 +122,14 @@
 	const yTicks = $derived.by(() => {
 		const count = compact ? 3 : Math.max(3, Math.floor(plotH / 42));
 		if (!useLog) return (y as ReturnType<typeof scaleLinear<number>>).ticks(count);
-		const all = (y as ReturnType<typeof scaleLog<number>>).ticks(count * 3);
-		const leading = (v: number) => +v.toExponential().charAt(0);
-		let picked = all.filter((v) => leading(v) === 1);
-		if (picked.length < count) picked = all.filter((v) => [1, 2, 5].includes(leading(v)));
-		if (picked.length < 2) picked = all;
+		const logY = y as ReturnType<typeof scaleLog<number>>;
+		const all = logY.ticks(count * 3);
+
+		// Only round steps like 10, 20, 50, since narrow domains return linear ticks such as 110
+		const mantissa = (v: number) => v.toExponential().split('e')[0];
+		let picked = all.filter((v) => mantissa(v) === '1');
+		if (picked.length < count) picked = all.filter((v) => ['1', '2', '5'].includes(mantissa(v)));
+		if (picked.length < 2) picked = logY.ticks(count);
 		return picked;
 	});
 
@@ -167,7 +170,7 @@
 
 	/** Printed lab ranges as a stepped band, each value owns the span halfway to its neighbours */
 	const labSteps = $derived.by(() => {
-		if (!labBand || !series[0]) return [];
+		if (!series[0]) return [];
 		const pts = series[0].points.filter((p) => p.lab);
 		return pts.map((p, i) => {
 			const x0 = i === 0 ? plotLeft : (xs.x(pts[i - 1].t) + xs.x(p.t)) / 2;
@@ -175,6 +178,11 @@
 			return { x0, x1, y0: yOf(p.lab!.high, plotTop), y1: yOf(p.lab!.low, plotBottom), hasLow: p.lab!.low !== undefined, hasHigh: p.lab!.high !== undefined };
 		});
 	});
+
+	// Always drawn so switching the lab range fades like the curated bands
+	const labLit = $derived(highlight === 'lab');
+	const labFill = $derived(labLit ? 0.16 : labBand ? 0.08 : 0);
+	const labEdge = $derived(labLit ? 1 : labBand ? 0.55 : 0);
 
 	const phases = $derived(current.built.phases);
 	const baselineLabel = $derived(current.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt);
@@ -330,13 +338,11 @@
 
 			<g clip-path="url(#clip-{uid})">
 				<!-- Printed lab ranges, stepped because they change between reports -->
-				{#if labBand}
-					{#each labSteps as s, i (i)}
-						<rect x={s.x0} y={s.y0} width={Math.max(0, s.x1 - s.x0)} height={Math.max(0, s.y1 - s.y0)} fill="var(--ref-lab)" opacity="0.08" class="glide" />
-						{#if s.hasHigh}<rect x={s.x0} y={s.y0 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity="0.55" class="glide" />{/if}
-						{#if s.hasLow}<rect x={s.x0} y={s.y1 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity="0.55" class="glide" />{/if}
-					{/each}
-				{/if}
+				{#each labSteps as s, i (i)}
+					<rect x={s.x0} y={s.y0} width={Math.max(0, s.x1 - s.x0)} height={Math.max(0, s.y1 - s.y0)} fill="var(--ref-lab)" opacity={labFill} class="glide" />
+					{#if s.hasHigh}<rect x={s.x0} y={s.y0 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity={labEdge} class="glide" />{/if}
+					{#if s.hasLow}<rect x={s.x0} y={s.y1 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity={labEdge} class="glide" />{/if}
+				{/each}
 
 				<!-- Curated reference bands, all drawn so showing and hiding one fades -->
 				{#each bands as b (b.id)}

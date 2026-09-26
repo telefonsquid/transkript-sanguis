@@ -508,6 +508,7 @@ export const en = {
 		printedByLabNote: (unit: string) => `Converted to ${unit}. Stored per value, because labs switch between ranges over time.`,
 		onChart: 'On chart',
 		showOnChart: (name: string) => `Show ${name} on the chart`,
+		showLabOnChart: "Show the lab's printed range on the chart",
 		defaultBasis: 'default basis',
 		latestAbove: 'latest above',
 		latestBelow: 'latest below',

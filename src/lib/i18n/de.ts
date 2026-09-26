@@ -509,6 +509,7 @@ export const de: Dict = {
 		printedByLabNote: (unit: string) => `Umgerechnet in ${unit}. Pro Wert gespeichert, weil Labore ihre Bereiche mit der Zeit wechseln.`,
 		onChart: 'Im Diagramm',
 		showOnChart: (name: string) => `${name} im Diagramm zeigen`,
+		showLabOnChart: 'Vom Labor angegebenen Bereich im Diagramm zeigen',
 		defaultBasis: 'Standard',
 		latestAbove: 'zuletzt darüber',
 		latestBelow: 'zuletzt darunter',

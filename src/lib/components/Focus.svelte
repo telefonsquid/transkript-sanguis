@@ -58,9 +58,10 @@
 	let shown: Record<string, boolean> = $state({});
 
 	const bands = $derived(bandsFor(a).map((b) => ({ ...b, filled: shown[b.id] ?? b.filled })));
+	const labOn = $derived(shown.lab ?? settings.kinds.includes('lab'));
 
 	function toggleBand(id: string) {
-		shown[id] = !bands.find((b) => b.id === id)?.filled;
+		shown[id] = id === 'lab' ? !labOn : !bands.find((b) => b.id === id)?.filled;
 	}
 	const refs = $derived([...refsFor(a)].sort((x, y) => KIND_ORDER.indexOf(x.kind) - KIND_ORDER.indexOf(y.kind)));
 	const primary = $derived(bestRef(a));
@@ -198,7 +199,7 @@
 				<Chart
 					series={[series]}
 					{bands}
-					labBand={settings.kinds.includes('lab')}
+					labBand={labOn}
 					height={400}
 					rails
 					log={useLog(a)}
@@ -235,11 +236,33 @@
 				<table class="w-full text-xs">
 					<tbody>
 						{#if labRanges.length}
-							{const labOn = $derived(settings.kinds.includes('lab'))}
-							<tr class={['ref-row border-b border-line align-top', labOn && 'is-on']} style:--kind="var(--ref-lab)">
-								<td class="w-12 py-2 pl-3"><span class="band-chip" aria-hidden="true"><span class="band-fill"></span></span></td>
+							<tr
+								class={['ref-row cursor-pointer border-b border-line align-top', labOn && 'is-on', highlight === 'lab' && 'is-lit']}
+								style:--kind="var(--ref-lab)"
+								onpointerenter={() => (highlight = 'lab')}
+								onpointerleave={() => (highlight = null)}
+								onclick={() => toggleBand('lab')}
+							>
+								<td class="w-12 py-2 pl-3">
+									<button
+										type="button"
+										role="switch"
+										aria-checked={labOn}
+										aria-label={t.focus.showLabOnChart}
+										class="band-chip"
+										onclick={(e) => {
+											e.stopPropagation();
+											toggleBand('lab');
+										}}><span class="band-fill"></span></button
+									>
+								</td>
 								<td class="px-2 py-2">
-									<div class="font-medium text-ink">{t.focus.printedByLab}</div>
+									<div class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-medium text-ink">
+										<span class="ref-name">{t.focus.printedByLab}</span>
+										{#if labOn}
+											<span class="on-tag" in:pop={{ y: 0, from: 0.6 }}>{t.focus.onChart}</span>
+										{/if}
+									</div>
 									<div class="text-ink-3">{t.focus.printedByLabNote(a.unit)}</div>
 								</td>
 								<td class="num px-2 py-2 text-ink-2" colspan="3">
