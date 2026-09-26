@@ -40,7 +40,7 @@
 
 <article
 	data-hero={a.id}
-	class="flex h-full flex-col rounded-lg border border-line bg-surface transition-[translate,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[var(--shadow)]"
+	class="flex h-full flex-col rounded-lg border border-line bg-surface transition-[box-shadow,border-color] duration-200 hover:border-line-strong hover:shadow-[var(--shadow)]"
 >
 	<header class="flex items-start justify-between gap-2 px-3 pt-2.5">
 		<div class="min-w-0">

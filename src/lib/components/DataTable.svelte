@@ -140,7 +140,7 @@
 			</thead>
 			<tbody>
 				{#each rows as { m, a, b, status }, i (m.analyte + m.drawId)}
-					<tr class="rise border-b border-line align-top last:border-0 hover:bg-hover" style:--i={i} animate:flip={{ duration: rows.length > 400 ? 0 : 320 }}>
+					<tr class="rise-row border-b border-line align-top last:border-0 hover:bg-hover" style:--i={i} animate:flip={{ duration: rows.length > 400 ? 0 : 320 }}>
 						<td class="py-1.5 pr-2.5 pl-3 whitespace-nowrap text-ink">{fmtDate(m.t)}</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-3">{hrtCell(m.t)}</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap">

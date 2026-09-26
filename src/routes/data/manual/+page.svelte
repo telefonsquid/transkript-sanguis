@@ -9,6 +9,7 @@
 	import type { Analyte, Draw, Result, Sex } from '#lib/data/types.js';
 	import { fileKey, putFile } from '#lib/files.js';
 	import { t } from '#lib/i18n/index.js';
+	import { slide } from '#lib/motion.svelte.js';
 	import { addCustom, current, deleteDraw, newId, saveDraw } from '#lib/profiles.svelte.js';
 
 	interface Row {
@@ -174,7 +175,7 @@
 			<span class="text-xs text-ink-3">{t.manual.labHint}</span>
 		</label>
 		<label class="grid content-start gap-1">
-			<span class="text-sm font-medium">{t.manual.rangesFor}</span>
+			<span class="text-sm font-medium">{t.manual.rangesFor} <span class="font-normal text-ink-3">({t.common.optional})</span></span>
 			<select bind:value={rangesFor} class={[field, !rangesFor && 'empty']}>
 				<option value="">{t.profile.sexes.unset}</option>
 				<option value="female">{t.profile.sexes.female}</option>
@@ -183,7 +184,7 @@
 			<span class="text-xs text-ink-3">{t.manual.rangesForHint}</span>
 		</label>
 		<label class="grid content-start gap-1">
-			<span class="text-sm font-medium">{t.manual.fasting}</span>
+			<span class="text-sm font-medium">{t.manual.fasting} <span class="font-normal text-ink-3">({t.common.optional})</span></span>
 			<select bind:value={fasting} class={[field, fasting === 'unknown' && 'empty']}>
 				{#each ['unknown', 'yes', 'no'] as const as f (f)}<option value={f}>{t.manual.fastingOptions[f]}</option>{/each}
 			</select>
@@ -223,7 +224,7 @@
 				{const a = $derived(row.analyte ? current.lookup(row.analyte) : undefined)}
 				{const err = $derived(errors.get(row.key))}
 				{const show = $derived(tried || !!row.value)}
-				<li class="grid gap-2 px-4 py-2 md:grid-cols-[minmax(0,2.2fr)_7rem_9rem_8rem_4rem_minmax(0,1.2fr)_2rem] md:items-start">
+				<li transition:slide class="grid gap-2 px-4 py-2 md:grid-cols-[minmax(0,2.2fr)_7rem_9rem_8rem_4rem_minmax(0,1.2fr)_2rem] md:items-start">
 					<AnalytePicker
 						value={row.analyte}
 						custom={row.custom}
@@ -243,7 +244,7 @@
 					<input bind:value={row.flag} maxlength="4" aria-label={t.manual.flag} class={['border-line', cell]} />
 					<input bind:value={row.note} aria-label={t.manual.note} class={['border-line', cell]} />
 					<button type="button" onclick={() => (rows = rows.filter((r) => r !== row))} aria-label={t.common.remove} class="h-8 rounded-md text-ink-3 hover:bg-hover hover:text-ink">×</button>
-					{#if show && err}<p class="text-xs text-[var(--critical)] md:col-span-7">{err}</p>{/if}
+					{#if show && err}<p transition:slide={{ duration: 160 }} class="text-xs text-[var(--critical)] md:col-span-7">{err}</p>{/if}
 				</li>
 			{/each}
 		</ul>

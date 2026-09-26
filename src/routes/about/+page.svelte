@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { fmtNum } from '#lib/analysis.js';
+	import { REPO_URL } from '#lib/app.js';
 	import { analytes, groups, sources } from '#lib/data/index.js';
 	import { altNameOf, nameOf, t, tx } from '#lib/i18n/index.js';
 
@@ -15,6 +16,7 @@
 	<section>
 		<h1 class="text-2xl font-semibold tracking-tight">{t.about.title}</h1>
 		<p class="mt-2 max-w-3xl text-ink-2">{t.about.intro}</p>
+		<a href={REPO_URL} target="_blank" rel="noreferrer" class="mt-2 inline-block text-xs text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink">{t.about.repo} ↗</a>
 	</section>
 
 	<section class="grid gap-3 md:grid-cols-2">

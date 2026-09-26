@@ -322,8 +322,20 @@ select option {
 	}
 }
 
+/* Rows of long tables wash in fast, the cascade ends about where the screen does so no block pops in late */
+.rise-row {
+	animation: rise-row 220ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+	animation-delay: calc(min(var(--i, 0), 40) * 6ms);
+}
+@keyframes rise-row {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+}
+
 .appear {
-	animation: appear 320ms ease-out backwards;
+	animation: appear var(--dur, 320ms) ease-out backwards;
 	animation-delay: var(--delay, 0ms);
 }
 @keyframes appear {

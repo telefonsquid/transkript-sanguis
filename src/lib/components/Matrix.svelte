@@ -103,7 +103,7 @@
 							</td>
 						</tr>
 					{/if}
-					<tr class="group rise" style:--i={i}>
+					<tr class="group rise-row" style:--i={i}>
 						<td class="sticky left-0 z-10 border-b border-line bg-surface px-3 py-1 whitespace-nowrap group-hover:bg-surface-2">
 							<a href={resolve('/analyte/[id]', { id: a.id })} class="font-medium text-ink hover:underline">{nameOf(a)}</a>
 							{#if altNameOf(a)}<span class="ml-1 text-[10.5px] text-ink-3">{altNameOf(a)}</span>{/if}
@@ -115,7 +115,8 @@
 								<!-- Cells wash in from the oldest draw to the newest -->
 								<td
 									class="appear cursor-pointer border-b border-l border-line px-2 py-1 text-right whitespace-nowrap text-ink hover:outline-2 hover:-outline-offset-2 hover:outline-[var(--ink)]"
-									style:--delay="{Math.min(i, 16) * 30 + ci * 35}ms"
+									style:--delay="{Math.min(i, 40) * 6 + ci * 14}ms"
+									style:--dur="200ms"
 									style={cellStyle(m)}
 									title={title(m)}
 									onclick={() => goto(resolve('/analyte/[id]', { id: a.id }))}
