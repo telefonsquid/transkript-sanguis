@@ -233,7 +233,7 @@ body {
 	background: color-mix(in srgb, var(--ref-target) 30%, transparent);
 }
 
-/* Wordmark with a blood drop as the dot of its last i, placed by eye against the real dot */
+/* Wordmark with blood drops as the dots of its i's, the round part centred on where the real dot sits */
 .logo {
 	font-family: var(--font-logo);
 	font-style: italic;
@@ -247,8 +247,8 @@ body {
 }
 .logo .tittle svg {
 	position: absolute;
-	left: 0.125em;
-	top: 0.19em;
+	left: 0.175em;
+	top: 0.214em;
 	width: 0.17em;
 	height: 0.2295em;
 	rotate: 10deg;
@@ -262,6 +262,26 @@ body {
 }
 .flag-name {
 	--blood: #d93a45;
+}
+
+/* Swash under the hero wordmark, below the descenders */
+.logo .flourished {
+	position: relative;
+	display: inline-block;
+	padding-bottom: 0.4em;
+}
+.logo .flourish {
+	position: absolute;
+	left: 0;
+	top: calc(100% - 0.45em);
+	width: 100%;
+	overflow: visible;
+}
+.logo .flourish .swash {
+	fill: var(--ink-3);
+}
+.logo .flourish .dot {
+	fill: var(--blood);
 }
 
 /* Page loader: the drop fills up and drains again, half full when motion is reduced */

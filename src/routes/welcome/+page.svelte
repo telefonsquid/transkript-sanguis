@@ -36,7 +36,7 @@
 		<header in:fly={{ y: 16 }}>
 			<h1>
 				<span class="block text-lg font-medium text-ink-2">{t.welcome.title}</span>
-				<Logo glint class="mt-1 block text-5xl leading-tight sm:text-6xl" />
+				<Logo glint flourish class="mt-1 block text-[min(3rem,9.5vw)] leading-tight sm:text-6xl" />
 			</h1>
 			<p class="mt-2 max-w-2xl text-ink-2">{t.welcome.intro}</p>
 		</header>
