@@ -3,6 +3,7 @@
 	import { groupById } from '../data';
 	import type { Analyte } from '../data/types';
 	import { t, tx } from '../i18n';
+	import { fade, flip } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
 	import { filtered, resetProfileFilters, settings } from '../state.svelte';
 	import Card from './Card.svelte';
@@ -53,9 +54,12 @@
 					<span class="num text-xs text-ink-3">· {s.items.length}</span>
 				</h2>
 			{/if}
-			<div class="grid gap-3" style:grid-template-columns="repeat(auto-fill, minmax({size.col}px, 1fr))">
-				{#each s.items as a (a.id)}
-					<Card analyte={a} height={size.h} />
+			<!-- Cards rise in one after another and slide to their new place when the order changes -->
+			<div class="relative grid gap-3" style:grid-template-columns="repeat(auto-fill, minmax({size.col}px, 1fr))">
+				{#each s.items as a, i (a.id)}
+					<div class="rise" style:--i={i} animate:flip out:fade={{ duration: 120 }}>
+						<Card analyte={a} height={size.h} />
+					</div>
 				{/each}
 			</div>
 		</section>

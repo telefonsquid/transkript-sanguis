@@ -5,6 +5,7 @@
 	import type { ChartSeries } from '../chart/types';
 	import { groups } from '../data';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
+	import { fade, flip, pop } from '../motion.svelte';
 	import { current, lookup } from '../profiles.svelte';
 	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
 	import { filtered, settings } from '../state.svelte';
@@ -94,7 +95,7 @@
 			{#each settings.compare as id (id)}
 				{const a = $derived(lookup(id))}
 				{#if a}
-					<span class="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface-2 py-0.5 pr-1 pl-2 text-xs">
+					<span class="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface-2 py-0.5 pr-1 pl-2 text-xs" in:pop={{ y: 0, from: 0.8 }}>
 						<span class="inline-block h-0.5 w-3 rounded" style:background={color(id)}></span>
 						<a href={resolve('/analyte/[id]', { id })} class="font-medium text-ink hover:underline">{nameOf(a)}</a>
 						<button type="button" onclick={() => remove(id)} class="rounded px-1 text-ink-3 hover:bg-hover hover:text-ink" aria-label={t.compare.remove(nameOf(a))}>×</button>
@@ -178,11 +179,11 @@
 
 	<section>
 		<h2 class="mb-2 text-sm font-semibold">{t.compare.ownUnits} <span class="font-normal text-ink-3">· {t.compare.aligned}</span></h2>
-		<div class="grid gap-3" style:grid-template-columns="repeat(auto-fill, minmax(340px, 1fr))">
-			{#each settings.compare.filter((id) => lookup(id)) as id (id)}
+		<div class="relative grid gap-3" style:grid-template-columns="repeat(auto-fill, minmax(340px, 1fr))">
+			{#each settings.compare.filter((id) => lookup(id)) as id, i (id)}
 				{const a = $derived(lookup(id)!)}
 				{const s = $derived(seriesFor(id, color(id)))}
-				<article class="rounded-lg border border-line bg-surface p-2">
+				<article class="rise rounded-lg border border-line bg-surface p-2" style:--i={i} animate:flip out:fade={{ duration: 120 }}>
 					<div class="flex items-baseline gap-2 px-1">
 						<span class="inline-block h-0.5 w-3 rounded" style:background={color(id)}></span>
 						<a href={resolve('/analyte/[id]', { id })} class="text-[13px] font-semibold hover:underline">{nameOf(a)}</a>

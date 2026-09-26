@@ -4,6 +4,7 @@
 	import { groups, presets } from '../data';
 	import type { Analyte, GroupId, Preset } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
+	import { slide } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
 	import { filtered, settings, toggle } from '../state.svelte';
 
@@ -131,7 +132,7 @@
 					</button>
 				</div>
 				{#if !collapsed}
-					<ul>
+					<ul transition:slide>
 						{#each items as a (a.id)}
 							{const n = $derived(filtered.byAnalyte.get(a.id)?.length ?? 0)}
 							{const s = $derived(latest(a))}

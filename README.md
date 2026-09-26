@@ -15,7 +15,8 @@ Your blood test results over time, next to researched reference ranges. Built fo
 - Views: overview grid, compare (normalised to % of range, index or z-score), matrix heatmap, sortable table with CSV and JSON export, a focus page per value.
 - X axis true to time or evenly spaced per draw, log or linear, conventional or SI units, filters by date range, lab, phase, group and preset.
 - Four made-up demo profiles (a cis woman, a cis man, feminizing HRT, masculinizing HRT) to look around first. They are always there and can be reset, not deleted.
-- Three ways in: type results in, let an AI assistant read your PDFs and paste its JSON (instructions and schema built into the app), or import a backup. Values are stored exactly as printed and converted on the fly.
+- Three ways in: type results in by hand, let an AI assistant transcribe your PDFs or photos and paste its JSON (instructions and schema built into the app), or import a backup. Values are stored exactly as printed and converted on the fly.
+- Animated throughout: page transitions, a card growing into its focus chart, charts that draw themselves and glide when scales change. A switch next to the theme turns every animation off, and the system's reduced motion setting is respected.
 - Consistency checks that recompute printed values (red cell indices, lipids, FAI, HbA1c, eGFR) to catch typos.
 - Installable and usable offline.
 

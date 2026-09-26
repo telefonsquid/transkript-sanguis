@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { fade, pop } from '../motion.svelte';
 
 	interface Props {
 		label: string;
@@ -64,9 +65,11 @@
 		<div
 			class={[
 				'absolute top-full z-40 mt-1.5 min-w-64 rounded-lg border border-line bg-surface p-3 shadow-[var(--shadow)]',
-				align === 'right' ? 'right-0' : 'left-0'
+				align === 'right' ? 'right-0 origin-top-right' : 'left-0 origin-top-left'
 			]}
 			onclick={(e) => menu && (e.target as HTMLElement).closest('button, a') && (open = false)}
+			in:pop
+			out:fade={{ duration: 90 }}
 		>
 			{@render children()}
 		</div>

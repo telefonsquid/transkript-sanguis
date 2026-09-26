@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import type { Profile } from '../data/types';
 	import { t } from '../i18n';
+	import { morph } from '../motion.svelte';
 	import { current, db, lists, setActive } from '../profiles.svelte';
 	import Avatar from '../ui/Avatar.svelte';
 	import Popover from '../ui/Popover.svelte';
@@ -39,12 +40,12 @@
 {#snippet item(p: Profile)}
 	<button
 		type="button"
-		onclick={() => setActive(p.id)}
+		onclick={() => morph(() => setActive(p.id))}
 		aria-current={p.id === db.active}
 		class={['flex items-center gap-2.5 rounded px-2 py-1.5 text-left', p.id === db.active ? 'bg-surface-3 text-ink' : 'text-ink-2 hover:bg-hover hover:text-ink']}
 	>
 		<Avatar profile={p} size={20} />
 		<span class="min-w-0 flex-1 truncate font-medium" title={p.name}>{p.name}</span>
-		<span class="shrink-0 text-right text-[11px] whitespace-nowrap text-ink-3"><TherapyName therapy={p.therapy} short />{` · ${t.profile.draws(p.draws.length)}`}</span>
+		<span class="shrink-0 text-right text-[11px] whitespace-nowrap text-ink-3"><TherapyName therapy={p.therapy} short />{t.profile.draws(p.draws.length)}</span>
 	</button>
 {/snippet}

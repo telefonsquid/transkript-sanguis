@@ -62,13 +62,13 @@
 				<span class="text-[11px] text-ink-3">{t.profile.draws(draws.length)}</span>
 			</div>
 			<ul class="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
-				{#each draws as d (d.id)}
+				{#each draws as d, i (d.id)}
 					{const ms = $derived(byDraw.get(d.id) ?? [])}
 					{const s = $derived(summary(ms))}
 					{const time = $derived(toTime(d.date, d.time))}
 					{const report = $derived(profile.reports.find((r) => r.id === d.report))}
 					{const phase = $derived(ms[0] && profile.phases.length ? phaseName(ms[0].phase) : '')}
-					<li class="grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-3 hover:bg-hover @2xl:grid-cols-[4.25rem_minmax(0,1fr)_9.5rem_auto]">
+					<li style:--i={i + 3} class="rise grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-3 hover:bg-hover @2xl:grid-cols-[4.25rem_minmax(0,1fr)_9.5rem_auto]">
 						<div class="num">
 							<div class="text-sm font-semibold text-ink">{fmtDay(time)}</div>
 							<div class="text-[11px] text-ink-3">{d.time ?? (monthsOnHrt(time) !== undefined ? fmtHrt(time) : '')}</div>

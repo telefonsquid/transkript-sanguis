@@ -22,18 +22,18 @@
 	<!-- Open editors close when the profile changes -->
 	{#key profile.id}
 		<div class="mx-auto max-w-6xl space-y-6 p-4 text-sm sm:p-6">
-			<ProfileCard {profile} />
+			<div class="rise"><ProfileCard {profile} /></div>
 
 			<div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
 				<div class="min-w-0 space-y-6">
-					<section aria-labelledby="add-title">
+					<section aria-labelledby="add-title" class="rise" style:--i="1">
 						<h2 id="add-title" class="mb-2 text-base font-semibold">{t.ingest.title}</h2>
 						{#if !profile.draws.length}<p class="mb-3 text-xs text-ink-2">{t.ingest.intro}</p>{/if}
 						<IngestChoices compact={profile.draws.length > 0} />
 					</section>
 
 					{#if issues.length}
-						<section id="issues" class="rounded-xl border border-[color-mix(in_srgb,var(--critical)_40%,transparent)] bg-[color-mix(in_srgb,var(--critical)_5%,var(--surface))] p-4" aria-labelledby="issues-title">
+						<section id="issues" style:--i="2" class="rise rounded-xl border border-[color-mix(in_srgb,var(--critical)_40%,transparent)] bg-[color-mix(in_srgb,var(--critical)_5%,var(--surface))] p-4" aria-labelledby="issues-title">
 							<h2 id="issues-title" class="flex items-center gap-2 text-sm font-semibold">
 								<span style:color="var(--critical)" aria-hidden="true">⚠</span>{t.data.issuesCount(issues.length)}
 							</h2>
@@ -54,14 +54,14 @@
 					{/if}
 
 					{#if profile.draws.length}
-						<section aria-labelledby="draws-title">
+						<section aria-labelledby="draws-title" class="rise" style:--i="3">
 							<h2 id="draws-title" class="mb-2 text-base font-semibold">{t.data.draws}</h2>
 							<DrawList {profile} />
 						</section>
 					{/if}
 				</div>
 
-				<aside class="space-y-6">
+				<aside class="rise space-y-6" style:--i="2">
 					<PhaseTimeline {profile} />
 					<ChecksCard {checks} />
 					<BackupCard {profile} />

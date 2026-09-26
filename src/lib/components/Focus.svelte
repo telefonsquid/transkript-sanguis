@@ -23,6 +23,7 @@
 	import { groupById, sourceById } from '../data';
 	import { fileKey, openFile } from '../files';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
+	import { fly, pop } from '../motion.svelte';
 	import { prefs } from '../prefs.svelte';
 	import { current, lookup } from '../profiles.svelte';
 	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
@@ -51,9 +52,15 @@
 	const start = $derived(hrtStartTime());
 
 	let highlight: string | null = $state(null);
-	let pinnedFills: string[] = $state([]);
 
-	const bands = $derived(bandsFor(a).map((b) => ({ ...b, filled: b.filled || pinnedFills.includes(b.id) })));
+	/** Bands switched on or off by hand, the rest follow the display setting */
+	let shown: Record<string, boolean> = $state({});
+
+	const bands = $derived(bandsFor(a).map((b) => ({ ...b, filled: shown[b.id] ?? b.filled })));
+
+	function toggleBand(id: string) {
+		shown[id] = !bands.find((b) => b.id === id)?.filled;
+	}
 	const refs = $derived([...refsFor(a)].sort((x, y) => KIND_ORDER.indexOf(x.kind) - KIND_ORDER.indexOf(y.kind)));
 	const primary = $derived(primaryRef(a));
 
@@ -109,7 +116,7 @@
 <svelte:window {onkeydown} />
 
 <div class="mx-auto max-w-[1500px] p-4">
-	<div class="mb-3 flex items-center justify-between text-xs text-ink-3">
+	<div class="rise mb-3 flex items-center justify-between text-xs text-ink-3">
 		<div class="flex items-center gap-1.5">
 			<a href={resolve('/')} class="hover:text-ink">{t.focus.back}</a>
 			<span>/</span>
@@ -125,7 +132,7 @@
 		</div>
 	</div>
 
-	<header class="mb-4 flex flex-wrap items-end justify-between gap-4">
+	<header class="rise mb-4 flex flex-wrap items-end justify-between gap-4" style:--i="1">
 		<div class="min-w-0">
 			<h1 class="text-2xl font-semibold tracking-tight text-ink">
 				{nameOf(a)}
@@ -148,7 +155,9 @@
 		{#if last}
 			<div class="text-right">
 				<div class="flex items-baseline justify-end gap-2">
-					<span class="text-5xl font-semibold tracking-tight text-ink">{fmtValue(last, units)}</span>
+					{#key fmtValue(last, units)}
+						<span class="text-5xl font-semibold tracking-tight text-ink" in:fly={{ y: 14, duration: 320 }}>{fmtValue(last, units)}</span>
+					{/key}
 					<span class="text-sm text-ink-3">{unit}</span>
 				</div>
 				<div class="mt-1 text-xs text-ink-2">
@@ -171,7 +180,7 @@
 
 	<div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
 		<div class="min-w-0 space-y-4">
-			<section class="rounded-lg border border-line bg-surface p-3">
+			<section class="rise rounded-lg border border-line bg-surface p-3" style:--i="2" data-hero={a.id}>
 				{#if hiddenCount > 0}
 					<div class="mb-2 text-[11px] text-ink-3">{t.focus.hidden(hiddenCount)}</div>
 				{/if}
@@ -194,6 +203,7 @@
 					yTitle={unit}
 					{highlight}
 					onbandhover={(b) => (highlight = b)}
+					onbandclick={toggleBand}
 					ariaLabel={t.chart.ariaChart(`${nameOf(a)} (${unit})`)}
 				/>
 				<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-3">
@@ -206,16 +216,17 @@
 				</div>
 			</section>
 
-			<section class="rounded-lg border border-line bg-surface">
-				<h2 class="flex items-baseline justify-between border-b border-line px-3 py-2">
+			<section class="rise rounded-lg border border-line bg-surface" style:--i="3">
+				<h2 class="flex items-baseline justify-between gap-3 border-b border-line px-3 py-2">
 					<span class="text-sm font-semibold">{t.focus.references}</span>
 					<span class="text-[11px] text-ink-3">{t.focus.referencesHint}</span>
 				</h2>
 				<table class="w-full text-xs">
 					<tbody>
 						{#if labRanges.length}
-							<tr class="border-b border-line align-top">
-								<td class="w-2 py-2 pl-3"><span class="inline-block h-4 w-1 rounded-full" style:background="var(--ref-lab)"></span></td>
+							{const labOn = $derived(settings.kinds.includes('lab'))}
+							<tr class={['ref-row border-b border-line align-top', labOn && 'is-on']} style:--kind="var(--ref-lab)">
+								<td class="w-12 py-2 pl-3"><span class="band-chip" aria-hidden="true"><span class="band-fill"></span></span></td>
 								<td class="px-2 py-2">
 									<div class="font-medium text-ink">{t.focus.printedByLab}</div>
 									<div class="text-ink-3">{t.focus.printedByLabNote(a.unit)}</div>
@@ -234,18 +245,34 @@
 							{const b = $derived(bands.find((x) => x.id === r.id))}
 							{const s = $derived(last ? statusOf(last, { low: r.low, high: r.high, label: tx(r.label), kind: r.kind }) : 'none')}
 							{const src = $derived(sourceById.get(r.source))}
+							{const on = $derived(!!b?.filled)}
 							<tr
-								class={['cursor-pointer border-b border-line align-top last:border-0', highlight === r.id ? 'bg-hover' : 'hover:bg-hover', !b && 'opacity-45']}
+								class={['ref-row cursor-pointer border-b border-line align-top last:border-0', on && 'is-on', highlight === r.id && 'is-lit', !b && 'opacity-45']}
+								style:--kind="var(--ref-{r.kind})"
 								onpointerenter={() => (highlight = r.id)}
 								onpointerleave={() => (highlight = null)}
-								onclick={() => (pinnedFills = toggle(pinnedFills, r.id))}
+								onclick={() => toggleBand(r.id)}
 							>
-								<td class="w-2 py-2 pl-3"><span class="inline-block h-4 w-1 rounded-full" style:background="var(--ref-{r.kind})"></span></td>
+								<td class="w-12 py-2 pl-3">
+									<button
+										type="button"
+										role="switch"
+										aria-checked={on}
+										aria-label={t.focus.showOnChart(tx(r.label))}
+										class="band-chip"
+										onclick={(e) => {
+											e.stopPropagation();
+											toggleBand(r.id);
+										}}><span class="band-fill"></span></button
+									>
+								</td>
 								<td class="px-2 py-2">
-									<div class="font-medium text-ink">
-										{tx(r.label)}
-										{#if b?.filled}<span class="ml-1 text-[10px] text-ink-3">{t.focus.filled}</span>{/if}
-										{#if r === primary}<span class="ml-1 rounded bg-surface-3 px-1 text-[10px] text-ink-2">{t.focus.defaultBasis}</span>{/if}
+									<div class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-medium text-ink">
+										<span class="ref-name">{tx(r.label)}</span>
+										{#if on}
+											<span class="on-tag" in:pop={{ y: 0, from: 0.6 }}>{t.focus.onChart}</span>
+										{/if}
+										{#if r === primary}<span class="rounded bg-surface-3 px-1 text-[10px] text-ink-2">{t.focus.defaultBasis}</span>{/if}
 									</div>
 									<div class="text-ink-3">{t.kind[r.kind]}{r.note ? ` · ${tx(r.note)}` : ''}</div>
 								</td>
@@ -273,7 +300,7 @@
 				</table>
 			</section>
 
-			<section class="overflow-x-auto rounded-lg border border-line bg-surface">
+			<section class="rise overflow-x-auto rounded-lg border border-line bg-surface" style:--i="4">
 				<h2 class="border-b border-line px-3 py-2 text-sm font-semibold">{t.focus.everyValue}</h2>
 				<table class="num w-full text-xs">
 					<thead class="text-left text-ink-3">
@@ -324,7 +351,7 @@
 		</div>
 
 		<aside class="space-y-4">
-			<section class="rounded-lg border border-line bg-surface p-4 text-[13px] leading-relaxed">
+			<section class="rise rounded-lg border border-line bg-surface p-4 text-[13px] leading-relaxed" style:--i="3">
 				<dl class="space-y-3">
 					<div>
 						<dt class="label mb-0.5">{t.focus.info.what}</dt>
@@ -365,7 +392,7 @@
 				<p class="mt-4 border-t border-line pt-3 text-[11px] text-ink-3">{t.focus.disclaimer}</p>
 			</section>
 
-			<section class="rounded-lg border border-line bg-surface p-4">
+			<section class="rise rounded-lg border border-line bg-surface p-4" style:--i="4">
 				<h2 class="mb-2 text-sm font-semibold">{t.focus.stats.title} <span class="font-normal text-ink-3">· {unit}</span></h2>
 				<dl class="num grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
 					<dt class="text-ink-3">{t.focus.stats.n}</dt><dd class="text-right text-ink">{st.n}</dd>
@@ -405,3 +432,75 @@
 		{/if}
 	{/if}
 </div>
+
+<style>
+	/* A shown reference lights up its row in its own colour, with a bar on the left */
+	.ref-row {
+		transition:
+			background-color 220ms,
+			box-shadow 280ms cubic-bezier(0.3, 1.4, 0.5, 1);
+	}
+	.ref-row:hover,
+	.ref-row.is-lit {
+		background: var(--hover);
+	}
+	.ref-row.is-on {
+		background: color-mix(in srgb, var(--kind) 9%, var(--surface));
+		box-shadow: inset 4px 0 0 var(--kind);
+	}
+	.ref-row.is-on:hover,
+	.ref-row.is-on.is-lit {
+		background: color-mix(in srgb, var(--kind) 15%, var(--surface));
+	}
+	.ref-row.is-on .ref-name {
+		font-weight: 650;
+	}
+
+	/* Chip that looks like the band it stands for, hollow while hidden */
+	.band-chip {
+		position: relative;
+		display: block;
+		width: 30px;
+		height: 18px;
+		margin-top: 1px;
+		overflow: hidden;
+		border-radius: 4px;
+		border: 1.5px dashed color-mix(in srgb, var(--kind) 65%, transparent);
+		transition: border-color 200ms;
+	}
+	.band-fill {
+		position: absolute;
+		inset: 0;
+		background: color-mix(in srgb, var(--kind) 30%, transparent);
+		border-block: 2px solid var(--kind);
+		transform: scaleY(0);
+		transition: transform 320ms cubic-bezier(0.3, 1.5, 0.5, 1);
+	}
+	.is-on .band-chip {
+		border-style: solid;
+		border-color: transparent;
+	}
+	.is-on .band-fill {
+		transform: scaleY(1);
+	}
+
+	.on-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		border-radius: 999px;
+		padding: 0 7px 0 5px;
+		font-size: 10px;
+		font-weight: 600;
+		line-height: 16px;
+		color: var(--ink);
+		background: color-mix(in srgb, var(--kind) 22%, var(--surface));
+	}
+	.on-tag::before {
+		content: '';
+		width: 6px;
+		height: 6px;
+		border-radius: 999px;
+		background: var(--kind);
+	}
+</style>

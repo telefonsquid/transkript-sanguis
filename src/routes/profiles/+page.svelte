@@ -6,6 +6,7 @@
 	import TherapyName from '#lib/components/TherapyName.svelte';
 	import type { Profile } from '#lib/data/types.js';
 	import { t } from '#lib/i18n/index.js';
+	import { fly, morph } from '#lib/motion.svelte.js';
 	import { createProfile, db, deleteProfile, lists, resetDemo, setActive } from '#lib/profiles.svelte.js';
 	import Avatar from '#lib/ui/Avatar.svelte';
 
@@ -38,7 +39,7 @@
 	</header>
 
 	{#if adding}
-		<section class="rounded-xl border border-line bg-surface p-5">
+		<section class="rounded-xl border border-line bg-surface p-5" in:fly={{ y: 12 }}>
 			<h2 class="mb-4 text-base font-semibold">{t.profile.new}</h2>
 			<ProfileForm
 				submitLabel={t.profile.create}
@@ -55,8 +56,8 @@
 		<h2 class="label">{t.profile.own}</h2>
 		{#if lists.own.length}
 			<ul class="divide-y divide-line rounded-xl border border-line bg-surface">
-				{#each lists.own as p (p.id)}
-					{@render row(p)}
+				{#each lists.own as p, i (p.id)}
+					{@render row(p, i)}
 				{/each}
 			</ul>
 		{:else}
@@ -70,25 +71,25 @@
 			<p class="mt-1 text-xs text-ink-3">{t.profile.demosHint}</p>
 		</div>
 		<ul class="divide-y divide-dashed divide-line-strong rounded-xl border border-dashed border-line-strong">
-			{#each lists.demos as p (p.id)}
-				{@render row(p)}
+			{#each lists.demos as p, i (p.id)}
+				{@render row(p, lists.own.length + i + 1)}
 			{/each}
 		</ul>
 	</section>
 </div>
 
-{#snippet row(p: Profile)}
-	<li class="flex flex-wrap items-center gap-3 px-4 py-3">
+{#snippet row(p: Profile, i: number)}
+	<li class="rise flex flex-wrap items-center gap-3 px-4 py-3" style:--i={i}>
 		<Avatar profile={p} size={32} />
 		<div class="min-w-0 flex-1">
 			<div class="truncate font-semibold">{p.name}</div>
-			<div class="text-xs text-ink-3"><TherapyName therapy={p.therapy} short />{` · ${t.profile.draws(p.draws.length)}`}</div>
+			<div class="text-xs text-ink-3"><TherapyName therapy={p.therapy} short />{t.profile.draws(p.draws.length)}</div>
 		</div>
 		<div class="flex flex-wrap items-center gap-2 text-xs">
 			{#if p.id === db.active}
 				<span class="px-2.5 py-1 font-medium text-ink-2">✓ {t.profile.active}</span>
 			{:else}
-				<button type="button" onclick={() => setActive(p.id)} class={button}>{t.profile.switch}</button>
+				<button type="button" onclick={() => morph(() => setActive(p.id))} class={button}>{t.profile.switch}</button>
 			{/if}
 			<button type="button" onclick={() => openData(p)} class={button}>{t.nav.myData}</button>
 			{#if p.demo}

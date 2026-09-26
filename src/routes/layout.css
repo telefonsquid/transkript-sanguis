@@ -264,3 +264,214 @@ select option {
 		opacity: 1;
 	}
 }
+
+/* Motion. Everything below switches off when the system or the app setting asks for less */
+:root[data-motion='reduce'] *,
+:root[data-motion='reduce'] *::before,
+:root[data-motion='reduce'] *::after {
+	animation-duration: 1ms !important;
+	animation-delay: 0s !important;
+	animation-iteration-count: 1 !important;
+	transition-duration: 0s !important;
+	transition-delay: 0s !important;
+}
+
+:root:not([data-motion='reduce']) {
+	scroll-behavior: smooth;
+	interpolate-size: allow-keywords;
+}
+
+@layer base {
+	:where(button, a, summary, label, input, select, textarea, [role='button']) {
+		transition:
+			color 150ms,
+			background-color 150ms,
+			border-color 150ms,
+			box-shadow 150ms,
+			opacity 150ms,
+			transform 150ms cubic-bezier(0.3, 1.4, 0.5, 1);
+	}
+
+	/* Buttons give under the finger */
+	button:active:not(:disabled) {
+		transform: scale(0.97);
+		transition-duration: 60ms;
+	}
+
+	[type='checkbox']:checked,
+	[type='radio']:checked {
+		animation: tick 260ms cubic-bezier(0.3, 1.6, 0.5, 1);
+	}
+}
+
+@keyframes tick {
+	from {
+		transform: scale(0.6);
+	}
+}
+
+/* Entrances, staggered by their place in a list */
+.rise {
+	animation: rise 460ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+	animation-delay: calc(min(var(--i, 0), 16) * 30ms);
+}
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+}
+
+.appear {
+	animation: appear 320ms ease-out backwards;
+	animation-delay: var(--delay, 0ms);
+}
+@keyframes appear {
+	from {
+		opacity: 0;
+	}
+}
+
+/* Chart lines draw themselves, markers pop in behind them */
+.draw {
+	stroke-dasharray: 1;
+	animation: draw 900ms cubic-bezier(0.35, 0.7, 0.2, 1) backwards;
+}
+@keyframes draw {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+.dot {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: dot 420ms cubic-bezier(0.3, 1.6, 0.5, 1) backwards;
+	animation-delay: var(--delay, 0ms);
+}
+@keyframes dot {
+	from {
+		opacity: 0;
+		transform: scale(0);
+	}
+}
+
+/* Chart parts follow new scales and filters instead of jumping */
+.glide {
+	transition:
+		cx 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		cy 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		r 200ms cubic-bezier(0.3, 1.6, 0.5, 1),
+		x 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		y 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		width 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		height 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		d 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+		opacity 250ms,
+		fill-opacity 250ms,
+		stroke-width 200ms;
+}
+
+/* Reference rails beside a chart show a ring only for keyboard focus */
+.rail-focus {
+	opacity: 0;
+}
+.rail:focus-visible .rail-focus {
+	opacity: 1;
+}
+
+/* Sliding pill of tabs and segmented controls, placed by the glide attachment */
+[data-pill] {
+	position: absolute;
+	left: 0;
+	pointer-events: none;
+}
+[data-pill][data-ready] {
+	transition:
+		transform 340ms cubic-bezier(0.3, 1.25, 0.5, 1),
+		width 340ms cubic-bezier(0.3, 1.25, 0.5, 1),
+		opacity 150ms;
+}
+
+/* View transitions. The frame swaps at once so the header pills keep sliding and nothing ghosts, the content fades up */
+.vt-header {
+	view-transition-name: header;
+}
+.vt-main {
+	view-transition-name: main;
+}
+:root[data-vt='page']::view-transition-old(root) {
+	animation: none;
+	opacity: 0;
+}
+:root[data-vt='page']::view-transition-new(root) {
+	animation: none;
+}
+::view-transition-old(header) {
+	animation: none;
+	opacity: 0;
+}
+::view-transition-new(header) {
+	animation: none;
+}
+::view-transition-group(main) {
+	animation: none;
+}
+::view-transition-old(main),
+::view-transition-new(main) {
+	inline-size: auto;
+	block-size: auto;
+}
+::view-transition-old(main) {
+	animation: 140ms ease-in both vt-out;
+}
+::view-transition-new(main) {
+	animation: 340ms cubic-bezier(0.2, 0.8, 0.2, 1) 50ms both vt-in;
+}
+@keyframes vt-out {
+	to {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+@keyframes vt-in {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+/* A card grows into the focus chart of its value and shrinks back */
+::view-transition-group(hero) {
+	animation-duration: 420ms;
+	animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(hero),
+::view-transition-new(hero) {
+	block-size: 100%;
+	animation-duration: 420ms;
+}
+
+/* Theme spreads in a circle from where it was picked, language cross fades */
+:root[data-vt='theme'] *,
+:root[data-vt='lang'] * {
+	view-transition-name: none !important;
+}
+:root[data-vt='theme']::view-transition-old(root) {
+	animation: none;
+}
+:root[data-vt='theme']::view-transition-new(root) {
+	animation: 560ms cubic-bezier(0.4, 0, 0.2, 1) both vt-reveal;
+}
+@keyframes vt-reveal {
+	from {
+		clip-path: circle(0 at var(--vt-x) var(--vt-y));
+	}
+	to {
+		clip-path: circle(150vmax at var(--vt-x) var(--vt-y));
+	}
+}

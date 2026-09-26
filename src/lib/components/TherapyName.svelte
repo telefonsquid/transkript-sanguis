@@ -10,4 +10,4 @@
 	let { therapy, short = false }: { therapy: Therapy; short?: boolean } = $props();
 </script>
 
-<span class={TINT[therapy]}>{(short ? t.profile.therapyShort : t.profile.therapies)[therapy]}</span>
+{#if therapy !== 'none'}<span class={TINT[therapy]}>{(short ? t.profile.therapyShort : t.profile.therapies)[therapy]}</span> ·&nbsp;{/if}

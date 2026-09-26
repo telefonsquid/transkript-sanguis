@@ -41,6 +41,9 @@
 
 	let drag: { mode: 'new' | 'left' | 'right' | 'move'; px: number; from: number; to: number } | null = null;
 
+	// The brush glides to presets but follows the pointer directly while dragged
+	let dragging = $state(false);
+
 	const iso = (time: number) => new Date(Math.min(t1, Math.max(t0, time))).toISOString().slice(0, 10);
 
 	function local(e: PointerEvent): number {
@@ -53,6 +56,7 @@
 		const from = selFrom ?? m.left;
 		const to = selTo ?? width - m.right;
 		drag = { mode, px, from, to };
+		dragging = true;
 		(e.currentTarget as Element).setPointerCapture(e.pointerId);
 		e.stopPropagation();
 	}
@@ -75,6 +79,7 @@
 
 	function up() {
 		drag = null;
+		dragging = false;
 	}
 
 	function clear() {
@@ -166,6 +171,7 @@
 						stroke="var(--ink)"
 						stroke-width={shown ? 2 : 1.2}
 						paint-order="stroke"
+						class="glide"
 					/>
 					<title>{fmtDate(d.t)} · {d.lab || t.common.noLab} · {t.data.values(d.n)}{current.built.hrtStart ? ` · ${fmtHrt(d.t)}` : ''}</title>
 				</g>
@@ -181,9 +187,9 @@
 </div>
 
 {#snippet brush(a: number, b: number)}
-	<rect x={a} y={2} width={Math.max(2, b - a)} height={height - m.bottom - 2} fill="var(--ref-target)" opacity="0.12" class="cursor-grab" role="presentation" onpointerdown={(e) => down(e, 'move')} onpointermove={move} onpointerup={up} ondblclick={clear} />
+	<rect x={a} y={2} width={Math.max(2, b - a)} height={height - m.bottom - 2} fill="var(--ref-target)" opacity="0.12" class={['cursor-grab', !dragging && 'glide']} role="presentation" onpointerdown={(e) => down(e, 'move')} onpointermove={move} onpointerup={up} ondblclick={clear} />
 	<rect x={a - 3} y={2} width="6" height={height - m.bottom - 2} fill="transparent" class="cursor-ew-resize" role="presentation" onpointerdown={(e) => down(e, 'left')} onpointermove={move} onpointerup={up} />
 	<rect x={b - 3} y={2} width="6" height={height - m.bottom - 2} fill="transparent" class="cursor-ew-resize" role="presentation" onpointerdown={(e) => down(e, 'right')} onpointermove={move} onpointerup={up} />
-	<line x1={a} x2={a} y1={2} y2={height - m.bottom} stroke="var(--ref-target)" stroke-width="2" class="pointer-events-none" />
-	<line x1={b} x2={b} y1={2} y2={height - m.bottom} stroke="var(--ref-target)" stroke-width="2" class="pointer-events-none" />
+	<rect x={a - 1} y={2} width="2" height={height - m.bottom - 2} fill="var(--ref-target)" class={['pointer-events-none', !dragging && 'glide']} />
+	<rect x={b - 1} y={2} width="2" height={height - m.bottom - 2} fill="var(--ref-target)" class={['pointer-events-none', !dragging && 'glide']} />
 {/snippet}

@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { BASES, KIND_ORDER } from '../analysis';
 	import { t } from '../i18n';
+	import { glide } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
 	import { applyDatePreset, resetSettings, settings, toggle } from '../state.svelte';
 	import Popover from '../ui/Popover.svelte';
@@ -43,7 +44,8 @@
 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
 	<div class="flex flex-wrap items-center gap-1.5">
 		<span class="label">{t.filters.dates}</span>
-		<div class="inline-flex h-7 rounded-md border border-line bg-surface p-0.5" role="radiogroup" aria-label={t.filters.dates}>
+		<div class="relative inline-flex h-7 rounded-md border border-line bg-surface p-0.5" role="radiogroup" aria-label={t.filters.dates} {@attach glide('[aria-checked="true"]')}>
+			<span data-pill class="inset-y-0.5 rounded-[5px] bg-ink"></span>
 			{#each datePresets as p (p.value)}
 				<button
 					type="button"
@@ -52,8 +54,8 @@
 					title={p.title}
 					onclick={() => applyDatePreset(p.value)}
 					class={[
-						'rounded-[5px] px-2 text-xs font-medium whitespace-nowrap',
-						settings.datePreset === p.value ? 'bg-ink text-surface' : 'text-ink-2 hover:bg-hover hover:text-ink'
+						'relative rounded-[5px] px-2 text-xs font-medium whitespace-nowrap transition-colors',
+						settings.datePreset === p.value ? 'text-surface' : 'text-ink-2 hover:bg-hover hover:text-ink'
 					]}>{p.label}</button
 				>
 			{/each}

@@ -4,6 +4,7 @@
 	import { fmtDate, fmtHrt, hrtStartTime } from '../analysis';
 	import { toTime, type ResolvedPhase } from '../data';
 	import { t, tx } from '../i18n';
+	import { fade } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
 	import { hover, type XMode } from '../state.svelte';
 	import type { ChartBand, ChartPoint, ChartSeries } from './types';
@@ -30,6 +31,8 @@
 		/** Band shown filled on top of the configured ones, driven by hovering a legend row */
 		highlight?: string | null;
 		onbandhover?: (id: string | null) => void;
+		/** Clicking a rail shows or hides its band */
+		onbandclick?: (id: string) => void;
 		onpick?: (t: number) => void;
 		zeroLine?: number;
 		ariaLabel: string;
@@ -55,6 +58,7 @@
 		yTitle,
 		highlight = null,
 		onbandhover,
+		onbandclick,
 		onpick,
 		zeroLine,
 		ariaLabel
@@ -250,6 +254,15 @@
 	}
 
 	const statusGlyph = (s: string) => (s === 'high' ? '▲' : s === 'low' ? '▼' : '');
+
+	// Markers pop in as the drawing line reaches them
+	const reach = (x: number) => `${Math.round(120 + (700 * (x - plotLeft)) / Math.max(1, plotW))}ms`;
+
+	function railKey(e: KeyboardEvent, id: string) {
+		if (e.key !== 'Enter' && e.key !== ' ') return;
+		e.preventDefault();
+		onbandclick?.(id);
+	}
 </script>
 
 <div class="relative select-none" bind:clientWidth={width} style:height="{height}px">
@@ -283,6 +296,7 @@
 								width={r.x1 - r.x0}
 								height={plotH}
 								fill={r.p.implicit ? 'var(--pre)' : r.i % 2 ? 'var(--phase-a)' : 'transparent'}
+								class="glide"
 							/>
 						{/if}
 					{/each}
@@ -299,44 +313,48 @@
 			{/if}
 
 			<!-- Grid -->
+			<!-- Grid lines move with the scale, so they are placed by transform -->
 			{#each yTicks as v (v)}
-				<line x1={plotLeft} x2={plotRight} y1={y(v)} y2={y(v)} stroke="var(--grid)" stroke-width="1" />
-				{#if compact}
-					<text x={plotLeft + 2} y={y(v) - 3} class="fill-ink-3 num text-[9.5px]">{fmtTick(v)}</text>
-				{:else}
-					<text x={plotLeft - 8} y={y(v)} dy="0.32em" text-anchor="end" class="fill-ink-3 num text-[11px]">{fmtTick(v)}</text>
-				{/if}
+				<g class="glide appear" style:transform="translateY({y(v)}px)">
+					<line x1={plotLeft} x2={plotRight} y1={0} y2={0} stroke="var(--grid)" stroke-width="1" />
+					{#if compact}
+						<text x={plotLeft + 2} y={-3} class="fill-ink-3 num text-[9.5px]">{fmtTick(v)}</text>
+					{:else}
+						<text x={plotLeft - 8} y={0} dy="0.32em" text-anchor="end" class="fill-ink-3 num text-[11px]">{fmtTick(v)}</text>
+					{/if}
+				</g>
 			{/each}
 			{#if zeroLine !== undefined}
-				<line x1={plotLeft} x2={plotRight} y1={y(zeroLine)} y2={y(zeroLine)} stroke="var(--axis)" stroke-width="1" />
+				<line x1={plotLeft} x2={plotRight} y1={0} y2={0} stroke="var(--axis)" stroke-width="1" class="glide" style:transform="translateY({y(zeroLine)}px)" />
 			{/if}
 
 			<g clip-path="url(#clip-{uid})">
 				<!-- Printed lab ranges, stepped because they change between reports -->
 				{#if labBand}
 					{#each labSteps as s, i (i)}
-						<rect x={s.x0} y={s.y0} width={Math.max(0, s.x1 - s.x0)} height={Math.max(0, s.y1 - s.y0)} fill="var(--ref-lab)" opacity="0.08" />
-						{#if s.hasHigh}<line x1={s.x0} x2={s.x1} y1={s.y0} y2={s.y0} stroke="var(--ref-lab)" stroke-width="1" opacity="0.55" />{/if}
-						{#if s.hasLow}<line x1={s.x0} x2={s.x1} y1={s.y1} y2={s.y1} stroke="var(--ref-lab)" stroke-width="1" opacity="0.55" />{/if}
+						<rect x={s.x0} y={s.y0} width={Math.max(0, s.x1 - s.x0)} height={Math.max(0, s.y1 - s.y0)} fill="var(--ref-lab)" opacity="0.08" class="glide" />
+						{#if s.hasHigh}<rect x={s.x0} y={s.y0 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity="0.55" class="glide" />{/if}
+						{#if s.hasLow}<rect x={s.x0} y={s.y1 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity="0.55" class="glide" />{/if}
 					{/each}
 				{/if}
 
-				<!-- Curated reference bands -->
+				<!-- Curated reference bands, all drawn so showing and hiding one fades -->
 				{#each bands as b (b.id)}
-					{#if b.filled || highlight === b.id}
-						{const y0 = $derived(yOf(b.high, plotTop))}
-						{const y1 = $derived(yOf(b.low, plotBottom))}
-						<rect x={plotLeft} y={y0} width={plotW} height={Math.max(0, y1 - y0)} fill="var(--ref-{b.kind})" opacity={highlight === b.id ? 0.16 : 0.09} />
-						{#if b.high !== undefined}<line x1={plotLeft} x2={plotRight} y1={y0} y2={y0} stroke="var(--ref-{b.kind})" stroke-width={highlight === b.id ? 1.5 : 1} />{/if}
-						{#if b.low !== undefined}<line x1={plotLeft} x2={plotRight} y1={y1} y2={y1} stroke="var(--ref-{b.kind})" stroke-width={highlight === b.id ? 1.5 : 1} />{/if}
-					{/if}
+					{const y0 = $derived(yOf(b.high, plotTop))}
+					{const y1 = $derived(yOf(b.low, plotBottom))}
+					{const lit = $derived(highlight === b.id)}
+					{const shown = $derived(b.filled || lit)}
+					{const edge = $derived(lit ? 1.5 : 1)}
+					<rect x={plotLeft} y={y0} width={plotW} height={Math.max(0, y1 - y0)} fill="var(--ref-{b.kind})" opacity={!shown ? 0 : lit ? 0.16 : 0.09} class="glide" />
+					{#if b.high !== undefined}<rect x={plotLeft} y={y0 - edge / 2} width={plotW} height={edge} fill="var(--ref-{b.kind})" opacity={shown ? 1 : 0} class="glide" />{/if}
+					{#if b.low !== undefined}<rect x={plotLeft} y={y1 - edge / 2} width={plotW} height={edge} fill="var(--ref-{b.kind})" opacity={shown ? 1 : 0} class="glide" />{/if}
 				{/each}
 
 				<!-- Regimen changes, dotted when the date is approximate -->
 				{#if showEvents}
 					{#each phases.filter((p) => p.start) as p, i (p.id)}
 						{const ex = $derived(xs.x(toTime(p.start)))}
-						<line x1={ex} x2={ex} y1={plotTop} y2={plotBottom} stroke="var(--ink-3)" stroke-width={i === 0 ? 1.5 : 1} stroke-dasharray={p.approx ? '2 3' : undefined} opacity={compact ? 0.6 : 1}>
+						<line x1={0} x2={0} y1={plotTop} y2={plotBottom} stroke="var(--ink-3)" stroke-width={i === 0 ? 1.5 : 1} stroke-dasharray={p.approx ? '2 3' : undefined} opacity={compact ? 0.6 : 1} class="glide" style:transform="translateX({ex}px)">
 							<title>{p.label}{p.approx ? ` (${t.common.approx})` : ''}{p.regimen ? `: ${p.regimen}` : ''}</title>
 						</line>
 					{/each}
@@ -344,12 +362,12 @@
 
 				<!-- Crosshair -->
 				{#if hoverT !== null}
-					<line x1={xs.x(hoverT)} x2={xs.x(hoverT)} y1={plotTop} y2={plotBottom} stroke="var(--ink-2)" stroke-width="1" />
+					<rect x={xs.x(hoverT) - 0.5} y={plotTop} width="1" height={plotH} fill="var(--ink-2)" class="transition-[x] duration-150 ease-out" />
 				{/if}
 
 				<!-- Series -->
 				{#each series as s (s.id)}
-					<path d={pathFor(s.points)} fill="none" stroke={s.color} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+					<path d={pathFor(s.points)} pathLength="1" fill="none" stroke={s.color} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" class="draw glide" />
 				{/each}
 			</g>
 
@@ -359,16 +377,17 @@
 					{const r = $derived((compact ? 3.5 : 4.5) + (hoverT === p.t ? 1.5 : 0))}
 					{const cx = $derived(xs.x(p.t))}
 					{const cy = $derived(y(p.v))}
+					{const delay = $derived(reach(cx))}
 					{#if p.status === 'high' || p.status === 'low'}
-						<circle {cx} {cy} r={r + 3.2} fill="none" stroke="var(--{p.status})" stroke-width="1.5" />
+						<circle {cx} {cy} r={r + 3.2} fill="none" stroke="var(--{p.status})" stroke-width="1.5" class="glide dot" style:--delay="calc({delay} + 120ms)" />
 					{/if}
 					{#if p.m.censor || p.m.derived}
-						<path d={marker(p, r)} fill="var(--surface)" stroke={s.color} stroke-width="2" stroke-linejoin="round" />
+						<path d={marker(p, r)} fill="var(--surface)" stroke={s.color} stroke-width="2" stroke-linejoin="round" class="glide dot" style:--delay={delay} />
 					{:else if p.m.suspect}
-						<circle {cx} {cy} {r} fill="var(--surface)" stroke={s.color} stroke-width="1.5" stroke-dasharray="2 2" />
-						{#if !compact}<text x={cx} y={cy} dy="0.35em" text-anchor="middle" class="text-[8px] font-bold" fill={s.color}>?</text>{/if}
+						<circle {cx} {cy} {r} fill="var(--surface)" stroke={s.color} stroke-width="1.5" stroke-dasharray="2 2" class="glide dot" style:--delay={delay} />
+						{#if !compact}<text x={0} y={0} dy="0.35em" text-anchor="middle" class="glide text-[8px] font-bold" fill={s.color} style:transform="translate({cx}px, {cy}px)">?</text>{/if}
 					{:else}
-						<circle {cx} {cy} {r} fill={s.color} stroke="var(--surface)" stroke-width="2" />
+						<circle {cx} {cy} {r} fill={s.color} stroke="var(--surface)" stroke-width="2" class="glide dot" style:--delay={delay} />
 					{/if}
 				{/each}
 			{/each}
@@ -377,11 +396,14 @@
 			{#each series as s (s.id)}
 				{#each s.points.filter((p) => labelled.has(p)) as p (p.m.drawId + p.m.analyte)}
 					{const above = $derived(y(p.v) - plotTop > 18)}
+					{const lx = $derived(xs.x(p.t))}
 					<text
-						x={xs.x(p.t)}
-						y={y(p.v) + (above ? -10 : 17)}
-						text-anchor={xs.x(p.t) > plotRight - 20 ? 'end' : xs.x(p.t) < plotLeft + 20 ? 'start' : 'middle'}
-						class="num fill-ink font-semibold {compact ? 'text-[10.5px]' : 'text-[11.5px]'}"
+						x={0}
+						y={0}
+						text-anchor={lx > plotRight - 20 ? 'end' : lx < plotLeft + 20 ? 'start' : 'middle'}
+						class="num glide appear fill-ink font-semibold {compact ? 'text-[10.5px]' : 'text-[11.5px]'}"
+						style:transform="translate({lx}px, {y(p.v) + (above ? -10 : 17)}px)"
+						style:--delay="calc({reach(lx)} + 200ms)"
 						stroke="var(--surface)"
 						stroke-width="3"
 						paint-order="stroke"
@@ -413,17 +435,25 @@
 				{const rx = $derived(plotRight + 14 + i * railStep)}
 				{const ry0 = $derived(yOf(b.high, plotTop - 4))}
 				{const ry1 = $derived(yOf(b.low, plotBottom + 4))}
-				{const active = $derived(highlight === b.id || b.filled)}
+				{const w = $derived(b.filled ? 5 : highlight === b.id ? 4 : 2.5)}
 				<g
-					role="presentation"
+					role="button"
+					tabindex="0"
+					aria-pressed={b.filled}
+					aria-label="{t.kind[b.kind]}: {b.label} ({b.range})"
 					onpointerenter={() => onbandhover?.(b.id)}
 					onpointerleave={() => onbandhover?.(null)}
-					class="cursor-default"
+					onfocus={() => onbandhover?.(b.id)}
+					onblur={() => onbandhover?.(null)}
+					onclick={() => onbandclick?.(b.id)}
+					onkeydown={(e) => railKey(e, b.id)}
+					class="rail cursor-pointer outline-none"
 				>
 					<rect x={rx - 4} y={plotTop - 6} width={railStep} height={plotH + 12} fill="transparent" />
-					<line x1={rx} x2={rx} y1={ry0} y2={ry1} stroke="var(--ref-{b.kind})" stroke-width={active ? 3.5 : 2.5} stroke-linecap="round" opacity={highlight && highlight !== b.id ? 0.35 : 1} />
-					{#if b.high === undefined}<path d="M{rx - 3},{ry0 + 4}L{rx},{ry0}L{rx + 3},{ry0 + 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" />{/if}
-					{#if b.low === undefined}<path d="M{rx - 3},{ry1 - 4}L{rx},{ry1}L{rx + 3},{ry1 - 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" />{/if}
+					<rect x={rx - 4} y={ry0 - 4} width="8" height={Math.max(0, ry1 - ry0) + 8} rx="4" fill="none" stroke="var(--ref-target)" stroke-width="1.5" class="rail-focus" />
+					<rect x={rx - w / 2} y={ry0} width={w} height={Math.max(0, ry1 - ry0)} rx={w / 2} fill="var(--ref-{b.kind})" opacity={highlight && highlight !== b.id ? 0.35 : 1} class="glide" />
+					{#if b.high === undefined}<path d="M{rx - 3},{ry0 + 4}L{rx},{ry0}L{rx + 3},{ry0 + 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" class="glide" />{/if}
+					{#if b.low === undefined}<path d="M{rx - 3},{ry1 - 4}L{rx},{ry1}L{rx + 3},{ry1 - 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" class="glide" />{/if}
 					<title>{t.kind[b.kind]}: {b.label} ({b.range})</title>
 				</g>
 			{/each}
@@ -448,7 +478,8 @@
 			{const phase = $derived(phases.find((p) => p.id === first.m.phase))}
 			{const start = $derived(hrtStartTime())}
 			<div
-				class="pointer-events-none absolute z-30 min-w-44 max-w-72 rounded-md border border-line bg-surface px-3 py-2 text-xs shadow-[var(--shadow)]"
+				class="pointer-events-none absolute z-30 min-w-44 max-w-72 rounded-md border border-line bg-surface px-3 py-2 text-xs shadow-[var(--shadow)] transition-[left,right] duration-150 ease-out"
+				transition:fade={{ duration: 100 }}
 				style:top="{Math.max(0, margin.top - 4)}px"
 				style:left={tipLeft > width * 0.6 ? undefined : `${tipLeft + 14}px`}
 				style:right={tipLeft > width * 0.6 ? `${width - tipLeft + 14}px` : undefined}

@@ -5,6 +5,7 @@
 	import Chart from '../chart/Chart.svelte';
 	import type { Analyte } from '../data/types';
 	import { altNameOf, nameOf, t } from '../i18n';
+	import { fly } from '../motion.svelte';
 	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
 	import { filtered, settings } from '../state.svelte';
 
@@ -37,7 +38,10 @@
 	const href = $derived(resolve('/analyte/[id]', { id: a.id }));
 </script>
 
-<article class="flex flex-col rounded-lg border border-line bg-surface">
+<article
+	data-hero={a.id}
+	class="flex h-full flex-col rounded-lg border border-line bg-surface transition-[translate,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[var(--shadow)]"
+>
 	<header class="flex items-start justify-between gap-2 px-3 pt-2.5">
 		<div class="min-w-0">
 			<a {href} class="block truncate text-[13px] leading-tight font-semibold text-ink hover:underline">
@@ -51,7 +55,9 @@
 					{#if status === 'high' || status === 'low'}
 						<span class="text-[10px]" style:color="var(--{status})">{status === 'high' ? '▲' : '▼'}</span>
 					{/if}
-					<span class="text-[17px] leading-none font-semibold tracking-tight text-ink">{lastPoint.text}</span>
+					{#key lastPoint.text}
+						<span class="text-[17px] leading-none font-semibold tracking-tight text-ink" in:fly={{ y: 8, duration: 280 }}>{lastPoint.text}</span>
+					{/key}
 				</div>
 				{#if delta !== undefined}
 					<div class="num text-[10.5px] text-ink-3" title={t.focus.change}>

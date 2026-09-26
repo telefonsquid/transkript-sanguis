@@ -2,9 +2,10 @@
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/jetbrains-mono';
 	import './layout.css';
-	import { afterNavigate, goto } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import AppearanceMenu from '#lib/components/AppearanceMenu.svelte';
 	import FilterBar from '#lib/components/FilterBar.svelte';
 	import LanguageMenu from '#lib/components/LanguageMenu.svelte';
 	import ProfileMenu from '#lib/components/ProfileMenu.svelte';
@@ -12,6 +13,7 @@
 	import Timeline from '#lib/components/Timeline.svelte';
 	import { fmtDate } from '#lib/analysis.js';
 	import { t } from '#lib/i18n/index.js';
+	import { fade, fly, glide, morph, motion, navigate, pop, repaint } from '#lib/motion.svelte.js';
 	import { persistPrefs, prefs } from '#lib/prefs.svelte.js';
 	import { current, db, persistDb, storage } from '#lib/profiles.svelte.js';
 	import { persist, resetProfileFilters, settings, type View } from '#lib/state.svelte.js';
@@ -21,8 +23,19 @@
 	let drawer = $state(false);
 	let help = $state(false);
 	let filters = $state(false);
+	let scroller: HTMLElement | undefined = $state();
 
-	afterNavigate(() => (drawer = false));
+	onNavigate(navigate);
+
+	// Content scrolls inside main, so each page starts at the top and back returns to where it was
+	const scrolls: Record<string, number> = {};
+	beforeNavigate(({ from }) => {
+		if (from && scroller) scrolls[from.url.pathname] = scroller.scrollTop;
+	});
+	afterNavigate(({ type, to }) => {
+		drawer = false;
+		if (scroller && to && type !== 'enter') scroller.scrollTop = type === 'popstate' ? (scrolls[to.url.pathname] ?? 0) : 0;
+	});
 
 	const tabs = $derived<{ view: View; label: string; key: string }[]>([
 		{ view: 'grid', label: t.nav.overview, key: '1' },
@@ -72,15 +85,17 @@
 		root.lang = prefs.lang;
 		if (prefs.theme === 'system') root.removeAttribute('data-theme');
 		else root.dataset.theme = prefs.theme;
+		root.dataset.motion = motion.reduced ? 'reduce' : 'full';
 	});
 
 	function show(view: View) {
+		if (onHome) return morph(() => (settings.view = view));
 		settings.view = view;
-		if (!onHome) goto(resolve('/'));
+		goto(resolve('/'));
 	}
 
 	function cycleTheme() {
-		prefs.theme = prefs.theme === 'system' ? 'dark' : prefs.theme === 'dark' ? 'light' : 'system';
+		repaint(() => (prefs.theme = prefs.theme === 'system' ? 'dark' : prefs.theme === 'dark' ? 'light' : 'system'), 'theme');
 	}
 
 	function onkeydown(e: KeyboardEvent) {
@@ -121,7 +136,7 @@
 <div class="flex h-dvh flex-col">
 	<!-- View tabs sit exactly in the middle once both sides fit, before that in the space between them -->
 	<header
-		class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+		class="vt-header relative z-30 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
 	>
 		<div class="flex min-w-0 items-center gap-3">
 			<a href={resolve('/')} onclick={() => (settings.view = 'grid')} class="flex shrink-0 items-center gap-2.5">
@@ -145,7 +160,8 @@
 
 		{#if hasData}
 			<nav class="order-last flex w-full justify-center lg:order-none lg:col-start-2 lg:w-auto" aria-label={t.nav.views}>
-				<div class="flex h-8 rounded-[9px] bg-surface-3 p-[3px]">
+				<div class="relative flex h-8 rounded-[9px] bg-surface-3 p-[3px]" {@attach glide('[aria-current="page"]')}>
+					<span data-pill class="inset-y-[3px] rounded-md bg-raised shadow-sm"></span>
 					{#each tabs as tab (tab.view)}
 						{const active = $derived(onHome && settings.view === tab.view)}
 						<button
@@ -153,7 +169,7 @@
 							onclick={() => show(tab.view)}
 							title={t.nav.shortcut(tab.key)}
 							aria-current={active ? 'page' : undefined}
-							class={['rounded-md px-3 text-[13px] font-medium transition-colors', active ? 'bg-raised text-ink shadow-sm' : 'text-ink-2 hover:text-ink']}
+							class={['relative rounded-md px-3 text-[13px] font-medium transition-colors', active ? 'text-ink' : 'text-ink-2 hover:text-ink']}
 						>
 							{tab.label}
 						</button>
@@ -187,7 +203,7 @@
 			<span class="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true"></span>
 			<div class="flex shrink-0 items-center">
 				<LanguageMenu />
-				<button type="button" onclick={cycleTheme} title={t.nav.themeTitle} class={utility}>{t.nav.theme[prefs.theme]}</button>
+				<AppearanceMenu />
 				<button type="button" onclick={() => (help = !help)} title={t.nav.help} aria-label={t.nav.help} class={utility}>?</button>
 			</div>
 		</div>
@@ -210,7 +226,7 @@
 				<Sidebar active={focusId} />
 			</aside>
 		{/if}
-		<main class="min-w-0 flex-1 overflow-y-auto">
+		<main bind:this={scroller} class="vt-main min-w-0 flex-1 overflow-y-auto">
 			{@render children()}
 		</main>
 	</div>
@@ -223,17 +239,17 @@
 
 {#if drawer && chrome}
 	<div class="fixed inset-0 z-50 flex lg:hidden">
-		<aside class="h-full w-80 max-w-[85vw] border-r border-line bg-surface shadow-[var(--shadow)]">
+		<button type="button" class="absolute inset-0 bg-black/30" aria-label={t.nav.closeList} onclick={() => (drawer = false)} transition:fade></button>
+		<aside class="relative h-full w-80 max-w-[85vw] border-r border-line bg-surface shadow-[var(--shadow)]" transition:fly={{ x: -320, opacity: 1 }}>
 			<Sidebar active={focusId} />
 		</aside>
-		<button type="button" class="flex-1 bg-black/30" aria-label={t.nav.closeList} onclick={() => (drawer = false)}></button>
 	</div>
 {/if}
 
 {#if help}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-		<button type="button" class="absolute inset-0 cursor-default" aria-label={t.common.close} onclick={() => (help = false)}></button>
-		<section class="relative w-full max-w-md rounded-lg border border-line bg-surface p-5 shadow-[var(--shadow)]" aria-label={t.help.title}>
+	<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+		<button type="button" class="absolute inset-0 cursor-default bg-black/30" aria-label={t.common.close} onclick={() => (help = false)} transition:fade></button>
+		<section class="relative w-full max-w-md rounded-lg border border-line bg-surface p-5 shadow-[var(--shadow)]" aria-label={t.help.title} in:pop={{ y: 10 }} out:fade={{ duration: 100 }}>
 			<h2 class="mb-3 text-sm font-semibold">{t.help.title}</h2>
 			<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
 				{#each t.help.keys as [k, v] (k)}

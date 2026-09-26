@@ -3,6 +3,7 @@
 	import { toTime } from '../../data';
 	import type { Profile } from '../../data/types';
 	import { t } from '../../i18n';
+	import { slide } from '../../motion.svelte';
 	import { current, db, deleteProfile, resetDemo, type NewProfile } from '../../profiles.svelte';
 	import Avatar from '../../ui/Avatar.svelte';
 	import DemoBadge from '../DemoBadge.svelte';
@@ -23,7 +24,7 @@
 	const storageKb = $derived(Math.round(JSON.stringify(db).length / 1024));
 
 	const facts = $derived<{ label: string; value?: string | number; hint?: string; tint?: string }[]>([
-		{ label: t.profile.therapy, value: t.profile.therapies[profile.therapy], tint: TINT[profile.therapy] },
+		...(profile.therapy === 'none' ? [] : [{ label: t.profile.therapy, value: t.profile.therapies[profile.therapy], tint: TINT[profile.therapy] }]),
 		{ label: t.profile.sex, value: profile.sex && t.profile.sexes[profile.sex] },
 		{ label: t.profile.born, value: profile.birth && (current.age === undefined ? profile.birth : `${profile.birth} · ${t.profile.age(Math.floor(current.age))}`) },
 		{ label: t.profile.heightShort, value: profile.height && `${profile.height} cm` },
@@ -65,7 +66,7 @@
 	</div>
 
 	{#if editing}
-		<div class="border-t border-line p-5">
+		<div class="border-t border-line p-5" transition:slide>
 			<ProfileForm
 				editing
 				initial={{ name: profile.name, therapy: profile.therapy, sex: profile.sex, birth: profile.birth, height: profile.height }}
@@ -83,7 +84,7 @@
 			</div>
 		</div>
 	{:else}
-		<dl class="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line px-5 py-4 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+		<dl class="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line px-5 py-4 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]" transition:slide>
 			{#each facts as f (f.label)}
 				<div class="min-w-0">
 					<dt class="text-[11px] text-ink-3">{f.label}</dt>

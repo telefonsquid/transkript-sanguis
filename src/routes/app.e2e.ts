@@ -93,13 +93,34 @@ test('focus view explains the value and lists profile specific references', asyn
 	await expect(page.getByRole('row', { name: /320 to 1000/ })).toHaveCount(0);
 });
 
+test('reference rails and table rows switch the same band', async ({ page }) => {
+	await demo(page);
+	await page.goto('/analyte/estradiol');
+	const row = page.getByRole('switch', { name: /Show Monotherapy suppression zone/ });
+	await expect(row).toHaveAttribute('aria-checked', 'false');
+	await page.getByRole('button', { name: /Monotherapy suppression zone/ }).click();
+	await expect(row).toHaveAttribute('aria-checked', 'true');
+	await row.click();
+	await expect(page.getByRole('button', { name: /Monotherapy suppression zone/ })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('reduce motion can be forced and is remembered', async ({ page }) => {
+	await demo(page);
+	await expect(page.locator('html')).toHaveAttribute('data-motion', 'full');
+	await page.getByRole('button', { name: /Auto/ }).click();
+	await page.getByRole('checkbox', { name: /Reduce motion/ }).check();
+	await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduce');
+	await page.reload();
+	await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduce');
+});
+
 test('a manually entered draw is stored and charted', async ({ page }) => {
 	await onboard(page);
 	await page.getByRole('button', { name: /Create profile/ }).click();
 	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
 	await expect(page.getByRole('radio', { name: 'None' })).toBeChecked();
 	await page.getByRole('button', { name: 'Create profile' }).click();
-	await page.getByRole('link', { name: /Add results by hand/ }).click();
+	await page.getByRole('link', { name: /By hand/ }).click();
 
 	await page.getByLabel('Date of the blood draw').fill('2025-05-01');
 

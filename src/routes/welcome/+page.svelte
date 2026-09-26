@@ -5,6 +5,7 @@
 	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
 	import { t } from '#lib/i18n/index.js';
+	import { fly } from '#lib/motion.svelte.js';
 	import { createProfile, current, db, setActive } from '#lib/profiles.svelte.js';
 
 	let medicalOk = $state(false);
@@ -25,11 +26,11 @@
 	{:else if step === 'local'}
 		{@render disclaimer(2, 'var(--ref-target)', lock, t.disclaimer.localTitle, t.disclaimer.localPoints, () => (db.consent = new Date().toISOString()))}
 	{:else if step === 'choose'}
-		<header>
+		<header in:fly={{ y: 16 }}>
 			<h1 class="text-3xl font-bold tracking-tight">{t.welcome.title}</h1>
 			<p class="mt-2 max-w-2xl text-ink-2">{t.welcome.intro}</p>
 		</header>
-		<section class="space-y-3" aria-label={t.welcome.choose}>
+		<section class="space-y-3" aria-label={t.welcome.choose} in:fly={{ y: 16, delay: 80 }}>
 			<h2 class="label">{t.welcome.choose}</h2>
 			<div class="grid gap-3 sm:grid-cols-2">
 				{@render choice(t.welcome.demoTitle, t.welcome.demoBody, demo)}
@@ -37,13 +38,13 @@
 			</div>
 		</section>
 	{:else if step === 'profile'}
-		<section class="space-y-4 rounded-xl border border-line bg-surface p-6">
+		<section class="space-y-4 rounded-xl border border-line bg-surface p-6" in:fly={{ y: 16 }}>
 			<button type="button" onclick={() => (creating = false)} class="text-xs text-ink-3 hover:text-ink">← {t.common.back}</button>
 			<h1 class="text-2xl font-semibold tracking-tight">{t.welcome.stepProfile}</h1>
 			<ProfileForm submitLabel={t.profile.create} onsave={(values) => createProfile(values)} />
 		</section>
 	{:else}
-		<section class="space-y-4">
+		<section class="space-y-4" in:fly={{ y: 16 }}>
 			<h1 class="text-2xl font-semibold tracking-tight">{t.welcome.stepIngest}</h1>
 			<IngestChoices />
 			<a href={resolve('/')} class="inline-block text-sm text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink">{t.welcome.later}</a>
@@ -57,6 +58,7 @@
 		style:border-color={accent}
 		style:background="color-mix(in srgb, {accent} 8%, var(--surface))"
 		aria-labelledby="disclaimer-title"
+		in:fly={{ x: n === 1 ? 0 : 40, y: n === 1 ? 16 : 0, duration: 420 }}
 	>
 		<div class="flex items-center justify-between">
 			<span class="flex size-14 items-center justify-center rounded-full text-ink" style:background="color-mix(in srgb, {accent} 28%, var(--surface))">
@@ -66,8 +68,8 @@
 		</div>
 		<h1 id="disclaimer-title" class="mt-6 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{title}</h1>
 		<ul class="mt-5 space-y-3 text-base text-ink">
-			{#each points as point (point)}
-				<li class="flex gap-3">
+			{#each points as point, i (point)}
+				<li class="rise flex gap-3" style:--i={i + 2}>
 					<span class="mt-2 size-2 shrink-0 rounded-full" style:background={accent}></span>
 					{point}
 				</li>
@@ -80,8 +82,8 @@
 {/snippet}
 
 {#snippet choice(title: string, body: string, onclick: () => void)}
-	<button type="button" {onclick} class="flex flex-col gap-2 rounded-xl border border-line bg-surface p-5 text-left hover:border-line-strong hover:bg-hover">
-		<span class="text-lg font-semibold text-ink">{title} →</span>
+	<button type="button" {onclick} class="group flex flex-col gap-2 rounded-xl border border-line bg-surface p-5 text-left transition-[translate,box-shadow,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-hover hover:shadow-[var(--shadow)]">
+		<span class="text-lg font-semibold text-ink">{title} <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span></span>
 		<span class="text-sm text-ink-2">{body}</span>
 	</button>
 {/snippet}
