@@ -220,14 +220,19 @@ export const en = {
 		customNew: (q: string) => `Create "${q}" as your own value`,
 		customUnit: 'Unit of the new value',
 		valueHint: 'As printed, e.g. 12,5 or <0.3',
-		rangeHint: 'e.g. 3.5 - 5.1 or < 50',
+		low: 'Min',
+		high: 'Max',
+		rangeHelp: 'Leave min or max empty for a one sided range like "< 50".',
+		pickUnit: 'Pick a unit',
 		saveDraw: 'Save blood draw',
 		saved: 'Saved',
 		errors: {
 			date: 'Enter the date of the blood draw.',
 			empty: 'Add at least one value.',
 			value: 'Not a number. Use digits, a decimal point or comma, and < or > if printed.',
-			unit: 'Unit not known for this value. Pick one from the list.',
+			unit: 'Pick the unit printed on the report. Only units the app can convert are listed.',
+			confirm: 'Unit guessed from the size of the value. Check it against the report, then confirm.',
+			range: 'Min and max must be numbers, min not above max.',
 			analyte: 'Pick a value from the list.',
 			duplicate: 'This value appears twice in the draw.'
 		},
@@ -270,7 +275,11 @@ export const en = {
 		agentNotes: 'Notes from the assistant',
 		importRow: 'Import',
 		isBackup: 'This is a backup file of the app. Open it here:',
-		printedAs: 'printed as'
+		printedAs: 'printed as',
+		readAs: (unit: string) => `read as "${unit}"`,
+		guessed: 'guessed',
+		confirm: 'Confirm',
+		confirmAll: (n: number) => `Confirm ${plural(n, 'guessed unit', 'guessed units')}`
 	},
 	io: {
 		title: 'Backup & transfer',

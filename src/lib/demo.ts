@@ -1,5 +1,5 @@
 import { ckdEpi2009 } from './data/build';
-import { ageAt } from './data/parse';
+import { ageAt, parseRange } from './data/parse';
 import type { Draw, Profile, Result, Sex } from './data/types';
 
 /*
@@ -118,7 +118,7 @@ const LAB: Record<Sex, Record<string, string>> = {
 };
 
 /** A plain value takes the printed range of its lab, a pair brings its own and an empty one leaves it out */
-type Value = string | [value: string, ref: string] | Omit<Result, 'analyte'>;
+type Value = string | [value: string, range: string] | Omit<Result, 'analyte'>;
 
 interface Extra {
 	time?: string;
@@ -128,11 +128,18 @@ interface Extra {
 	ranges?: boolean;
 }
 
+/** Demo ranges are written as the lab prints them and stored as bounds */
+function bounds(text: string | undefined): Pick<Result, 'low' | 'high'> {
+	const r = parseRange(text);
+	if (!r || r.note) return {};
+	return { ...(r.low !== undefined && { low: r.low }), ...(r.high !== undefined && { high: r.high }) };
+}
+
 function draw(id: string, date: string, lab: string, rangesFor: Sex, values: Record<string, Value>, { ranges = true, ...extra }: Extra = {}): Draw {
 	const results = Object.entries(values).map(([analyte, v]): Result => {
-		const own = typeof v === 'string' ? { value: v } : Array.isArray(v) ? { value: v[0], ref: v[1] } : v;
-		const ref = own.ref ?? (ranges ? LAB[rangesFor][analyte] : undefined);
-		return ref ? { analyte, ...own, ref } : { analyte, ...own };
+		const own: Omit<Result, 'analyte'> = typeof v === 'string' ? { value: v } : Array.isArray(v) ? { value: v[0], ...bounds(v[1]) } : v;
+		const printed = typeof v === 'string' && ranges ? bounds(LAB[rangesFor][analyte]) : undefined;
+		return { analyte, ...printed, ...own };
 	});
 	return { id, date, lab, rangesFor, results, ...extra };
 }
@@ -166,7 +173,7 @@ function cityEgfr(profile: Profile): Profile {
 		const age = ageAt(profile.birth, d.date);
 		if (d.lab !== CITY || !crea || age === undefined || !d.rangesFor) continue;
 		const e = ckdEpi2009(parseFloat(crea.value), age, d.rangesFor);
-		d.results.push({ analyte: 'egfr', value: e >= 90 ? '>90' : String(Math.round(e)), ref: '> 60' });
+		d.results.push({ analyte: 'egfr', value: e >= 90 ? '>90' : String(Math.round(e)), low: 60 });
 	}
 	return profile;
 }
@@ -1124,4 +1131,4 @@ export const demoProfiles = (): Profile[] => [demoCisWoman(), demoCisMan(), demo
 export const DEMO_IDS = ['demo-cis-f', 'demo-cis-m', 'demo-fem', 'demo-masc'];
 
 /** Raise when the demo data changes, stored copies are then replaced */
-export const DEMO_VERSION = 3;
+export const DEMO_VERSION = 4;

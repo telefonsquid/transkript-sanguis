@@ -9,6 +9,7 @@
 		fmtBounds,
 		fmtDate,
 		fmtHrt,
+		fmtLabRef,
 		fmtNum,
 		fmtValue,
 		hrtStartTime,
@@ -75,10 +76,11 @@
 		const out: { text: string; lab: string; sex?: string; from: number; to: number }[] = [];
 		for (const m of ms) {
 			if (!m.labRef) continue;
-			const key = `${m.labRef.text}|${m.lab}|${m.rangesFor}`;
+			const text = fmtLabRef(m.labRef);
+			const key = `${text}|${m.lab}|${m.rangesFor}`;
 			const prev = out.at(-1);
 			if (prev && `${prev.text}|${prev.lab}|${prev.sex}` === key) prev.to = m.t;
-			else out.push({ text: m.labRef.text, lab: m.lab || t.common.noLab, sex: m.rangesFor, from: m.t, to: m.t });
+			else out.push({ text, lab: m.lab || t.common.noLab, sex: m.rangesFor, from: m.t, to: m.t });
 		}
 		return out;
 	});
@@ -337,7 +339,7 @@
 									{#if s === 'high' || s === 'low'}<span style:color="var(--{s})">{s === 'high' ? '▲' : '▼'} {t.status[s]}</span>{:else if s === 'in'}<span class="text-ink-3">{t.status.in}</span>{/if}
 								</td>
 								<td class={['px-2 py-1.5 whitespace-nowrap', m.labRef ? 'text-ink-2' : 'text-ink-3']}>
-									{m.labRef?.text ?? '—'}{#if m.printedUnit}<span class="text-ink-3"> {m.printedUnit}</span>{/if}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> ({t.profile.sexes[m.rangesFor]})</span>{/if}{#if m.labFlag}<span class="ml-1 text-ink-3">[{m.labFlag}]</span>{/if}
+									{fmtLabRef(m.labRef)}{#if m.printedUnit}<span class="text-ink-3"> {m.printedUnit}</span>{/if}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> ({t.profile.sexes[m.rangesFor]})</span>{/if}{#if m.labFlag}<span class="ml-1 text-ink-3">[{m.labFlag}]</span>{/if}
 								</td>
 								<td class={['px-2 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
 								<td class="max-w-40 truncate px-2 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>

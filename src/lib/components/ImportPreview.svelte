@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { unitChoices } from '../data';
 	import type { Draw, Result } from '../data/types';
 	import { t } from '../i18n';
-	import { drawProblem, newDraw, normName, rowProblem, toResult, type PreviewDraw, type PreviewRow, type RowProblem } from '../io';
+	import { drawProblem, newDraw, normName, resolveUnit, rowProblem, toResult, type PreviewDraw, type PreviewRow, type RowProblem } from '../io';
 	import { addCustom, current, newId, saveDraw } from '../profiles.svelte';
 	import AnalytePicker from './AnalytePicker.svelte';
 
@@ -13,8 +14,14 @@
 
 	let { draws = $bindable(), notes = [], ondone }: Props = $props();
 
-	const problemText = (p: RowProblem) =>
-		({ value: t.manual.errors.value, unit: t.manual.errors.unit, analyte: t.manual.errors.analyte, duplicate: t.manual.errors.duplicate })[p];
+	const problemText = (p: RowProblem) => t.manual.errors[p];
+
+	/** Units the app converts for the row's value, plus a converted spelling outside the usual list */
+	function choicesFor(row: PreviewRow): string[] {
+		const a = row.analyte ? current.lookup(row.analyte) : undefined;
+		const list = a ? unitChoices(a) : [];
+		return row.unit && !list.includes(row.unit) ? [row.unit, ...list] : list;
+	}
 
 	/** The printed name only adds something when it differs from the catalogue name */
 	function showPrinted(row: PreviewRow): boolean {
@@ -24,6 +31,7 @@
 	}
 
 	const active = $derived(draws.filter((d) => d.mode !== 'skip'));
+	const guessed = $derived(active.flatMap((d) => d.rows.filter((r) => r.suggested && r.action === 'import')));
 	const problems = $derived(
 		active.reduce((n, d) => n + (drawProblem(d) ? 1 : 0) + d.rows.filter((r) => rowProblem(r, d.rows, current.lookup)).length, 0)
 	);
@@ -35,7 +43,11 @@
 		for (const d of active) {
 			const results: Result[] = d.rows
 				.filter((r) => r.action !== 'drop')
-				.map((r) => toResult(r, r.action === 'custom' ? addCustom(profile, r.printed || r.analyte || '?', r.unit).id : r.analyte!));
+				.map((r) =>
+					r.action === 'custom'
+						? toResult(r, addCustom(profile, r.printed || r.analyte || '?', r.unit).id, r.unit)
+						: toResult(r, r.analyte!, current.lookup(r.analyte!)?.unit)
+				);
 
 			const target = d.mode === 'merge' ? profile.draws.find((x) => x.id === d.existing) : undefined;
 			if (target) {
@@ -96,7 +108,7 @@
 							<th class="px-4 py-1.5 font-medium">{t.table.cols.analyte}</th>
 							<th class="px-2 py-1.5 font-medium">{t.manual.printedValue}</th>
 							<th class="px-2 py-1.5 font-medium">{t.manual.unit}</th>
-							<th class="px-2 py-1.5 font-medium">{t.manual.range}</th>
+							<th class="px-2 py-1.5 font-medium">{t.manual.range} <span class="font-normal">({t.manual.low} / {t.manual.high})</span></th>
 							<th class="px-4 py-1.5 font-medium"></th>
 						</tr>
 					</thead>
@@ -114,16 +126,48 @@
 											onpick={(id, custom) => {
 												if (id) [row.analyte, row.action] = [id, 'import'];
 												else if (custom) [row.printed, row.action] = [custom, 'custom'];
+												resolveUnit(row, current.lookup);
 											}}
 										/>
 									{/if}
 									{#if showPrinted(row)}<div class="mt-0.5 text-[11px] text-ink-3">{t.agent.printedAs} {row.printed}</div>{/if}
 								</td>
 								<td class="px-2 py-1.5"><input bind:value={row.value} class={['num h-8 w-24 rounded-md bg-surface px-2 text-sm', p === 'value' ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.printedValue} /></td>
-								<td class="px-2 py-1.5"><input bind:value={row.unit} class={['h-8 w-24 rounded-md bg-surface px-2 text-sm', p === 'unit' ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.unit} /></td>
-								<td class="px-2 py-1.5"><input bind:value={row.ref} class="num h-8 w-28 rounded-md border-line bg-surface px-2 text-sm" aria-label={t.manual.range} /></td>
+								<td class="px-2 py-1.5">
+									{#if row.action === 'custom'}
+										<input bind:value={row.unit} class="h-8 w-28 rounded-md border-line bg-surface px-2 text-sm" aria-label={t.manual.unit} />
+									{:else}
+										<div class="flex items-center gap-1">
+											<select
+												bind:value={row.unit}
+												onchange={() => (row.suggested = false)}
+												class={['h-8 w-28 rounded-md bg-surface py-0 pr-7 pl-2 text-sm', !row.unit && 'empty', p === 'unit' ? 'border-[var(--critical)]' : p === 'confirm' ? 'border-[var(--serious)]' : 'border-line']}
+												aria-label={t.manual.unit}
+											>
+												<option value="" disabled>{t.manual.pickUnit}</option>
+												{#each choicesFor(row) as u (u)}<option value={u}>{u}</option>{/each}
+											</select>
+											{#if row.suggested}
+												<button type="button" onclick={() => (row.suggested = false)} class="h-8 rounded-md border border-[var(--serious)] px-2 text-[11px] text-ink-2 hover:bg-surface-2">{t.agent.confirm}</button>
+											{/if}
+										</div>
+									{/if}
+									{#if row.printedUnit && row.printedUnit !== row.unit}
+										<div class="mt-0.5 text-[11px] text-ink-3">{t.agent.readAs(row.printedUnit)}{#if row.suggested} · <span class="text-[var(--serious)]">{t.agent.guessed}</span>{/if}</div>
+									{/if}
+								</td>
+								<td class="px-2 py-1.5">
+									<div class="flex items-center gap-1">
+										<input bind:value={row.low} placeholder={t.manual.low} class={['num h-8 w-16 rounded-md bg-surface px-2 text-sm', p === 'range' ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.low} />
+										<span class="text-ink-3">–</span>
+										<input bind:value={row.high} placeholder={t.manual.high} class={['num h-8 w-16 rounded-md bg-surface px-2 text-sm', p === 'range' ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.high} />
+									</div>
+									{#if row.rangeNote}
+										<input bind:value={row.rangeNote} class="mt-1 h-6 w-full rounded border-line bg-surface px-1.5 text-[11px] text-ink-2" aria-label={t.manual.note} />
+									{/if}
+								</td>
 								<td class="px-4 py-1.5 text-right">
-									<select bind:value={row.action} class="h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs">
+									<select bind:value={row.action} onchange={() => resolveUnit(row, current.lookup)} class="h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs">
 										<option value="import" disabled={!row.analyte}>{t.agent.importRow}</option>
 										<option value="custom">{t.agent.keepCustom}</option>
 										<option value="drop">{t.agent.drop}</option>
@@ -131,7 +175,7 @@
 								</td>
 							</tr>
 							{#if p}
-								<tr><td colspan="5" class="px-4 pb-1.5 text-[11px] text-[var(--critical)]">{problemText(p)}</td></tr>
+								<tr><td colspan="5" class={['px-4 pb-1.5 text-[11px]', p === 'confirm' ? 'text-[var(--serious)]' : 'text-[var(--critical)]']}>{problemText(p)}</td></tr>
 							{/if}
 						{/each}
 					</tbody>
@@ -141,6 +185,11 @@
 	{/each}
 
 	<div class="flex flex-wrap items-center gap-3">
+		{#if guessed.length}
+			<button type="button" onclick={() => guessed.forEach((r) => (r.suggested = false))} class="rounded-md border border-[var(--serious)] px-3 py-2 text-sm text-ink-2 hover:bg-surface-2">
+				{t.agent.confirmAll(guessed.length)}
+			</button>
+		{/if}
 		<button type="button" onclick={doImport} disabled={!!problems || !active.length || !current.profile} class="rounded-md bg-ink px-4 py-2 text-sm font-medium text-surface hover:opacity-90 disabled:opacity-40">
 			{t.agent.importDraws(active.length)}
 		</button>

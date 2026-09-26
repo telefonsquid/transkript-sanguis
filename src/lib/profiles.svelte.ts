@@ -1,6 +1,6 @@
 import { SLUG } from './app';
-import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, todayIso, type Built } from './data';
-import type { Analyte, CustomAnalyte, Draw, Phase, Profile, Sex, Therapy } from './data/types';
+import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, parseRange, todayIso, type Built } from './data';
+import type { Analyte, CustomAnalyte, Draw, Phase, Profile, Result, Sex, Therapy } from './data/types';
 import { DEMO_IDS, DEMO_VERSION, demoProfiles } from './demo';
 import { deleteProfileFiles } from './files';
 
@@ -33,6 +33,14 @@ function withDemos(db: Db): Db {
 	return { ...db, profiles: [...kept, ...missing], demoVersion: DEMO_VERSION };
 }
 
+/** Ranges were stored as one printed text before they got their own bounds */
+function migrateRange(r: Result & { ref?: string }): Result {
+	if (typeof r.ref !== 'string') return r;
+	const { ref, ...rest } = r;
+	const range = parseRange(ref);
+	return { ...rest, low: rest.low ?? range?.low, high: rest.high ?? range?.high, rangeNote: rest.rangeNote ?? range?.note };
+}
+
 /** Fills fields older or hand written data may lack */
 export function normalizeProfile(p: Partial<Profile> & { id: string; name: string }): Profile {
 	return {
@@ -41,7 +49,7 @@ export function normalizeProfile(p: Partial<Profile> & { id: string; name: strin
 		...p,
 		phases: p.phases ?? [],
 		reports: p.reports ?? [],
-		draws: (p.draws ?? []).map((d) => ({ ...d, results: d.results ?? [] })),
+		draws: (p.draws ?? []).map((d) => ({ ...d, results: (d.results ?? []).map(migrateRange) })),
 		custom: p.custom ?? [],
 		demo: DEMO_IDS.includes(p.id) || undefined
 	};

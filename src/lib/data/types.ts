@@ -93,10 +93,13 @@ export interface Analyte {
 /** Catalogue entry as written in the analyte files, the texts come from `info/` */
 export type AnalyteDef = Omit<Analyte, 'info' | 'cites'>;
 
+/** Lab range of one result, bounds in the canonical unit */
 export interface Range {
 	low?: number;
 	high?: number;
-	text: string;
+	/** Bounds as printed, in the printed unit */
+	printed: { low?: number; high?: number };
+	note?: string;
 }
 
 export interface Measurement {
@@ -171,7 +174,11 @@ export interface Result {
 	analyte: string;
 	value: string;
 	unit?: string;
-	ref?: string;
+	/** Printed range bounds, in the printed unit */
+	low?: number;
+	high?: number;
+	/** Printed range text that is more than a plain lower and upper bound */
+	rangeNote?: string;
 	flag?: string;
 	/** Name as printed on the report */
 	printed?: string;

@@ -1,6 +1,7 @@
 import { analyteById } from './catalogue';
-import { ageAt, parseRange, parseValue, toTime, unitFactor } from './parse';
+import { ageAt, parseValue, toTime } from './parse';
 import type { Analyte, CustomAnalyte, Draw, Measurement, Phase, Profile, Range, Sex } from './types';
+import { unitFactor } from './units';
 
 export interface Issue {
 	drawId: string;
@@ -139,12 +140,11 @@ export function buildProfile(profile: Profile | null, lookup: (id: string) => An
 				continue;
 			}
 
-			const range = parseRange(res.ref);
-			const labRef: Range | undefined = range && {
-				text: range.text,
-				low: range.low === undefined ? undefined : range.low * factor,
-				high: range.high === undefined ? undefined : range.high * factor
-			};
+			const scaled = (v: number | undefined) => (v === undefined ? undefined : v * factor);
+			const labRef: Range | undefined =
+				res.low !== undefined || res.high !== undefined || res.rangeNote
+					? { low: scaled(res.low), high: scaled(res.high), printed: { low: res.low, high: res.high }, note: res.rangeNote }
+					: undefined;
 			const value = parsed.value * factor;
 			values.set(a.id, { value, censor: parsed.censor, raw: res.value });
 			out.push({

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { boundsFor, fmtBounds, fmtDate, fmtHrt, fmtValue, hrtStartTime, phaseName, position, statusOf, unitOf } from '../analysis';
+	import { boundsFor, fmtBounds, fmtDate, fmtHrt, fmtLabRef, fmtValue, hrtStartTime, phaseName, position, statusOf, unitOf } from '../analysis';
 	import { groupById, toTime } from '../data';
 	import type { Measurement } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
@@ -46,7 +46,7 @@
 			`${nameOf(a)} · ${fmtDate(m.t)}`,
 			`${fmtValue(m, settings.units)} ${unitOf(a, settings.units)}`,
 			b ? `${b.label}: ${fmtBounds(a, b, settings.units)}` : t.matrix.noRef,
-			m.labRef ? `${t.matrix.printed}: ${m.labRef.text}${m.rangesFor ? ` (${t.profile.sexes[m.rangesFor]})` : ''}` : '',
+			m.labRef ? `${t.matrix.printed}: ${fmtLabRef(m.labRef)}${m.rangesFor ? ` (${t.profile.sexes[m.rangesFor]})` : ''}` : '',
 			m.derived ? `${t.matrix.computed}: ${tx(m.derived)}` : '',
 			m.suspect ? `${t.matrix.suspect}: ${m.suspect}` : ''
 		];

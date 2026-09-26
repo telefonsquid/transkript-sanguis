@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { scaleLinear, scaleLog } from 'd3-scale';
 	import { curveLinear, curveMonotoneX, curveStepAfter, line } from 'd3-shape';
-	import { fmtDate, fmtHrt, hrtStartTime } from '../analysis';
+	import { fmtDate, fmtHrt, fmtLabRef, hrtStartTime } from '../analysis';
 	import { toTime, type ResolvedPhase } from '../data';
 	import { t, tx } from '../i18n';
 	import { fade } from '../motion.svelte';
@@ -503,7 +503,7 @@
 					<div class="mt-1.5 space-y-0.5 border-t border-line pt-1.5 text-ink-2">
 						{#if first.m.labRef}
 							<div>
-								{t.chart.lab} <span class="num text-ink">{first.m.labRef.text}</span>
+								{t.chart.lab} <span class="num text-ink">{fmtLabRef(first.m.labRef)}</span>
 								{#if first.m.rangesFor}<span class="text-ink-3">({t.profile.sexes[first.m.rangesFor]})</span>{/if}
 							</div>
 						{/if}

@@ -146,6 +146,39 @@ test('a manually entered draw is stored and charted', async ({ page }) => {
 	await expect(page.getByRole('link', { name: 'Ferritin' }).first()).toBeVisible();
 });
 
+test('an agent import only takes units the app can convert', async ({ page }) => {
+	const errors = watchErrors(page);
+	await onboard(page);
+	await page.getByRole('button', { name: /Create profile/ }).click();
+	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Tester');
+	await page.getByRole('button', { name: 'Create profile' }).click();
+	await page.goto('/data/agent');
+
+	const results = [
+		{ analyte: 'ferritin', value: '45', unit: 'µg/l', low: 15, high: 150 },
+		{ analyte: 'ast', value: '22', unit: '$\\sigma/1$', high: 35 },
+		{ analyte: 'creatinine', value: '0,8', unit: '$mg/dl$', rangeText: '$0.50-0..90$' }
+	];
+	await page.getByPlaceholder('Paste JSON here…').fill(JSON.stringify({ format: 'transkript-sanguis/draws', version: 2, draws: [{ date: '2025-05-01', results }] }));
+	await page.getByRole('button', { name: 'Check', exact: true }).click();
+
+	// A garbled unit is guessed and waits for a look, a LaTeX wrapped one is read as it is
+	const units = page.getByRole('combobox', { name: 'Unit' });
+	await expect(units.nth(1)).toHaveValue('U/l');
+	await expect(units.nth(2)).toHaveValue('mg/dl');
+	await expect(page.getByLabel('Min').nth(2)).toHaveValue('0.5');
+	await expect(page.getByRole('button', { name: /Import 1 blood draw/ })).toBeDisabled();
+
+	await page.getByRole('button', { name: /Confirm 1 guessed unit/ }).click();
+	await page.getByRole('button', { name: /Import 1 blood draw/ }).click();
+
+	const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('transkript-sanguis:db:v1')!));
+	const draw = stored.profiles.find((p: { name: string }) => p.name === 'Tester').draws[0];
+	expect(draw.results.find((r: { analyte: string }) => r.analyte === 'ferritin')).toMatchObject({ value: '45', low: 15, high: 150 });
+	expect(draw.results.find((r: { analyte: string }) => r.analyte === 'creatinine')).toMatchObject({ low: 0.5, high: 0.9 });
+	expect(errors).toEqual([]);
+});
+
 test('the interface switches to German', async ({ page }) => {
 	await demo(page);
 	await page.getByRole('button', { name: 'EN', exact: true }).click();

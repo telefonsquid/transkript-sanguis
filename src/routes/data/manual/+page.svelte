@@ -5,10 +5,11 @@
 	import { untrack } from 'svelte';
 	import { fmtIso } from '#lib/analysis.js';
 	import AnalytePicker from '#lib/components/AnalytePicker.svelte';
-	import { isIsoDate, normUnit, parseValue, unitFactor } from '#lib/data/index.js';
+	import { acceptUnit, isIsoDate, parseNum, parseValue, unitChoices, unitFactor } from '#lib/data/index.js';
 	import type { Analyte, Draw, Result, Sex } from '#lib/data/types.js';
 	import { fileKey, putFile } from '#lib/files.js';
 	import { t } from '#lib/i18n/index.js';
+	import { rangeProblem } from '#lib/io.js';
 	import { slide } from '#lib/motion.svelte.js';
 	import { addCustom, current, deleteDraw, newId, saveDraw } from '#lib/profiles.svelte.js';
 
@@ -19,7 +20,9 @@
 		custom?: string;
 		value: string;
 		unit: string;
-		ref: string;
+		low: string;
+		high: string;
+		rangeNote: string;
 		flag: string;
 		note: string;
 	}
@@ -48,20 +51,26 @@
 	let fasting: 'unknown' | 'yes' | 'no' = $state(editing?.fasting === undefined ? 'unknown' : editing.fasting ? 'yes' : 'no');
 	let notes = $state(editing?.notes?.join('\n') ?? '');
 	let file: File | null = $state(null);
-	let rows: Row[] = $state(
-		editing?.results.map((r) => ({ key: newId('row'), analyte: r.analyte, value: r.value, unit: r.unit ?? '', ref: r.ref ?? '', flag: r.flag ?? '', note: r.note ?? '' })) ?? [blank()]
-	);
+	let rows: Row[] = $state(editing?.results.map(fromResult) ?? [blank()]);
 	let tried = $state(false);
 	let saving = $state(false);
 
 	function blank(analyte: string | null = null): Row {
 		const a = analyte ? current.lookup(analyte) : undefined;
-		return { key: newId('row'), analyte, value: '', unit: a?.unit ?? '', ref: '', flag: '', note: '' };
+		return { key: newId('row'), analyte, value: '', unit: a?.unit ?? '', low: '', high: '', rangeNote: '', flag: '', note: '' };
 	}
 
-	function unitOptions(a: Analyte, printed: string): string[] {
-		const all = [a.unit, ...(a.units ?? []).map((u) => u.unit), ...(a.si ? [a.si.unit] : []), ...(printed ? [printed] : [])];
-		return all.filter((u, i) => all.findIndex((x) => normUnit(x) === normUnit(u)) === i);
+	/** A stored result without a unit is in the canonical one */
+	function fromResult(r: Result): Row {
+		const a = current.lookup(r.analyte);
+		const unit = a && r.unit ? (acceptUnit(a, r.unit) ?? r.unit) : (r.unit ?? a?.unit ?? '');
+		const bound = (v?: number) => (v === undefined ? '' : String(v));
+		return { key: newId('row'), analyte: r.analyte, value: r.value, unit, low: bound(r.low), high: bound(r.high), rangeNote: r.rangeNote ?? '', flag: r.flag ?? '', note: r.note ?? '' };
+	}
+
+	function unitOptions(a: Analyte, unit: string): string[] {
+		const list = unitChoices(a);
+		return unit && !list.includes(unit) ? [unit, ...list] : list;
 	}
 
 	const labs = $derived([...new Set((profile?.draws ?? []).map((d) => d.lab).filter(Boolean))] as string[]);
@@ -72,6 +81,7 @@
 	function problem(row: Row): string | undefined {
 		if (!row.analyte && !row.custom) return t.manual.errors.analyte;
 		if (!parseValue(row.value)) return t.manual.errors.value;
+		if (rangeProblem(row.low, row.high)) return t.manual.errors.range;
 		if (row.custom) return row.unit.trim() ? undefined : t.manual.errors.unit;
 		const a = current.lookup(row.analyte!);
 		if (!a || unitFactor(a, row.unit) === undefined) return t.manual.errors.unit;
@@ -113,8 +123,11 @@
 		const results: Result[] = filled.map((row) => {
 			const analyte = row.custom ? addCustom(profile, row.custom, row.unit).id : row.analyte!;
 			const r: Result = { analyte, value: row.value.trim() };
-			if (row.unit.trim()) r.unit = row.unit.trim();
-			if (row.ref.trim()) r.ref = row.ref.trim();
+			const [low, high] = [parseNum(row.low.trim()), parseNum(row.high.trim())];
+			if (row.unit.trim() && row.unit.trim() !== current.lookup(analyte)?.unit) r.unit = row.unit.trim();
+			if (low !== undefined) r.low = low;
+			if (high !== undefined) r.high = high;
+			if (row.rangeNote.trim()) r.rangeNote = row.rangeNote.trim();
 			if (row.flag.trim()) r.flag = row.flag.trim();
 			if (row.note.trim()) r.note = row.note.trim();
 			return r;
@@ -209,11 +222,11 @@
 			{/each}
 		</div>
 
-		<div class="hidden grid-cols-[minmax(0,2.2fr)_7rem_9rem_8rem_4rem_minmax(0,1.2fr)_2rem] gap-2 px-4 pt-2 text-[11px] font-medium text-ink-3 md:grid">
+		<div class="hidden grid-cols-[minmax(0,2.2fr)_7rem_8rem_10rem_4rem_minmax(0,1.2fr)_2rem] gap-2 px-4 pt-2 text-[11px] font-medium text-ink-3 md:grid">
 			<span>{t.manual.analyte}</span>
 			<span>{t.manual.printedValue}</span>
 			<span>{t.manual.unit}</span>
-			<span>{t.manual.range}</span>
+			<span>{t.manual.range} <span class="font-normal">({t.manual.low} / {t.manual.high})</span></span>
 			<span>{t.manual.flag}</span>
 			<span>{t.manual.note}</span>
 			<span></span>
@@ -224,7 +237,7 @@
 				{const a = $derived(row.analyte ? current.lookup(row.analyte) : undefined)}
 				{const err = $derived(errors.get(row.key))}
 				{const show = $derived(tried || !!row.value)}
-				<li transition:slide class="grid gap-2 px-4 py-2 md:grid-cols-[minmax(0,2.2fr)_7rem_9rem_8rem_4rem_minmax(0,1.2fr)_2rem] md:items-start">
+				<li transition:slide class="grid gap-2 px-4 py-2 md:grid-cols-[minmax(0,2.2fr)_7rem_8rem_10rem_4rem_minmax(0,1.2fr)_2rem] md:items-start">
 					<AnalytePicker
 						value={row.analyte}
 						custom={row.custom}
@@ -240,7 +253,14 @@
 					{:else}
 						<input bind:value={row.unit} placeholder={t.manual.customUnit} aria-label={t.manual.unit} class={[cell, show && err === t.manual.errors.unit ? 'border-[var(--critical)]' : 'border-line']} />
 					{/if}
-					<input bind:value={row.ref} placeholder={t.manual.rangeHint} aria-label={t.manual.range} class={['num border-line', cell]} />
+					<div class="grid gap-1" title={t.manual.rangeHelp}>
+						<div class="flex items-center gap-1">
+							<input bind:value={row.low} placeholder={t.manual.low} inputmode="decimal" aria-label={t.manual.low} class={['num', cell, show && err === t.manual.errors.range ? 'border-[var(--critical)]' : 'border-line']} />
+							<span class="text-ink-3">–</span>
+							<input bind:value={row.high} placeholder={t.manual.high} inputmode="decimal" aria-label={t.manual.high} class={['num', cell, show && err === t.manual.errors.range ? 'border-[var(--critical)]' : 'border-line']} />
+						</div>
+						{#if row.rangeNote}<input bind:value={row.rangeNote} aria-label={t.manual.note} class="h-6 w-full rounded border-line bg-surface px-1.5 text-[11px] text-ink-2" />{/if}
+					</div>
 					<input bind:value={row.flag} maxlength="4" aria-label={t.manual.flag} class={['border-line', cell]} />
 					<input bind:value={row.note} aria-label={t.manual.note} class={['border-line', cell]} />
 					<button type="button" onclick={() => (rows = rows.filter((r) => r !== row))} aria-label={t.common.remove} class="h-8 rounded-md text-ink-3 hover:bg-hover hover:text-ink">×</button>

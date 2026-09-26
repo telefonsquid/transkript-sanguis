@@ -6,6 +6,7 @@ import { nutrients } from './analytes/nutrients';
 import { T } from './analytes/refs';
 import { info } from './info';
 import { sourceById } from './sources';
+import { unitConflicts } from './units';
 import type { Analyte, AnalyteDef, Group, GroupId, Preset } from './types';
 
 const defs: AnalyteDef[] = [...hormones, ...blood, ...chemistry, ...metabolism, ...nutrients];
@@ -19,6 +20,10 @@ export const analytes: Analyte[] = defs.map((a) => {
 	if (fields('en') !== fields('de')) throw new Error(`English and German texts of ${a.id} differ in their fields`);
 
 	for (const id of text.cites ?? []) if (!sourceById.has(id)) throw new Error(`${a.id} cites unknown source ${id}`);
+
+	// A wrong factor would skew every value converted through it, rounded published factors still pass
+	const conflicts = unitConflicts(a as Analyte);
+	if (conflicts.length) throw new Error(`${a.id} lists units whose factors disagree: ${conflicts.join(', ')}`);
 	return { ...a, info: { en: text.en, de: text.de }, cites: text.cites };
 });
 export const analyteById = new Map(analytes.map((a) => [a.id, a]));

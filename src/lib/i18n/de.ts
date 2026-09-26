@@ -221,14 +221,19 @@ export const de: Dict = {
 		customNew: (q: string) => `„${q}“ als eigenen Wert anlegen`,
 		customUnit: 'Einheit des neuen Werts',
 		valueHint: 'Wie gedruckt, z. B. 12,5 oder <0,3',
-		rangeHint: 'z. B. 3,5 - 5,1 oder < 50',
+		low: 'Min',
+		high: 'Max',
+		rangeHelp: 'Lass Min oder Max leer für einen einseitigen Bereich wie „< 50“.',
+		pickUnit: 'Einheit wählen',
 		saveDraw: 'Blutabnahme speichern',
 		saved: 'Gespeichert',
 		errors: {
 			date: 'Gib das Datum der Blutabnahme ein.',
 			empty: 'Füge mindestens einen Wert hinzu.',
 			value: 'Keine Zahl. Nutze Ziffern, Komma oder Punkt und < oder >, falls gedruckt.',
-			unit: 'Einheit für diesen Wert unbekannt. Wähle eine aus der Liste.',
+			unit: 'Wähle die Einheit, die auf dem Befund steht. Aufgelistet sind nur Einheiten, die die App umrechnen kann.',
+			confirm: 'Einheit anhand der Größe des Werts geschätzt. Prüf sie am Befund und bestätige sie.',
+			range: 'Min und Max müssen Zahlen sein, Min nicht über Max.',
 			analyte: 'Wähle einen Wert aus der Liste.',
 			duplicate: 'Dieser Wert kommt in der Abnahme doppelt vor.'
 		},
@@ -271,7 +276,11 @@ export const de: Dict = {
 		agentNotes: 'Hinweise des Assistenten',
 		importRow: 'Importieren',
 		isBackup: 'Das ist eine Sicherungsdatei der App. Öffne sie hier:',
-		printedAs: 'gedruckt als'
+		printedAs: 'gedruckt als',
+		readAs: (unit: string) => `gelesen als „${unit}“`,
+		guessed: 'geschätzt',
+		confirm: 'Bestätigen',
+		confirmAll: (n: number) => (n === 1 ? '1 geschätzte Einheit bestätigen' : `${n} geschätzte Einheiten bestätigen`)
 	},
 	io: {
 		title: 'Sicherung & Übertragung',

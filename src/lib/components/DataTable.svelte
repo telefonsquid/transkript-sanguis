@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { SLUG } from '../app';
-	import { boundsFor, convert, fmtBounds, fmtDate, fmtNum, fmtValue, monthsOnHrt, phaseName, statusOf, unitOf } from '../analysis';
+	import { boundsFor, convert, fmtBounds, fmtDate, fmtLabRef, fmtNum, fmtValue, monthsOnHrt, phaseName, statusOf, unitOf } from '../analysis';
 	import { groupById } from '../data';
 	import type { Measurement } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
@@ -69,7 +69,7 @@
 			printed_unit: m.printedUnit ?? '',
 			status: statusOf(m, b),
 			judged_against: b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '',
-			printed_range: m.labRef?.text ?? '',
+			printed_range: m.labRef ? fmtLabRef(m.labRef) : '',
 			ranges_for: m.rangesFor ?? '',
 			lab_flag: m.labFlag ?? '',
 			lab: m.lab,
@@ -155,7 +155,7 @@
 						</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', b ? 'text-ink-2' : 'text-ink-3']}>{b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '—'}</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.labRef ? 'text-ink-2' : 'text-ink-3']}>
-							{m.labRef?.text ?? '—'}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> {m.rangesFor === 'male' ? '♂' : '♀'}</span>{/if}
+							{fmtLabRef(m.labRef)}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> {m.rangesFor === 'male' ? '♂' : '♀'}</span>{/if}
 						</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
 						<td class="max-w-40 truncate px-2.5 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>

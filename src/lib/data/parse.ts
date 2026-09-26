@@ -1,4 +1,9 @@
-import type { Analyte, Range } from './types';
+/** Printed range as numbers, text that is not a plain range stays behind as a note */
+export interface PrintedRange {
+	low?: number;
+	high?: number;
+	note?: string;
+}
 
 /** Lab style number: decimal comma or point, no thousands separators */
 const NUM = String.raw`\d+(?:[.,]\d+)?|[.,]\d+`;
@@ -8,6 +13,8 @@ const num = (s: string) => Number(s.replace(',', '.'));
 function clean(text: string): string {
 	return text
 		.trim()
+		.replace(/[$\\]/g, '')
+		.replace(/(\d)\.\.(\d)/g, '$1.$2')
 		.replace(/[−–—]/g, '-')
 		.replace(/≤/g, '<=')
 		.replace(/≥/g, '>=')
@@ -22,47 +29,31 @@ export function parseValue(raw: string): { value: number; censor?: '<' | '>' } |
 	return { value: num(m[2]), censor: m[1] as '<' | '>' | undefined };
 }
 
+/** A single printed number like "12,5" or "0.3", undefined for anything else */
+export function parseNum(raw: string | number | null | undefined): number | undefined {
+	if (typeof raw === 'number') return Number.isFinite(raw) ? raw : undefined;
+	if (!raw) return undefined;
+	const t = clean(raw);
+	return new RegExp(`^-?(?:${NUM})$`).test(t) ? num(t) : undefined;
+}
+
 /** Parses printed ranges like "136 - 145", "3,5 bis 5,1", "< 50", "bis 40", ">= 60" or "über 39" */
-export function parseRange(text: string | undefined): Range | undefined {
+export function parseRange(text: string | null | undefined): PrintedRange | undefined {
 	if (!text?.trim()) return undefined;
 	const t = clean(text)
 		.toLowerCase()
 		.replace(/^(?:ref\.?|referenz(?:bereich)?:?|normal:?)\s*/, '');
 
 	let m = t.match(new RegExp(`^(?:<=?|bis|unter|below|up to|max\\.?)\\s*(${NUM})$`));
-	if (m) return { high: num(m[1]), text };
+	if (m) return { high: num(m[1]) };
 
 	m = t.match(new RegExp(`^(?:>=?|über|ueber|ab|above|min\\.?)\\s*(${NUM})$`));
-	if (m) return { low: num(m[1]), text };
+	if (m) return { low: num(m[1]) };
 
 	m = t.match(new RegExp(`^(${NUM})\\s*(?:-|bis|to|–)\\s*(${NUM})$`));
-	if (m) return { low: num(m[1]), high: num(m[2]), text };
+	if (m) return { low: num(m[1]), high: num(m[2]) };
 
-	return { text };
-}
-
-/** Comparable form of a unit: case, spacing and micro sign variants removed */
-export function normUnit(unit: string): string {
-	return unit
-		.trim()
-		.toLowerCase()
-		.replace(/\s+/g, '')
-		.replace(/μ/g, 'µ')
-		.replace(/mcg/g, 'µg')
-		.replace(/(^|\/)u(g|l|mol|iu|u)/g, '$1µ$2')
-		.replace(/[×x*]?10(?:\^|e|\*\*?)?(?:9|⁹)(?=\/)/g, '10^9')
-		.replace(/[×x*]?10(?:\^|e|\*\*?)?(?:12|¹²)(?=\/)/g, '10^12');
-}
-
-/** Factor that turns a value in the printed unit into the analyte's canonical unit */
-export function unitFactor(a: Analyte, unit: string | undefined): number | undefined {
-	if (!unit?.trim()) return 1;
-	const u = normUnit(unit);
-	if (u === normUnit(a.unit)) return 1;
-	const alt = a.units?.find((x) => normUnit(x.unit) === u);
-	if (alt) return alt.factor;
-	if (a.si && normUnit(a.si.unit) === u) return 1 / a.si.factor;
-	return undefined;
+	return { note: text.trim() };
 }
 
 export function toTime(date: string, time = '12:00'): number {

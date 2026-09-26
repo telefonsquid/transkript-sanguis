@@ -1,5 +1,5 @@
 import { BASELINE, toTime } from './data';
-import type { Analyte, Measurement, RefKind, Reference, Therapy } from './data/types';
+import type { Analyte, Measurement, Range, RefKind, Reference, Therapy } from './data/types';
 import { locale, t, tx } from './i18n';
 import { current, lookup } from './profiles.svelte';
 
@@ -159,6 +159,16 @@ export function fmtBounds(a: Analyte, b: { low?: number; high?: number }, units:
 	if (b.high !== undefined) return `< ${fmtBound(a, b.high, units)}`;
 	if (b.low !== undefined) return `> ${fmtBound(a, b.low, units)}`;
 	return '—';
+}
+
+/** Printed lab range in the printed unit, without the rounding of catalogue bounds */
+export function fmtLabRef(r: Range | undefined): string {
+	if (!r) return '—';
+	const f = (v: number) => v.toLocaleString(locale(), { maximumFractionDigits: 6, useGrouping: false });
+	const { low, high } = r.printed;
+	const bounds =
+		low !== undefined && high !== undefined ? `${f(low)} – ${f(high)}` : high !== undefined ? `< ${f(high)}` : low !== undefined ? `> ${f(low)}` : '';
+	return [bounds, r.note].filter(Boolean).join(' · ') || '—';
 }
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
