@@ -1,4 +1,4 @@
-import { boundsFor, convert, fallbackRef, fmtBounds, fmtValue, primaryRef, refsFor, statusOf, unitOf } from './analysis';
+import { bestRef, boundsFor, convert, fmtBounds, fmtValue, refsFor, statusOf, unitOf } from './analysis';
 import type { ChartBand, ChartPoint, ChartSeries } from './chart/types';
 import type { Analyte, Measurement } from './data/types';
 import { nameOf, tx } from './i18n';
@@ -39,13 +39,7 @@ export function seriesFor(id: string, color = 'var(--line)'): ChartSeries {
  */
 export function bandsFor(a: Analyte, fill: 'primary' | 'all' | 'none' = settings.bandFill): ChartBand[] {
 	const refs = refsFor(a);
-	const hasLab = (filtered.byAnalyte.get(a.id) ?? []).some((m) => m.labRef?.low !== undefined || m.labRef?.high !== undefined);
-	const basisRef =
-		settings.basis === 'primary'
-			? (primaryRef(a) ?? (hasLab ? undefined : fallbackRef(a)))
-			: settings.basis === 'lab'
-				? undefined
-				: refs.find((r) => r.kind === settings.basis);
+	const basisRef = settings.basis === 'primary' ? bestRef(a) : refs.find((r) => r.kind === settings.basis);
 
 	return refs
 		.filter((r) => settings.kinds.includes(r.kind))

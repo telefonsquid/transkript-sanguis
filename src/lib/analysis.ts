@@ -59,30 +59,31 @@ export function primaryRef(a: Analyte, therapy: Therapy = current.therapy): Refe
 }
 
 /**
- * Reference used when neither a default nor a lab range exists. Sex specific ranges never
- * qualify on HRT, a suppressed LH judged against cis men would read as a false "low".
+ * Reference used when no default exists, a cohort on the same therapy first. Sex specific ranges
+ * never qualify on HRT, a suppressed LH judged against cis men would read as a false "low".
  */
 export function fallbackRef(a: Analyte): Reference | undefined {
-	const kinds: RefKind[] = ['adult', 'clinical', 'target', 'trans'];
-	return refsFor(a).find((r) => (r.low !== undefined || r.high !== undefined) && kinds.includes(r.kind));
+	const refs = refsFor(a).filter((r) => r.low !== undefined || r.high !== undefined);
+	const kinds: RefKind[] = ['trans', 'adult', 'clinical', 'target'];
+	for (const kind of kinds) {
+		const ref = refs.find((r) => r.kind === kind);
+		if (ref) return ref;
+	}
+}
+
+/** Curated reference "best fit" judges against, the printed lab range only steps in without one */
+export function bestRef(a: Analyte): Reference | undefined {
+	return primaryRef(a) ?? fallbackRef(a);
 }
 
 const asBounds = (r: Reference): Bounds => ({ low: r.low, high: r.high, label: tx(r.label), kind: r.kind });
 
-/** Reference a value is judged against. Falls back to the printed lab range, then to the first curated one */
+/** Reference a value is judged against, the printed lab range when no curated one fits */
 export function boundsFor(a: Analyte, m: Measurement | undefined, basis: Basis): Bounds | undefined {
 	const lab = m ? labBounds(m) : undefined;
 	if (basis === 'lab') return lab;
 
-	if (basis === 'primary') {
-		const ref = primaryRef(a);
-		if (ref) return asBounds(ref);
-		if (lab) return lab;
-		const fallback = fallbackRef(a);
-		return fallback && asBounds(fallback);
-	}
-
-	const ref = refsFor(a).find((r) => r.kind === basis);
+	const ref = basis === 'primary' ? bestRef(a) : refsFor(a).find((r) => r.kind === basis);
 	return ref ? asBounds(ref) : lab;
 }
 

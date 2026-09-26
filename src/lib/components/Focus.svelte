@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import {
 		KIND_ORDER,
+		bestRef,
 		boundsFor,
 		convert,
 		decimalsOf,
@@ -14,7 +15,6 @@
 		fmtValue,
 		hrtStartTime,
 		phaseName,
-		primaryRef,
 		refsFor,
 		statusOf,
 		stats,
@@ -63,7 +63,7 @@
 		shown[id] = !bands.find((b) => b.id === id)?.filled;
 	}
 	const refs = $derived([...refsFor(a)].sort((x, y) => KIND_ORDER.indexOf(x.kind) - KIND_ORDER.indexOf(y.kind)));
-	const primary = $derived(primaryRef(a));
+	const primary = $derived(bestRef(a));
 
 	const last = $derived(st.last);
 	const lastBounds = $derived(last ? boundsFor(a, last, settings.basis) : undefined);
@@ -283,7 +283,7 @@
 										{#if on}
 											<span class="on-tag" in:pop={{ y: 0, from: 0.6 }}>{t.focus.onChart}</span>
 										{/if}
-										{#if r === primary}<span class="rounded bg-surface-3 px-1 text-[10px] text-ink-2">{t.focus.defaultBasis}</span>{/if}
+										{#if r.id === primary?.id}<span class="rounded bg-surface-3 px-1 text-[10px] text-ink-2">{t.focus.defaultBasis}</span>{/if}
 									</div>
 									<div class="text-ink-3">{t.kind[r.kind]}{r.note ? ` · ${tx(r.note)}` : ''}</div>
 								</td>

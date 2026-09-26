@@ -315,6 +315,7 @@ export const metabolism: AnalyteDef[] = [
 		units: [{ unit: 'µkat/l', factor: 60 }],
 		decimals: 0,
 		group: 'cardiac',
+		primary: { feminizing: 'female', masculinizing: 'male' },
 		refs: [
 			female([undefined, 247], 'schumann2003', { note: T('IFCC method at 37 °C.', 'IFCC-Methode bei 37 °C.') }),
 			male([undefined, 248], 'schumann2003', { note: T('IFCC method at 37 °C.', 'IFCC-Methode bei 37 °C.') })
@@ -347,6 +348,7 @@ export const metabolism: AnalyteDef[] = [
 		decimals: 0,
 		group: 'inflammation',
 		related: ['crp'],
+		primary: { feminizing: 'female-18', masculinizing: 'male-18' },
 		refs: [
 			female([undefined, 20], 'miller1983', { id: 'female-18', age: [18, 29] }),
 			male([undefined, 15], 'miller1983', { id: 'male-18', age: [18, 29] }),

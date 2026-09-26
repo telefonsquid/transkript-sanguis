@@ -33,8 +33,10 @@
 	const unit = $derived(unitOf(a, settings.units));
 	const alt = $derived(altNameOf(a));
 
-	// Small charts only draw the band values are judged against, the lab range when there is none
+	// Small charts draw the band values are judged against next to the printed lab range
 	const cardBands = $derived(bandsFor(a).filter((b) => b.filled));
+	const showLab = $derived(settings.kinds.includes('lab'));
+	const lab = $derived(showLab && bounds?.kind !== 'lab' && last ? boundsFor(a, last, 'lab') : undefined);
 	const href = $derived(resolve('/analyte/[id]', { id: a.id }));
 </script>
 
@@ -72,7 +74,7 @@
 		<Chart
 			series={[series]}
 			bands={cardBands}
-			labBand={settings.kinds.includes('lab') && !cardBands.some((b) => b.filled)}
+			labBand={showLab}
 			{height}
 			compact
 			log={useLog(a)}
@@ -92,11 +94,13 @@
 
 	<footer class="flex items-center justify-between gap-2 border-t border-line px-3 py-1.5 text-[10.5px] text-ink-3">
 		<span class="num shrink-0">n = {ms.length}</span>
-		{#if bounds}
-			<span class="truncate" title={bounds.label}>
-				<span class="mr-1 inline-block h-2 w-0.5 rounded-full align-middle" style:background="var(--ref-{bounds.kind})"></span>{bounds.label}
-				<span class="num text-ink-2">{fmtBounds(a, bounds, settings.units)}</span>
-			</span>
-		{/if}
+		<span class="flex min-w-0 items-center gap-2.5">
+			{#each [bounds, lab].filter((b) => b !== undefined) as b (b.kind)}
+				<span class={['truncate', b.kind === 'lab' && 'shrink-0']} title={b.label}>
+					<span class="mr-1 inline-block h-2 w-0.5 rounded-full align-middle" style:background="var(--ref-{b.kind})"></span>{b.label}
+					<span class="num text-ink-2">{fmtBounds(a, b, settings.units)}</span>
+				</span>
+			{/each}
+		</span>
 	</footer>
 </article>

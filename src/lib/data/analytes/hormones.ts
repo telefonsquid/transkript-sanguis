@@ -163,6 +163,7 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['free-t-calc', 'testosterone', 'shbg'],
+		primary: { feminizing: 'female-20', masculinizing: 'male-20' },
 		refs: [
 			...FREE_T.flatMap(([from, low, high, highF]) => {
 				const age: [number, number] = from < 95 ? [from, from + 4] : [95, 120];
@@ -223,6 +224,7 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['testosterone'],
+		primary: { feminizing: 'female', masculinizing: 'male' },
 		refs: [
 			male([112, 955], 'mayo-dht', { age: [20, 120], note: T('Age 20 and older, mass spectrometry.', 'Ab 20 Jahren, Massenspektrometrie.') }),
 			female([undefined, 300], 'mayo-dht', { age: [20, 55], note: T('Age 20 to 55, mass spectrometry.', 'Alter 20 bis 55, Massenspektrometrie.') }),
@@ -360,6 +362,7 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['fsh'],
+		primary: { feminizing: 'male', masculinizing: 'trans-m' },
 		refs: [
 			transMen([0.02, 14], 'greene2021-tm', { note: T('On testosterone for 12 months or more.', 'Mindestens 12 Monate Testosteron.') }),
 			male([0.77, 14.5], 'roche-amh', { note: T('2.5th to 97.5th percentile.', '2,5. bis 97,5. Perzentile.') }),

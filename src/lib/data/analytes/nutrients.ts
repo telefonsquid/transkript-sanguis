@@ -145,6 +145,7 @@ export const nutrients: AnalyteDef[] = [
 		decimals: 1,
 		group: 'vitamins',
 		related: ['b12', 'folate'],
+		primary: { feminizing: 'female', masculinizing: 'male' },
 		refs: [
 			female([undefined, 10.4], 'selhub1999', { age: [20, 59], note: T('95th percentile of vitamin replete women aged 20 to 39 in NHANES III. Limits rise with age.', '95. Perzentile vitaminversorgter Frauen zwischen 20 und 39 in NHANES III. Die Grenzen steigen mit dem Alter.') }),
 			male([undefined, 11.4], 'selhub1999', { age: [20, 59], note: T('95th percentile of vitamin replete men aged 20 to 39 in NHANES III. Limits rise with age.', '95. Perzentile vitaminversorgter Männer zwischen 20 und 39 in NHANES III. Die Grenzen steigen mit dem Alter.') }),
