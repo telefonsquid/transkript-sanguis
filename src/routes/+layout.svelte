@@ -12,7 +12,8 @@
 	import ProfileMenu from '#lib/components/ProfileMenu.svelte';
 	import Sidebar from '#lib/components/Sidebar.svelte';
 	import Timeline from '#lib/components/Timeline.svelte';
-	import Logo, { DROP } from '#lib/ui/Logo.svelte';
+	import Logo from '#lib/ui/Logo.svelte';
+	import Progress from '#lib/ui/Progress.svelte';
 	import { fmtDate } from '#lib/analysis.js';
 	import { REPO_URL, SLUG } from '#lib/app.js';
 	import { t } from '#lib/i18n/index.js';
@@ -30,17 +31,8 @@
 
 	onNavigate(navigate);
 
-	// Clicks wait while a page loads, the animation only shows once the wait gets noticeable
+	// Clicks and shortcuts wait while a page loads
 	const busy = $derived(!!navigating.to);
-	let slow = $state(false);
-	$effect(() => {
-		if (!busy) return;
-		const timer = setTimeout(() => (slow = true), 300);
-		return () => {
-			clearTimeout(timer);
-			slow = false;
-		};
-	});
 
 	// Content scrolls inside main, so each page starts at the top and back returns to where it was
 	const scrolls: Record<string, number> = {};
@@ -279,19 +271,9 @@
 	</a>
 {/snippet}
 
+<Progress active={busy} />
 {#if busy}
-	<div class="fixed inset-0 z-[60] cursor-progress" aria-busy="true">
-		{#if slow}
-			<div class="grid h-full place-items-center bg-surface/50" role="status" transition:fade={{ duration: 200 }}>
-				<svg class="loader" width="36" height="48" viewBox="-1 -1 12 15.5" aria-hidden="true">
-					<clipPath id="loader-drop"><path d={DROP} /></clipPath>
-					<rect x="-1" y="0" width="12" height="14" clip-path="url(#loader-drop)" />
-					<path d={DROP} />
-				</svg>
-				<span class="sr-only">{t.common.loading}</span>
-			</div>
-		{/if}
-	</div>
+	<div class="fixed inset-0 z-[60] cursor-progress" aria-busy="true"></div>
 {/if}
 
 {#if drawer && chrome}

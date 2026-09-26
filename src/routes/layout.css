@@ -285,27 +285,6 @@ body {
 	pointer-events: none;
 }
 
-/* Page loader: the drop fills up and drains again, half full when motion is reduced */
-.loader rect {
-	fill: var(--blood);
-	translate: 0 6px;
-	animation: drop-fill 1.2s ease-in-out infinite alternate;
-}
-.loader path {
-	fill: none;
-	stroke: var(--blood);
-	stroke-width: 0.8;
-	stroke-linejoin: round;
-}
-@keyframes drop-fill {
-	from {
-		translate: 0 13.5px;
-	}
-	to {
-		translate: 0 0;
-	}
-}
-
 /* Trans flag stripes, one per letter. The white one needs a dark ground, which the light theme puts behind the whole name */
 .flag-name {
 	padding: var(--flag-pad);
@@ -543,6 +522,14 @@ select option {
 ::view-transition-new(hero) {
 	block-size: 100%;
 	animation-duration: 420ms;
+}
+
+/* The loading bar finishes live on top of a page change */
+::view-transition-old(progress) {
+	display: none;
+}
+::view-transition-new(progress) {
+	animation: none;
 }
 
 /* Theme spreads in a circle from where it was picked, language cross fades */
