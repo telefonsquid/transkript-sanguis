@@ -52,12 +52,17 @@ export interface AnalyteInfo {
 	why: string;
 	high?: string;
 	low?: string;
+	/** Longer background behind a toggle, paragraphs split by blank lines */
+	more?: string;
 	/** What changes on feminizing HRT */
 	fem?: string;
 	/** What changes on masculinizing HRT */
 	masc?: string;
 	note?: string;
 }
+
+/** Info texts of one analyte in every language, plus the sources they rest on */
+export type InfoEntry = Record<Lang, AnalyteInfo> & { cites?: string[] };
 
 export interface Analyte {
 	id: string;
@@ -73,6 +78,8 @@ export interface Analyte {
 	group: GroupId;
 	scale?: 'log' | 'linear';
 	info: Record<Lang, AnalyteInfo>;
+	/** Sources behind the info texts */
+	cites?: string[];
 	refs: Reference[];
 	/** Reference judged against by default, per therapy */
 	primary?: Partial<Record<Therapy | 'any', string>>;
@@ -82,6 +89,9 @@ export interface Analyte {
 	/** Added by a profile, not part of the catalogue */
 	custom?: boolean;
 }
+
+/** Catalogue entry as written in the analyte files, the texts come from `info/` */
+export type AnalyteDef = Omit<Analyte, 'info' | 'cites'>;
 
 export interface Range {
 	low?: number;

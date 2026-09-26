@@ -23,7 +23,7 @@
 	import { groupById, sourceById } from '../data';
 	import { fileKey, openFile } from '../files';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
-	import { fly, pop } from '../motion.svelte';
+	import { fly, pop, slide } from '../motion.svelte';
 	import { prefs } from '../prefs.svelte';
 	import { current, lookup } from '../profiles.svelte';
 	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
@@ -90,10 +90,19 @@
 
 	const conv = (v: number | undefined) => (v === undefined ? '—' : fmtNum(convert(a, v, units), dec));
 
-	const hrtNotes = $derived([
-		...(current.therapy === 'feminizing' && info.fem ? [{ label: t.focus.info.fem, text: info.fem }] : []),
-		...(current.therapy === 'masculinizing' && info.masc ? [{ label: t.focus.info.masc, text: info.masc }] : [])
-	]);
+	const hrtNote = $derived(
+		current.therapy === 'feminizing' && info.fem
+			? { label: t.focus.info.fem, text: info.fem, tint: 'var(--fem)', ink: 'var(--fem-ink)' }
+			: current.therapy === 'masculinizing' && info.masc
+				? { label: t.focus.info.masc, text: info.masc, tint: 'var(--masc)', ink: 'var(--masc-ink)' }
+				: undefined
+	);
+	const cited = $derived((a.cites ?? []).map((c) => sourceById.get(c)!));
+	const paragraphs = (text: string) => text.split('\n\n');
+
+	/** Value whose background is unfolded, so moving to another value folds it again */
+	let unfolded: string | null = $state(null);
+	const expanded = $derived(unfolded === a.id);
 
 	function hrtText(time: number): string {
 		if (start === undefined) return '';
@@ -301,7 +310,7 @@
 			</section>
 
 			<section class="rise overflow-x-auto rounded-lg border border-line bg-surface" style:--i="4">
-				<h2 class="border-b border-line px-3 py-2 text-sm font-semibold">{t.focus.everyValue}</h2>
+				<h2 class="border-b border-line px-3 py-2 text-sm font-semibold">{t.focus.yourData}</h2>
 				<table class="num w-full text-xs">
 					<thead class="text-left text-ink-3">
 						<tr class="border-b border-line">
@@ -363,12 +372,12 @@
 							<dd class="text-ink">{info.why}</dd>
 						</div>
 					{/if}
-					{#each hrtNotes as n (n.label)}
-						<div class="rounded-md bg-surface-2 p-2.5">
-							<dt class="label mb-0.5">{n.label}</dt>
-							<dd class="text-ink">{n.text}</dd>
+					{#if hrtNote}
+						<div class="hrt-note rounded-md p-2.5" style:--tint={hrtNote.tint}>
+							<dt class="label mb-0.5" style:color={hrtNote.ink}>{hrtNote.label}</dt>
+							{#each paragraphs(hrtNote.text) as p, i (i)}<dd class="text-ink" class:mt-1.5={i > 0}>{p}</dd>{/each}
 						</div>
-					{/each}
+					{/if}
 					{#if info.high}
 						<div>
 							<dt class="label mb-0.5"><span style:color="var(--high)">▲</span> {t.focus.info.high}</dt>
@@ -389,6 +398,28 @@
 						</div>
 					{/if}
 				</dl>
+				{#if info.more}
+					<button type="button" class="more-toggle mt-3 flex items-center gap-1.5 text-xs font-medium text-ink-2 hover:text-ink" aria-expanded={expanded} onclick={() => (unfolded = expanded ? null : a.id)}>
+						<svg viewBox="0 0 12 12" class="chevron size-3" class:open={expanded} aria-hidden="true"><path d="M4 2.5 7.5 6 4 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+						{expanded ? t.focus.info.less : t.focus.info.more}
+					</button>
+					{#if expanded}
+						<div transition:slide class="space-y-2 pt-2 text-ink-2">
+							{#each paragraphs(info.more) as p, i (i)}<p>{p}</p>{/each}
+						</div>
+					{/if}
+				{/if}
+				{#if cited.length}
+					<p class="mt-4 flex flex-wrap gap-x-1.5 text-[11px] leading-5 text-ink-3">
+						<span class="font-semibold">{t.focus.info.sources}:</span>
+						{#each cited as src, i (src.id)}
+							<span class="whitespace-nowrap"
+								><a href={src.url} target="_blank" rel="noreferrer" title={src.title} class="underline decoration-line-strong underline-offset-2 hover:text-ink">{src.short}</a
+								>{#if i < cited.length - 1}&nbsp;·{/if}</span
+							>
+						{/each}
+					</p>
+				{/if}
 				<p class="mt-4 border-t border-line pt-3 text-[11px] text-ink-3">{t.focus.disclaimer}</p>
 			</section>
 
@@ -482,6 +513,18 @@
 	}
 	.is-on .band-fill {
 		transform: scaleY(1);
+	}
+
+	.hrt-note {
+		background: color-mix(in srgb, var(--tint) 16%, var(--surface));
+		box-shadow: inset 3px 0 0 var(--tint);
+	}
+
+	.chevron {
+		transition: transform 220ms cubic-bezier(0.3, 1.4, 0.5, 1);
+	}
+	.chevron.open {
+		transform: rotate(90deg);
 	}
 
 	.on-tag {

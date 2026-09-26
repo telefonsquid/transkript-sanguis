@@ -72,7 +72,7 @@ export const sources: Source[] = [
 	{
 		id: 'nikahd2024',
 		short: 'Nik-Ahd 2024',
-		title: 'Nik-Ahd F et al. Prostate-Specific Antigen Values in Transgender Women Receiving Estrogen. JAMA 2024;332(4):335–337 (95th percentile as summarised in Clin Chem 2025;71(3):358)',
+		title: 'Nik-Ahd F et al. Prostate-Specific Antigen Values in Transgender Women Receiving Estrogen. JAMA 2024;332(4):335–337 (n = 210, 852 tests: median 0.02 ng/ml, 95th percentile 0.6 ng/ml)',
 		url: doi('10.1001/jama.2024.9997')
 	},
 	{
@@ -452,6 +452,300 @@ export const sources: Source[] = [
 		short: 'Uniklinik Düsseldorf (INR)',
 		title: 'Zentralinstitut für Klinische Chemie und Laboratoriumsdiagnostik, Universitätsklinikum Düsseldorf. Labormedizinisches Leistungsverzeichnis, INR',
 		url: 'https://zentrallabor.med.hhu.de/details/853'
+	},
+	{
+		id: 'angus2019',
+		short: 'Angus 2019',
+		title: 'Angus L et al. Cyproterone acetate or spironolactone in lowering testosterone concentrations for transgender individuals receiving oestradiol therapy. Endocr Connect 2019;8(7):935–940',
+		url: doi('10.1530/EC-19-0272')
+	},
+	{
+		id: 'angus2024',
+		short: 'Angus 2024',
+		title: 'Angus LM et al. Effect of bicalutamide on serum total testosterone concentration in transgender adults: a case series. Ther Adv Endocrinol Metab 2024;15:20420188241305022',
+		url: doi('10.1177/20420188241305022')
+	},
+	{
+		id: 'defreyne2017',
+		short: 'Defreyne 2017',
+		title: 'Defreyne J et al. Transient Elevated Serum Prolactin in Trans Women Is Caused by Cyproterone Acetate Treatment. LGBT Health 2017;4(5):328–336',
+		url: doi('10.1089/lgbt.2016.0190')
+	},
+	{
+		id: 'caanen2015',
+		short: 'Caanen 2015',
+		title: 'Caanen MR et al. Antimüllerian hormone levels decrease in female-to-male transsexuals using testosterone as cross-sex therapy. Fertil Steril 2015;103(5):1340–1345',
+		url: doi('10.1016/j.fertnstert.2015.02.003')
+	},
+	{
+		id: 'collet2023',
+		short: 'Collet 2023',
+		title: 'Collet S et al. Changes in Serum Testosterone and Adrenal Androgen Levels in Transgender Women With and Without Gonadectomy. J Clin Endocrinol Metab 2023;108(2):331–338',
+		url: doi('10.1210/clinem/dgac576')
+	},
+	{
+		id: 'qureshi2007',
+		short: 'Qureshi 2007',
+		title: 'Qureshi AC et al. The influence of the route of oestrogen administration on serum levels of cortisol-binding globulin and total cortisol. Clin Endocrinol (Oxf) 2007;66(5):632–635',
+		url: doi('10.1111/j.1365-2265.2007.02784.x')
+	},
+	{
+		id: 'arafah2001',
+		short: 'Arafah 2001',
+		title: 'Arafah BM. Increased need for thyroxine in women with hypothyroidism during estrogen therapy. N Engl J Med 2001;344(23):1743–1749',
+		url: doi('10.1056/NEJM200106073442302')
+	},
+	{
+		id: 'hollowell2002',
+		short: 'NHANES III thyroid (Hollowell 2002)',
+		title: 'Hollowell JG et al. Serum TSH, T4, and thyroid antibodies in the United States population (1988 to 1994): National Health and Nutrition Examination Survey (NHANES III). J Clin Endocrinol Metab 2002;87(2):489–499',
+		url: doi('10.1210/jcem.87.2.8182')
+	},
+	{
+		id: 'merz2023',
+		short: 'Merz 2023 (Duffy null)',
+		title: 'Merz LE et al. Absolute neutrophil count by Duffy status among healthy Black and African American adults. Blood Adv 2023;7(3):317–320',
+		url: doi('10.1182/bloodadvances.2022007679')
+	},
+	{
+		id: 'krupka2022',
+		short: 'Krupka 2022',
+		title: 'Krupka E et al. The Effect of Gender-Affirming Hormone Therapy on Measures of Kidney Function: A Systematic Review and Meta-Analysis. Clin J Am Soc Nephrol 2022;17(9):1305–1315',
+		url: doi('10.2215/CJN.01890222')
+	},
+	{
+		id: 'vaneeghen2026-ua',
+		short: 'van Eeghen 2026 (uric acid)',
+		title: 'van Eeghen SA et al. Changes in uric acid metabolism and associated plasma proteomics during sex hormone therapy. J Clin Transl Endocrinol 2026;44:100434',
+		url: doi('10.1016/j.jcte.2026.100434')
+	},
+	{
+		id: 'vaneeghen2026-ins',
+		short: 'van Eeghen 2026 (insulin)',
+		title: 'van Eeghen SA et al. Insulin Sensitivity and Associated Plasma Proteomics During Sex Hormone Therapy. J Clin Endocrinol Metab 2026;111(4):e1070–e1079',
+		url: doi('10.1210/clinem/dgaf573')
+	},
+	{
+		id: 'maraka2017',
+		short: 'Maraka 2017',
+		title: 'Maraka S et al. Sex Steroids and Cardiovascular Outcomes in Transgender Individuals: A Systematic Review and Meta-Analysis. J Clin Endocrinol Metab 2017;102(11):3914–3923',
+		url: doi('10.1210/jc.2017-01643')
+	},
+	{
+		id: 'michos2026',
+		short: 'Michos 2026',
+		title: 'Michos ED et al. Lipoprotein(a) and Women\'s Cardiovascular Health: A Review. JACC Adv 2026;5(6 Pt 1):102744',
+		url: doi('10.1016/j.jacadv.2026.102744')
+	},
+	{
+		id: 'vongpatanasin2003',
+		short: 'Vongpatanasin 2003',
+		title: 'Vongpatanasin W et al. Differential effects of oral versus transdermal estrogen replacement therapy on C-reactive protein in postmenopausal women. J Am Coll Cardiol 2003;41(8):1358–1363',
+		url: doi('10.1016/S0735-1097(03)00156-6')
+	},
+	{
+		id: 'ramasamy2024',
+		short: 'Ramasamy 2024',
+		title: 'Ramasamy I. Gender Reassignment and the Role of the Laboratory in Monitoring Gender-Affirming Hormone Therapy. J Clin Med 2024;13(17):5134',
+		url: doi('10.3390/jcm13175134')
+	},
+	{
+		id: 'shadid2020',
+		short: 'Shadid 2020',
+		title: 'Shadid S et al. Effects of Gender-Affirming Hormone Therapy on Insulin Sensitivity and Incretin Responses in Transgender People. Diabetes Care 2020;43(2):411–417',
+		url: doi('10.2337/dc19-1061')
+	},
+	{
+		id: 'demay2024',
+		short: 'Endocrine Society 2024 (vitamin D)',
+		title: 'Demay MB et al. Vitamin D for the Prevention of Disease: An Endocrine Society Clinical Practice Guideline. J Clin Endocrinol Metab 2024;109(8):1907–1947',
+		url: doi('10.1210/clinem/dgae290')
+	},
+	{
+		id: 'melmed2011',
+		short: 'Endocrine Society 2011 (prolactin)',
+		title: 'Melmed S et al. Diagnosis and treatment of hyperprolactinemia: an Endocrine Society clinical practice guideline. J Clin Endocrinol Metab 2011;96(2):273–288',
+		url: doi('10.1210/jc.2010-1692')
+	},
+	{
+		id: 'ding2009',
+		short: 'Ding 2009',
+		title: 'Ding EL et al. Sex hormone-binding globulin and risk of type 2 diabetes in women and men. N Engl J Med 2009;361(12):1152–1163',
+		url: doi('10.1056/NEJMoa0804381')
+	},
+	{
+		id: 'steiner2017',
+		short: 'Steiner 2017',
+		title: 'Steiner AZ et al. Association Between Biomarkers of Ovarian Reserve and Infertility Among Older Women of Reproductive Age. JAMA 2017;318(14):1367–1376',
+		url: doi('10.1001/jama.2017.14588')
+	},
+	{
+		id: 'ema-cpa2020',
+		short: 'EMA 2020 (cyproterone)',
+		title: 'European Medicines Agency. Cyproterone-containing medicinal products, referral (PRAC 13 Feb 2020, CMDh 26 Mar 2020): daily doses of 10 mg or more only after other options, including lower doses, have failed, because of the risk of meningioma',
+		url: 'https://www.ema.europa.eu/en/medicines/human/referrals/cyproterone-containing-medicinal-products'
+	},
+	{
+		id: 'sp-estradiol',
+		short: 'StatPearls: Estradiol',
+		title: 'Hariri L, Rehman A. Estradiol. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK549797/'
+	},
+	{
+		id: 'sp-testosterone',
+		short: 'StatPearls: Testosterone',
+		title: 'Nassar GN, Leslie SW. Physiology, Testosterone. StatPearls, Treasure Island (FL) 2026',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK526128/'
+	},
+	{
+		id: 'sp-lh',
+		short: 'StatPearls: LH',
+		title: 'Nedresky D, Singh G. Physiology, Luteinizing Hormone. StatPearls, Treasure Island (FL) 2022',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK539692/'
+	},
+	{
+		id: 'sp-fsh',
+		short: 'StatPearls: FSH',
+		title: 'Orlowski M, Sarao MS. Physiology, Follicle Stimulating Hormone. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK535442/'
+	},
+	{
+		id: 'sp-prolactin',
+		short: 'StatPearls: Prolactin',
+		title: 'Al-Chalabi M, Bass AN, Alsalman I. Physiology, Prolactin. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK507829/'
+	},
+	{
+		id: 'sp-progesterone',
+		short: 'StatPearls: Progesterone',
+		title: 'Cable JK, Grider MH. Physiology, Progesterone. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK558960/'
+	},
+	{
+		id: 'sp-cortisol',
+		short: 'StatPearls: Cortisol',
+		title: 'Kaur J, Gandhi J, Sharma S. Physiology, Cortisol. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK538239/'
+	},
+	{
+		id: 'sp-tsh',
+		short: 'StatPearls: TSH',
+		title: 'Pirahanchi Y, Toro F, Jialal I. Physiology, Thyroid Stimulating Hormone. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK499850/'
+	},
+	{
+		id: 'sp-hashimoto',
+		short: 'StatPearls: Hashimoto thyroiditis',
+		title: 'Kaur J, Jialal I. Hashimoto Thyroiditis. StatPearls, Treasure Island (FL) 2026',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK459262/'
+	},
+	{
+		id: 'sp-polycythemia',
+		short: 'StatPearls: Polycythemia',
+		title: 'Pillai AA, Kaur A, Mukkamalla SKR. Polycythemia. StatPearls, Treasure Island (FL) 2026',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK526081/'
+	},
+	{
+		id: 'sp-hyperkalemia',
+		short: 'StatPearls: Hyperkalemia',
+		title: 'Simon LV, Rout P. Hyperkalemia. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK470284/'
+	},
+	{
+		id: 'sp-alt',
+		short: 'StatPearls: ALT',
+		title: 'Moriles KE, Zubair M, Azer SA. Alanine Aminotransferase (ALT) Test. StatPearls, Treasure Island (FL) 2024',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK559278/'
+	},
+	{
+		id: 'sp-hba1c',
+		short: 'StatPearls: HbA1c',
+		title: 'Eyth E, Zubair M, Naik R. Hemoglobin A1C. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK549816/'
+	},
+	{
+		id: 'sp-crp',
+		short: 'StatPearls: CRP',
+		title: 'Singh B, Goyal A, Patel BC. C-Reactive Protein: Clinical Relevance and Interpretation. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK441843/'
+	},
+	{
+		id: 'sp-b12',
+		short: 'StatPearls: Vitamin B12 deficiency',
+		title: 'Ankar A, Kumar A. Vitamin B12 Deficiency. StatPearls, Treasure Island (FL) 2024',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/'
+	},
+	{
+		id: 'sp-psa',
+		short: 'StatPearls: PSA',
+		title: 'David MK, Leslie SW. Prostate-Specific Antigen. StatPearls, Treasure Island (FL) 2024',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK557495/'
+	},
+	{
+		id: 'sp-ddimer',
+		short: 'StatPearls: D-dimer',
+		title: 'Killeen RB, Kok SJ. D-Dimer Test. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK431064/'
+	},
+	{
+		id: 'sp-gfr',
+		short: 'StatPearls: GFR',
+		title: 'Kaufman DP, Basit H, Knohl SJ. Physiology, Glomerular Filtration Rate. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK500032/'
+	},
+	{
+		id: 'sp-ida',
+		short: 'StatPearls: Iron deficiency anaemia',
+		title: 'Jogu P, Kamran MT. Iron-Deficiency Anemia. StatPearls, Treasure Island (FL) 2026',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/'
+	},
+	{
+		id: 'sp-tg',
+		short: 'StatPearls: Hypertriglyceridemia',
+		title: 'Karanchi H, Muppidi V, Wyne K. Hypertriglyceridemia. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK459368/'
+	},
+	{
+		id: 'sp-apob',
+		short: 'StatPearls: Apolipoprotein B',
+		title: 'Devaraj S, Semaan JR, Jialal I. Biochemistry, Apolipoprotein B. StatPearls, Treasure Island (FL) 2023',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK538139/'
+	},
+	{
+		id: 'sp-lpa',
+		short: 'StatPearls: Lipoprotein(a)',
+		title: 'Farzam K, Zubair M, Senthilkumaran S. Lipoprotein A. StatPearls, Treasure Island (FL) 2024',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK570621/'
+	},
+	{
+		id: 'pepys2003',
+		short: 'Pepys 2003',
+		title: 'Pepys MB, Hirschfield GM. C-reactive protein: a critical update. J Clin Invest 2003;111(12):1805–1812',
+		url: doi('10.1172/JCI18921')
+	},
+	{
+		id: 'saleh2022',
+		short: 'Saleh-Anaraki 2022',
+		title: 'Saleh-Anaraki K, Jain A, Wilcox CS, Pourafshar N. Pseudohyperkalemia: Three Cases and a Review of Literature. Am J Med 2022;135(7):e150–e154',
+		url: doi('10.1016/j.amjmed.2022.01.036')
+	},
+	{
+		id: 'pettersson2008',
+		short: 'Pettersson 2008',
+		title: 'Pettersson J et al. Muscular exercise can cause highly pathological liver function tests in healthy men. Br J Clin Pharmacol 2008;65(2):253–259',
+		url: doi('10.1111/j.1365-2125.2007.03001.x')
+	},
+	{
+		id: 'favaloro2020',
+		short: 'Favaloro 2020',
+		title: 'Favaloro EJ, Thachil J. Reporting of D-dimer data in COVID-19: some confusion and potential for misinformation. Clin Chem Lab Med 2020;58(8):1191–1199',
+		url: doi('10.1515/cclm-2020-0573')
+	},
+	{
+		id: 'sp-vitd',
+		short: 'StatPearls: Vitamin D deficiency',
+		title: 'Kaur J, Khare S, Givler A. Vitamin D Deficiency. StatPearls, Treasure Island (FL) 2025',
+		url: 'https://www.ncbi.nlm.nih.gov/books/NBK532266/'
 	}
 ];
 

@@ -9,7 +9,7 @@ Your blood test results over time, next to researched reference ranges. Built fo
 ## Features
 
 - Several profiles per browser, each with its own medication timeline. Profiles can be on feminizing HRT, masculinizing HRT or none, which decides the targets and ranges shown.
-- About 100 values with explanations in both languages: sex hormones, pituitary, adrenal, thyroid, blood count, clotting, kidney, liver, lipids including ApoB and Lp(a), glucose and insulin, iron, vitamins, PSA and more.
+- About 100 values with explanations in both languages: sex hormones, pituitary, adrenal, thyroid, blood count, clotting, kidney, liver, lipids including ApoB and Lp(a), glucose and insulin, iron, vitamins, PSA and more. Every value is explained in general terms, with what HRT changes in a separate note on HRT profiles, a longer background for the important ones and the sources behind it.
 - Several reference contexts per value: HRT targets, ranges measured in trans people on stable HRT, clinical cutoffs, cis female and cis male ranges (age banded where it matters), plus the range your lab printed.
 - Computed series: eGFR with both equations, eGFR from cystatin C, calculated free testosterone, free androgen index, non-HDL, HOMA-IR, transferrin saturation, BMI.
 - Views: overview grid, compare (normalised to % of range, index or z-score), matrix heatmap, sortable table with CSV and JSON export, a focus page per value.

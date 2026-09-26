@@ -84,6 +84,12 @@ test('focus view explains the value and lists profile specific references', asyn
 	await expect(page.getByRole('row', { name: /HRT target \(Endocrine Society, WPATH\)/ })).toBeVisible();
 	await expect(page.getByRole('row', { name: /Monotherapy suppression zone/ })).toBeVisible();
 
+	// HRT specifics sit in their own box, the background unfolds on demand
+	await expect(page.getByText('On feminizing HRT', { exact: true })).toBeVisible();
+	await page.getByRole('button', { name: 'Show more' }).click();
+	await expect(page.getByRole('button', { name: 'Show less' })).toHaveAttribute('aria-expanded', 'true');
+	await expect(page.locator('p', { hasText: 'Sources:' }).getByRole('link', { name: 'Endocrine Society 2017' })).toBeVisible();
+
 	// LH has no guideline target, the trans cohort range stands in
 	await page.goto('/analyte/lh');
 	await expect(page.getByRole('row', { name: /Trans women on HRT/ })).toBeVisible();

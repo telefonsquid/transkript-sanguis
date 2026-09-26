@@ -4,9 +4,23 @@ import { hormones } from './analytes/hormones';
 import { metabolism } from './analytes/metabolism';
 import { nutrients } from './analytes/nutrients';
 import { T } from './analytes/refs';
-import type { Analyte, Group, GroupId, Preset } from './types';
+import { info } from './info';
+import { sourceById } from './sources';
+import type { Analyte, AnalyteDef, Group, GroupId, Preset } from './types';
 
-export const analytes: Analyte[] = [...hormones, ...blood, ...chemistry, ...metabolism, ...nutrients];
+const defs: AnalyteDef[] = [...hormones, ...blood, ...chemistry, ...metabolism, ...nutrients];
+
+/** Catalogue entries joined with their texts. A gap in the texts fails the build instead of showing an empty panel */
+export const analytes: Analyte[] = defs.map((a) => {
+	const text = info[a.id];
+	if (!text) throw new Error(`No info text for ${a.id}`);
+
+	const fields = (lang: 'en' | 'de') => Object.keys(text[lang]).sort().join();
+	if (fields('en') !== fields('de')) throw new Error(`English and German texts of ${a.id} differ in their fields`);
+
+	for (const id of text.cites ?? []) if (!sourceById.has(id)) throw new Error(`${a.id} cites unknown source ${id}`);
+	return { ...a, info: { en: text.en, de: text.de }, cites: text.cites };
+});
 export const analyteById = new Map(analytes.map((a) => [a.id, a]));
 
 export const groups: Group[] = [

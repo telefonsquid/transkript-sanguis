@@ -495,7 +495,7 @@ export const de: Dict = {
 		latestBelow: 'zuletzt darunter',
 		latestInside: 'zuletzt im Bereich',
 		noRefs: 'Keine Referenzbereiche für diesen Wert.',
-		everyValue: 'Alle Werte',
+		yourData: 'Deine Daten',
 		cols: {
 			date: 'Datum',
 			hrt: 'HRT',
@@ -516,7 +516,10 @@ export const de: Dict = {
 			masc: 'Unter maskulinisierender HRT',
 			high: 'Wenn der Wert hoch ist',
 			low: 'Wenn der Wert niedrig ist',
-			notes: 'Hinweise'
+			notes: 'Hinweise',
+			more: 'Mehr anzeigen',
+			less: 'Weniger anzeigen',
+			sources: 'Quellen'
 		},
 		disclaimer: 'Allgemeiner Hintergrund, keine medizinische Beratung. Die Bewertung gehört zur behandelnden Ärztin oder zum behandelnden Arzt.',
 		stats: {

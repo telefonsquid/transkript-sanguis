@@ -494,7 +494,7 @@ export const en = {
 		latestBelow: 'latest below',
 		latestInside: 'latest inside',
 		noRefs: 'No reference ranges for this value.',
-		everyValue: 'Every value',
+		yourData: 'Your data',
 		cols: {
 			date: 'Date',
 			hrt: 'HRT',
@@ -515,7 +515,10 @@ export const en = {
 			masc: 'On masculinizing HRT',
 			high: 'When it is high',
 			low: 'When it is low',
-			notes: 'Notes'
+			notes: 'Notes',
+			more: 'Show more',
+			less: 'Show less',
+			sources: 'Sources'
 		},
 		disclaimer: 'General background, not medical advice. Interpretation belongs with the treating doctor.',
 		stats: {
