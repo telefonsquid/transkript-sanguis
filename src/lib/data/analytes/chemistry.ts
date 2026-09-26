@@ -32,7 +32,7 @@ export const chemistry: AnalyteDef[] = [
 		decimals: 0,
 		group: 'electrolytes',
 		related: ['potassium', 'chloride'],
-		refs: [humble('f', [134, 143]), humble('m', [137.9, 145.1])]
+		refs: [adult([133, 145], 'nhanes-biopro'), humble('f', [134, 143]), humble('m', [137.9, 145.1])]
 	},
 	{
 		id: 'potassium',
@@ -43,7 +43,7 @@ export const chemistry: AnalyteDef[] = [
 		decimals: 2,
 		group: 'electrolytes',
 		related: ['sodium', 'creatinine'],
-		refs: [humble('f', [3.6, 5.07]), humble('m', [3.7, 5.11])]
+		refs: [adult([3.3, 5.1], 'nhanes-biopro', { note: T('Serum. Plasma reads a little lower.', 'Serum. Plasma liegt etwas niedriger.') }), humble('f', [3.6, 5.07]), humble('m', [3.7, 5.11])]
 	},
 	{
 		id: 'chloride',

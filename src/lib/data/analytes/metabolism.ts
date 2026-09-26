@@ -19,7 +19,12 @@ export const metabolism: AnalyteDef[] = [
 		decimals: 0,
 		group: 'lipids',
 		related: ['ldl', 'hdl', 'non-hdl', 'triglycerides'],
-		refs: [humble('f', [109.6, 239.4]), humble('m', [120, 272.1])]
+		primary: { any: 'ncep' },
+		refs: [
+			clinical('ncep', T('Desirable (NCEP)', 'Wünschenswert (NCEP)'), [undefined, 200], 'nhanes-biopro', { note: T('Below 200 mg/dl, about 5.2 mmol/l.', 'Unter 200 mg/dl, etwa 5,2 mmol/l.') }),
+			humble('f', [109.6, 239.4]),
+			humble('m', [120, 272.1])
+		]
 	},
 	{
 		id: 'hdl',

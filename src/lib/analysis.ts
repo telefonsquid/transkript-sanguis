@@ -20,11 +20,17 @@ export const BASES: Basis[] = ['primary', 'lab', 'target', 'trans', 'female', 'm
 /** Fixed legend order, validated as a palette in this order */
 export const KIND_ORDER: Kind[] = ['lab', 'target', 'context', 'trans', 'clinical', 'female', 'male', 'adult'];
 
-/** References that apply to the active profile's therapy and age */
-export function refsFor(a: Analyte, therapy: Therapy = current.therapy, age = current.age): Reference[] {
-	return a.refs.filter(
+/** References that apply to the active profile's therapy, age and height */
+export function refsFor(a: Analyte, therapy: Therapy = current.therapy, age = current.age, height = current.profile?.height): Reference[] {
+	const fits = a.refs.filter(
 		(r) => (!r.therapy || r.therapy === therapy) && (!r.age || age === undefined || (age >= r.age[0] && age <= r.age[1]))
 	);
+	if (!fits.some((r) => r.perHeight)) return fits;
+
+	// Ranges per height² need a height to become a range
+	const m2 = height ? (height / 100) ** 2 : 0;
+	const scale = (v: number | undefined) => (v === undefined ? v : Math.round(v * m2 * 10) / 10);
+	return fits.flatMap((r) => (!r.perHeight ? [r] : m2 ? [{ ...r, low: scale(r.low), high: scale(r.high) }] : []));
 }
 
 function labBounds(m: Measurement): Bounds | undefined {

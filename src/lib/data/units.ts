@@ -176,7 +176,7 @@ export function acceptUnit(a: Analyte, printed: string): string | undefined {
 
 /** Middle of the curated ranges on a log scale, what a value in the canonical unit usually looks like */
 function typical(a: Analyte): number | undefined {
-	const bounds = a.refs.flatMap((r) => [r.low, r.high]).filter((v): v is number => v !== undefined && v > 0);
+	const bounds = a.refs.filter((r) => !r.perHeight).flatMap((r) => [r.low, r.high]).filter((v): v is number => v !== undefined && v > 0);
 	if (!bounds.length) return undefined;
 	return 10 ** (bounds.reduce((s, v) => s + Math.log10(v), 0) / bounds.length);
 }

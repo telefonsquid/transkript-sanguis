@@ -366,8 +366,38 @@ export const sources: Source[] = [
 	{
 		id: 'nhanes-biopro',
 		short: 'CDC NHANES 2017–2018',
-		title: 'Centers for Disease Control and Prevention. NHANES 2017–2018 laboratory procedure manuals, standard biochemistry profile on Roche cobas 6000 (albumin, total protein, bilirubin, calcium, phosphorus, chloride, urea nitrogen, iron), adult reference ranges',
+		title: 'Centers for Disease Control and Prevention. NHANES 2017–2018 laboratory procedure manuals, standard biochemistry profile on Roche cobas 6000 (albumin, total protein, bilirubin, calcium, phosphorus, sodium, potassium, chloride, urea nitrogen, iron, total cholesterol), adult reference ranges',
 		url: 'https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/labmethods.aspx?Cycle=2017-2018'
+	},
+	{
+		id: 'roche-amh',
+		short: 'Roche Elecsys AMH Plus',
+		title: 'Roche Diagnostics. Elecsys AMH Plus method sheet, V 2.0 (2024). 2.5th–97.5th percentile of 148 healthy men and 887 women not taking contraceptives, by age (Roche study RD001727)',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/1cbe82af-7b86-eb11-0291-005056a71a5d?countryIsoCode=be'
+	},
+	{
+		id: 'roche-tpsa',
+		short: 'Roche Elecsys total PSA',
+		title: 'Roche Diagnostics. Elecsys total PSA method sheet, V 4.0 (2024). 95th percentile of 244 healthy men by age, two centres in the Netherlands and Germany',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/dd2085d9-7b0b-ef11-2591-005056a71a5d?countryIsoCode=XG'
+	},
+	{
+		id: 'mayo-testo',
+		short: 'Mayo Clinic free testosterone',
+		title: 'Mayo Clinic Laboratories. Testosterone, Total and Free, Serum (test ID TGRP), free testosterone by equilibrium dialysis and LC-MS/MS, adult reference values by age',
+		url: 'https://www.mayocliniclabs.com/test-catalog/overview/8508'
+	},
+	{
+		id: 'mayo-dht',
+		short: 'Mayo Clinic DHT',
+		title: 'Mayo Clinic Laboratories. Dihydrotestosterone, Serum (test ID DHTS), LC-MS/MS, adult reference values',
+		url: 'https://www.mayocliniclabs.com/test-catalog/overview/81479'
+	},
+	{
+		id: 'meredith2024',
+		short: 'Meredith 2024 (NRBC)',
+		title: 'Meredith AA et al. Circulating Nucleated Red Blood Cells: An Updated Reference Interval. Arch Pathol Lab Med 2024;148(12):1365–1370 (66 498 outpatient samples with otherwise normal blood counts, Sysmex XN)',
+		url: doi('10.5858/arpa.2023-0328-OA')
 	},
 	{
 		id: 'arbiol2018',

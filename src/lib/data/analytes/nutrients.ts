@@ -1,6 +1,15 @@
 import type { AnalyteDef } from '../types';
 import { T, adult, clinical, female, male, transWomen } from './refs';
 
+// Age band and upper limit in ng/ml
+const PSA: [number, number, number][] = [
+	[18, 39, 1.4],
+	[40, 49, 2.0],
+	[50, 59, 3.1],
+	[60, 69, 4.1],
+	[70, 120, 4.4]
+];
+
 export const nutrients: AnalyteDef[] = [
 	{
 		id: 'iron',
@@ -154,6 +163,13 @@ export const nutrients: AnalyteDef[] = [
 		scale: 'log',
 		primary: { feminizing: 'trans-f' },
 		refs: [
+			...PSA.map(([from, to, high]) =>
+				male([undefined, high], 'roche-tpsa', {
+					id: `male-${from}`,
+					age: [from, to],
+					note: from < 40 ? T('Under 40, 95th percentile.', 'Unter 40, 95. Perzentile.') : to > 100 ? T('Age 70 and older, 95th percentile.', 'Ab 70 Jahren, 95. Perzentile.') : T(`Age ${from} to ${to}, 95th percentile.`, `Alter ${from} bis ${to}, 95. Perzentile.`)
+				})
+			),
 			transWomen([undefined, 0.6], 'nikahd2024', {
 				label: T('Trans women on estrogen, 95th percentile', 'Trans Frauen unter Östrogen, 95. Perzentile'),
 				note: T('Median 0.02 ng/ml in 210 trans women, fifty times lower than in cis men of the same age.', 'Median 0,02 ng/ml bei 210 trans Frauen, fünfzigmal niedriger als bei gleichaltrigen cis Männern.')
@@ -168,8 +184,14 @@ export const nutrients: AnalyteDef[] = [
 		units: [{ unit: 'lb', factor: 0.4536 }],
 		decimals: 1,
 		group: 'body',
+		primary: { any: 'who' },
 		related: ['bmi'],
-		refs: []
+		refs: [
+			clinical('who', T('Normal weight for your height (WHO)', 'Normalgewicht für deine Größe (WHO)'), [18.5, 25], 'who-bmi', {
+				perHeight: true,
+				note: T('BMI 18.5 to 24.9 at the height stored in the profile.', 'BMI 18,5 bis 24,9 bei der im Profil hinterlegten Größe.')
+			})
+		]
 	},
 	{
 		id: 'bmi',

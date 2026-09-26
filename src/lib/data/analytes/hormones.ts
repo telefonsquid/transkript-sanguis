@@ -4,6 +4,37 @@ import { T, adult, context, female, male, target, transMen, transWomen } from '.
 const ADULT: [number, number] = [18, 49];
 const OLDER: [number, number] = [50, 120];
 
+// Five year bands from this age: men low and high, women high, in pg/ml
+const FREE_T: [number, number, number, number][] = [
+	[20, 52.5, 207, 10.8],
+	[25, 50.5, 198, 10.6],
+	[30, 48.5, 190, 10.3],
+	[35, 46.5, 181, 10.0],
+	[40, 44.6, 171, 9.8],
+	[45, 42.6, 164, 9.5],
+	[50, 40.6, 156, 9.2],
+	[55, 38.7, 147, 9.0],
+	[60, 36.7, 139, 8.7],
+	[65, 34.7, 130, 8.4],
+	[70, 32.8, 122, 8.2],
+	[75, 30.8, 113, 7.9],
+	[80, 28.8, 105, 7.6],
+	[85, 26.9, 96.1, 7.3],
+	[90, 24.9, 87.6, 7.1],
+	[95, 22.9, 79.1, 6.8]
+];
+const DIALYSIS = T('Equilibrium dialysis and mass spectrometry, direct immunoassays read differently.', 'Gleichgewichtsdialyse und Massenspektrometrie, direkte Immunoassays messen anders.');
+
+// Women by age band in ng/ml, the lowest band starts at the assay floor
+const AMH: [number, number, number | undefined, number][] = [
+	[20, 24, 1.22, 11.7],
+	[25, 29, 0.89, 9.85],
+	[30, 34, 0.576, 8.13],
+	[35, 39, 0.147, 7.49],
+	[40, 44, 0.027, 5.47],
+	[45, 50, undefined, 2.71]
+];
+
 export const hormones: AnalyteDef[] = [
 	{
 		id: 'estradiol',
@@ -132,7 +163,13 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['free-t-calc', 'testosterone', 'shbg'],
-		refs: []
+		refs: [
+			...FREE_T.flatMap(([from, low, high, highF]) => {
+				const age: [number, number] = from < 95 ? [from, from + 4] : [95, 120];
+				const note = T(`Age ${age[0]} to ${age[1] > 100 ? '100+' : age[1]}. ${DIALYSIS.en}`, `Alter ${age[0]} bis ${age[1] > 100 ? '100+' : age[1]}. ${DIALYSIS.de}`);
+				return [male([low, high], 'mayo-testo', { id: `male-${from}`, age, note }), female([undefined, highF], 'mayo-testo', { id: `female-${from}`, age, note })];
+			})
+		]
 	},
 	{
 		id: 'shbg',
@@ -186,7 +223,11 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['testosterone'],
-		refs: []
+		refs: [
+			male([112, 955], 'mayo-dht', { age: [20, 120], note: T('Age 20 and older, mass spectrometry.', 'Ab 20 Jahren, Massenspektrometrie.') }),
+			female([undefined, 300], 'mayo-dht', { age: [20, 55], note: T('Age 20 to 55, mass spectrometry.', 'Alter 20 bis 55, Massenspektrometrie.') }),
+			female([undefined, 128], 'mayo-dht', { id: 'female-56', age: [56, 120], note: T('Over 55, mass spectrometry.', 'Über 55, Massenspektrometrie.') })
+		]
 	},
 	{
 		id: 'lh',
@@ -319,7 +360,17 @@ export const hormones: AnalyteDef[] = [
 		group: 'hormones',
 		scale: 'log',
 		related: ['fsh'],
-		refs: [transMen([0.02, 14], 'greene2021-tm', { note: T('On testosterone for 12 months or more.', 'Mindestens 12 Monate Testosteron.') })]
+		refs: [
+			transMen([0.02, 14], 'greene2021-tm', { note: T('On testosterone for 12 months or more.', 'Mindestens 12 Monate Testosteron.') }),
+			male([0.77, 14.5], 'roche-amh', { note: T('2.5th to 97.5th percentile.', '2,5. bis 97,5. Perzentile.') }),
+			...AMH.map(([from, to, low, high]) =>
+				female([low, high], 'roche-amh', {
+					id: `female-${from}`,
+					age: [from, to],
+					note: T(`Age ${from} to ${to}, 2.5th to 97.5th percentile, without hormonal contraception.`, `Alter ${from} bis ${to}, 2,5. bis 97,5. Perzentile, ohne hormonelle Verhütung.`)
+				})
+			)
+		]
 	},
 	{
 		id: 'dhea-s',

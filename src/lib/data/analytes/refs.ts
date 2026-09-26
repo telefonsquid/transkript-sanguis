@@ -8,12 +8,13 @@ interface Options {
 	note?: Text;
 	therapy?: HrtTherapy;
 	age?: [number, number];
+	perHeight?: boolean;
 }
 
 export const T = (en: string, de: string): Text => ({ en, de });
 
 function make(kind: RefKind, id: string, label: Text, [low, high]: Bounds, source: string, o: Options): Reference {
-	return { id, kind, label, low, high, source, note: o.note, therapy: o.therapy, age: o.age };
+	return { id, kind, label, low, high, source, note: o.note, therapy: o.therapy, age: o.age, perHeight: o.perHeight };
 }
 
 export const female = (bounds: Bounds, source: string, o: Options = {}) =>

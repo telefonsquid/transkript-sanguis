@@ -45,6 +45,8 @@ export interface Reference {
 	therapy?: HrtTherapy;
 	/** Age band in years the range was measured in */
 	age?: [number, number];
+	/** Bounds per square metre of body height, scaled to the profile's height */
+	perHeight?: boolean;
 }
 
 export interface AnalyteInfo {

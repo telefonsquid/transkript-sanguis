@@ -202,7 +202,9 @@ export const blood: AnalyteDef[] = [
 		units: PER_NL,
 		decimals: 2,
 		group: 'blood-count',
-		refs: []
+		refs: [
+			adult([undefined, 0.1], 'meredith2024', { note: T('Modern analysers count single cells that the older limit of 0.01 /nl flagged in healthy people.', 'Moderne Analysegeräte zählen einzelne Zellen, die die ältere Grenze von 0,01 /nl bei Gesunden markierte.') })
+		]
 	},
 	...differential(),
 	{
