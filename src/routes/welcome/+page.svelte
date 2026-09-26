@@ -54,12 +54,6 @@
 	{#if step === 'home'}
 		<header class="flex flex-col items-center text-center" in:fly={{ y: 16 }}>
 			<h1><Logo glint flourish class="block text-[min(3.5rem,10.5vw)] sm:text-7xl" /></h1>
-			<button type="button" onclick={() => (about = !about)} aria-expanded={about} class="mt-8 inline-flex items-center gap-1 text-xs font-medium text-ink-3 hover:text-ink">
-				{t.welcome.about}<span class={['inline-block transition-transform duration-200', about && 'rotate-180']} aria-hidden="true">▾</span>
-			</button>
-			{#if about}
-				<p class="mt-2 max-w-md text-sm text-balance text-ink-2" transition:slide>{t.welcome.aboutText}</p>
-			{/if}
 		</header>
 
 		<section class="mx-auto flex w-full max-w-md flex-col items-center gap-3" in:fly={{ y: 16, delay: 80 }}>
@@ -101,6 +95,17 @@
 				</div>
 			{/if}
 		</section>
+
+		<div class="mx-auto flex w-full max-w-lg flex-col items-center" in:fly={{ y: 16, delay: 160 }}>
+			<button type="button" onclick={() => (about = !about)} aria-expanded={about} class="inline-flex items-center gap-1 text-xs font-medium text-ink-3 hover:text-ink">
+				{t.welcome.about}<span class={['inline-block transition-transform duration-200', about && 'rotate-180']} aria-hidden="true">▾</span>
+			</button>
+			{#if about}
+				<div class="mt-3 space-y-2 text-justify text-[0.8125rem] leading-relaxed hyphens-auto text-ink-3" transition:slide>
+					{#each t.welcome.aboutText as text (text)}<p>{text}</p>{/each}
+				</div>
+			{/if}
+		</div>
 	{:else if step === 'medical'}
 		{@render disclaimer(1, 'var(--warning)', warn, t.disclaimer.medicalTitle, t.disclaimer.medicalPoints, () => (step = 'local'))}
 	{:else if step === 'local'}

@@ -98,7 +98,10 @@ export const de: Dict = {
 	},
 	welcome: {
 		about: 'Über die App',
-		aboutText: 'Sammelt deine Blutwerte und zeigt sie im Verlauf neben recherchierten Referenzbereichen. Funktioniert für alle, ist aber speziell für Menschen unter Hormontherapie gemacht.',
+		aboutText: [
+			'Transkript Sanguis ist eine Open-Source-Anwendung, mit der du deine Blutwerte erfassen und auswerten kannst. Sie zeigt jeden Wert im Verlauf neben Referenzbereichen aus veröffentlichter Forschung, jeweils mit Quelle, und erklärt, was der Wert misst und was eine Abweichung nach oben oder unten bedeuten kann.',
+			'Hormontherapie ist umfassend eingebunden: feminisierende und maskulinisierende Profile, Bereiche aus Studien an trans Personen und Therapieziele, eine Medikationszeitleiste über den Diagrammen und Hinweise, wie die Therapie jeden Wert beeinflusst. Alles, was du eingibst, bleibt in deinem Browser.'
+		],
 		step: (n: number, of: number) => `${n} von ${of}`,
 		demo: 'Demo ansehen',
 		create: 'Profil anlegen',

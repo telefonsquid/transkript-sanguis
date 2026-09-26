@@ -97,7 +97,10 @@ export const en = {
 	},
 	welcome: {
 		about: 'About',
-		aboutText: 'Keeps your blood test results and charts them over time next to researched reference ranges. Works for anyone, but is made especially for people on hormone therapy.',
+		aboutText: [
+			'Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts every value over time against reference ranges from published research, each with its source, and explains what the value measures and what a shift up or down can mean.',
+			'It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.'
+		],
 		step: (n: number, of: number) => `${n} of ${of}`,
 		demo: 'View demo',
 		create: 'Create profile',
