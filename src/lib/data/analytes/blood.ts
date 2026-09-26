@@ -1,5 +1,5 @@
 import type { Analyte, AnalyteInfo, Lang } from '../types';
-import { T, adult, clinical, female, male, transMen, transWomen } from './refs';
+import { T, adult, clinical, context, female, male, transMen, transWomen } from './refs';
 
 const RED_CELLS = {
 	fem: T(
@@ -91,7 +91,11 @@ export const blood: Analyte[] = [
 				note: '/pl, T/l und 10¹²/l sind dieselbe Zahl.'
 			}
 		),
-		refs: [female([3.92, 5.13], 'mayo-cbc'), male([4.35, 5.65], 'mayo-cbc')]
+		refs: [
+			female([3.92, 5.13], 'mayo-cbc'), male([4.35, 5.65], 'mayo-cbc'),
+			transWomen([3.92, 5.13], 'greene2019', { note: T('Values after 12 months or more on estradiol matched cis women, so the cis female range applies.', 'Nach mindestens 12 Monaten Östradiol lagen die Werte wie bei cis Frauen, daher gilt der cis weibliche Bereich.') }),
+			transMen([4.35, 5.65], 'greene2019', { note: T('Values after 12 months or more on testosterone matched cis men, so the cis male range applies.', 'Nach mindestens 12 Monaten Testosteron lagen die Werte wie bei cis Männern, daher gilt der cis männliche Bereich.') })
+		]
 	},
 	{
 		id: 'hemoglobin',
@@ -221,7 +225,9 @@ export const blood: Analyte[] = [
 				low: 'Eisenmangel.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([27, 32], 'arbiol2018', { note: T('Sysmex XN, 188 healthy adults in Barcelona.', 'Sysmex XN, 188 gesunde Erwachsene in Barcelona.') })
+		]
 	},
 	{
 		id: 'mchc',
@@ -250,7 +256,12 @@ export const blood: Analyte[] = [
 				low: 'Eisenmangel. Tritt auch auf, wenn Zellen in einer gelagerten Probe anschwellen.'
 			}
 		},
-		refs: []
+		refs: [
+			female([32.0, 35.1], 'almeida2026', { note: T('1,314 healthy women in Brazil (ELSA-Brasil).', '1.314 gesunde Frauen in Brasilien (ELSA-Brasil).') }),
+			male([32.3, 35.7], 'almeida2026', { note: T('1,103 healthy men in Brazil (ELSA-Brasil).', '1.103 gesunde Männer in Brasilien (ELSA-Brasil).') }),
+			transWomen([32.0, 35.1], 'greene2019', { note: T('Values after 12 months or more on estradiol matched cis women, so the cis female range applies.', 'Nach mindestens 12 Monaten Östradiol lagen die Werte wie bei cis Frauen, daher gilt der cis weibliche Bereich.') }),
+			transMen([32.3, 35.7], 'greene2019', { note: T('Values after 12 months or more on testosterone matched cis men, so the cis male range applies.', 'Nach mindestens 12 Monaten Testosteron lagen die Werte wie bei cis Männern, daher gilt der cis männliche Bereich.') })
+		]
 	},
 	{
 		id: 'rdw',
@@ -275,7 +286,11 @@ export const blood: Analyte[] = [
 				note: 'Hängt vom Messgerät ab, Werte verschiedener Labore sind schlecht vergleichbar.'
 			}
 		},
-		refs: [female([12.2, 16.1], 'mayo-cbc'), male([11.8, 14.5], 'mayo-cbc')]
+		refs: [
+			female([12.2, 16.1], 'mayo-cbc'), male([11.8, 14.5], 'mayo-cbc'),
+			transWomen([12.2, 16.1], 'greene2019', { note: T('Values after 12 months or more on estradiol matched cis women, so the cis female range applies.', 'Nach mindestens 12 Monaten Östradiol lagen die Werte wie bei cis Frauen, daher gilt der cis weibliche Bereich.') }),
+			transMen([11.8, 14.5], 'greene2019', { note: T('Values after 12 months or more on testosterone matched cis men, so the cis male range applies.', 'Nach mindestens 12 Monaten Testosteron lagen die Werte wie bei cis Männern, daher gilt der cis männliche Bereich.') })
+		]
 	},
 	{
 		id: 'platelets',
@@ -303,7 +318,11 @@ export const blood: Analyte[] = [
 				fem: 'Die Thrombozytenzahl misst nicht das Gerinnungsrisiko durch Östrogen. ' + CLOT_RISK.de
 			}
 		},
-		refs: [female([157, 371], 'mayo-cbc'), male([135, 317], 'mayo-cbc')]
+		refs: [
+			female([157, 371], 'mayo-cbc'), male([135, 317], 'mayo-cbc'),
+			transWomen([157, 371], 'greene2019', { note: T('Values after 12 months or more on estradiol matched cis women, so the cis female range applies.', 'Nach mindestens 12 Monaten Östradiol lagen die Werte wie bei cis Frauen, daher gilt der cis weibliche Bereich.') }),
+			transMen([135, 317], 'greene2019', { note: T('Values after 12 months or more on testosterone matched cis men, so the cis male range applies.', 'Nach mindestens 12 Monaten Testosteron lagen die Werte wie bei cis Männern, daher gilt der cis männliche Bereich.') })
+		]
 	},
 	{
 		id: 'mpv',
@@ -318,7 +337,9 @@ export const blood: Analyte[] = [
 			en: { what: 'Average platelet size. Young platelets are larger.', why: 'Helps interpret an abnormal platelet count.' },
 			de: { what: 'Durchschnittliche Größe der Blutplättchen. Junge Plättchen sind größer.', why: 'Hilft, eine auffällige Thrombozytenzahl einzuordnen.' }
 		},
-		refs: []
+		refs: [
+			adult([9.7, 13.2], 'arbiol2018', { note: T('Sysmex XN. Analysers size platelets differently, so a printed lab range wins.', 'Sysmex XN. Analysegeräte messen die Plättchengröße unterschiedlich, ein gedruckter Laborbereich hat daher Vorrang.') })
+		]
 	},
 	{
 		id: 'nrbc',
@@ -332,7 +353,9 @@ export const blood: Analyte[] = [
 			en: { what: 'Immature red cells that still have a nucleus. Normally they stay in the bone marrow.', why: 'Any in adult blood points at marrow stress. Zero is normal.' },
 			de: { what: 'Unreife rote Blutkörperchen, die noch einen Kern haben. Normalerweise bleiben sie im Knochenmark.', why: 'Jeder Nachweis bei Erwachsenen deutet auf Stress im Knochenmark. Null ist normal.' }
 		},
-		refs: []
+		refs: [
+			adult([undefined, 0.01], 'arbiol2018', { note: T('Healthy adults have practically none in their blood.', 'Gesunde Erwachsene haben praktisch keine im Blut.') })
+		]
 	},
 	{
 		id: 'nrbc-abs',
@@ -375,7 +398,9 @@ export const blood: Analyte[] = [
 				note: 'Je niedriger der Quick-Wert, desto höher die INR.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([74.4, 120], 'ulm-tpz', { note: T('Roche reagent on cobas t. The percentage depends on the reagent, the INR does not.', 'Roche-Reagenz auf cobas t. Der Prozentwert hängt vom Reagenz ab, die INR nicht.') })
+		]
 	},
 	{
 		id: 'inr',
@@ -399,7 +424,11 @@ export const blood: Analyte[] = [
 				low: 'Unbedenklich.'
 			}
 		},
-		refs: []
+		primary: { any: 'adult' },
+		refs: [
+			adult([0.9, 1.1], 'hhu-inr'),
+			context('vka', T('Target on vitamin K antagonists', 'Ziel unter Vitamin-K-Antagonisten'), [2.0, 3.0], 'ulm-tpz', { note: T('For most reasons such as thrombosis or atrial fibrillation. Some mechanical heart valves need 2.5 to 3.5.', 'Für die meisten Gründe wie Thrombose oder Vorhofflimmern. Manche mechanischen Herzklappen brauchen 2,5 bis 3,5.') })
+		]
 	},
 	{
 		id: 'aptt',
@@ -424,7 +453,9 @@ export const blood: Analyte[] = [
 				low: 'Meist ein Abnahmeeffekt, allein nicht aussagekräftig.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([23.9, 33.2], 'ulm-aptt', { note: T('Roche reagent on cobas t. The seconds depend a lot on the reagent, so a printed lab range wins.', 'Roche-Reagenz auf cobas t. Die Sekunden hängen stark vom Reagenz ab, ein gedruckter Laborbereich hat daher Vorrang.') })
+		]
 	},
 	{
 		id: 'fibrinogen',
@@ -450,7 +481,9 @@ export const blood: Analyte[] = [
 				low: 'Verbrauch bei starker Gerinnungsaktivierung, Lebererkrankung, angeborener Mangel.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([193, 412], 'ulm-fib', { note: T('1.93 to 4.12 g/l, Clauss method on Roche cobas t, as given in the Roche package insert.', '1,93 bis 4,12 g/l, Clauss-Methode auf Roche cobas t, laut Roche-Packungsbeilage.') })
+		]
 	},
 	{
 		id: 'd-dimer',
@@ -503,6 +536,7 @@ function differential(): Analyte[] {
 			name: T('Neutrophils', 'Neutrophile'),
 			aliases: ['Neutro', 'Segmentkernige', 'Neutrophile Granulozyten'],
 			abs: [1.56, 6.45] as [number, number],
+			pct: [37.1, 68.4] as [number, number],
 			what: T('The most common white cells, first responders against bacteria.', 'Die häufigsten weißen Blutkörperchen, erste Abwehr gegen Bakterien.'),
 			high: T(
 				'Bacterial infection, inflammation, stress, cortisone, smoking. High neutrophils with low lymphocytes and eosinophils together is the typical stress hormone pattern.',
@@ -515,6 +549,7 @@ function differential(): Analyte[] {
 			name: T('Lymphocytes', 'Lymphozyten'),
 			aliases: ['Lympho', 'Lymphos'],
 			abs: [0.95, 3.07] as [number, number],
+			pct: [21, 50] as [number, number],
 			what: T('T, B and NK cells, the adaptive immune system.', 'T-, B- und NK-Zellen, das erworbene Immunsystem.'),
 			high: T('Viral infections, rarely lymphatic disease.', 'Virusinfekte, selten Erkrankungen des lymphatischen Systems.'),
 			low: T('Acute stress, cortisone, some infections.', 'Akuter Stress, Kortison, manche Infektionen.')
@@ -524,6 +559,7 @@ function differential(): Analyte[] {
 			name: T('Monocytes', 'Monozyten'),
 			aliases: ['Mono', 'Monos'],
 			abs: [0.26, 0.81] as [number, number],
+			pct: [5.1, 11.2] as [number, number],
 			what: T('Large white cells that become macrophages in tissue.', 'Große weiße Blutkörperchen, die im Gewebe zu Makrophagen werden.'),
 			high: T('Chronic infection or inflammation, recovery phase after infection.', 'Chronische Infektion oder Entzündung, Erholungsphase nach einer Infektion.'),
 			low: T('Rarely meaningful alone.', 'Allein selten von Bedeutung.')
@@ -533,6 +569,7 @@ function differential(): Analyte[] {
 			name: T('Eosinophils', 'Eosinophile'),
 			aliases: ['Eos', 'Eosinophile Granulozyten'],
 			abs: [0.03, 0.48] as [number, number],
+			pct: [0.4, 6.6] as [number, number],
 			what: T('White cells involved in allergy and parasite defence.', 'Weiße Blutkörperchen der Allergie- und Parasitenabwehr.'),
 			high: T('Allergies, asthma, eczema, parasites, some drugs.', 'Allergien, Asthma, Ekzeme, Parasiten, manche Medikamente.'),
 			low: T('Acute stress or cortisone. Usually meaningless alone.', 'Akuter Stress oder Kortison. Allein meist bedeutungslos.')
@@ -542,6 +579,7 @@ function differential(): Analyte[] {
 			name: T('Basophils', 'Basophile'),
 			aliases: ['Baso', 'Basophile Granulozyten'],
 			abs: [0.01, 0.08] as [number, number],
+			pct: [0.2, 1.3] as [number, number],
 			what: T('Rare white cells that release histamine.', 'Seltene weiße Blutkörperchen, die Histamin freisetzen.'),
 			high: T('Allergic reactions, rarely bone marrow disorders.', 'Allergische Reaktionen, selten Knochenmarkerkrankungen.'),
 			low: T('Not meaningful.', 'Ohne Bedeutung.')
@@ -550,7 +588,9 @@ function differential(): Analyte[] {
 			id: 'ig',
 			name: T('Immature granulocytes', 'Unreife Granulozyten'),
 			aliases: ['IG', 'Immature Granulozyten'],
-			abs: undefined,
+			abs: [0.01, 0.04] as [number, number],
+			pct: [0.1, 0.6] as [number, number],
+			source: 'isiklar2026',
 			what: T('Young neutrophil precursors that normally stay in the bone marrow.', 'Junge Vorstufen der Neutrophilen, die normalerweise im Knochenmark bleiben.'),
 			high: T('Infection, inflammation, pregnancy, marrow stimulation.', 'Infektion, Entzündung, Schwangerschaft, Anregung des Knochenmarks.'),
 			low: T('Not meaningful.', 'Ohne Bedeutung.')
@@ -580,7 +620,7 @@ function differential(): Analyte[] {
 					low: c.low.de
 				}
 			},
-			refs: []
+			refs: [adult(c.pct, c.source ?? 'arbiol2018')]
 		},
 		{
 			id: `${c.id}-abs`,
@@ -605,7 +645,7 @@ function differential(): Analyte[] {
 					low: c.low.de
 				}
 			},
-			refs: c.abs ? [adult(c.abs, 'mayo-cbc')] : []
+			refs: [adult(c.abs, c.source ?? 'mayo-cbc')]
 		}
 	]);
 }

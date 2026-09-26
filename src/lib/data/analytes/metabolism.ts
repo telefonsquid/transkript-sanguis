@@ -1,5 +1,5 @@
 import type { Analyte } from '../types';
-import { T, adult, clinical, female, male, transMen, transWomen } from './refs';
+import { T, adult, clinical, context, female, male, transMen, transWomen } from './refs';
 
 const MG_DL_CHOL = [{ unit: 'mmol/l', factor: 38.67 }];
 
@@ -167,7 +167,11 @@ export const metabolism: Analyte[] = [
 			en: { what: 'LDL divided by HDL.', why: 'An older risk summary. Modern guidelines prefer LDL, non-HDL and ApoB goals.' },
 			de: { what: 'LDL geteilt durch HDL.', why: 'Eine ältere Risikozusammenfassung. Aktuelle Leitlinien bevorzugen Ziele für LDL, Non-HDL und ApoB.' }
 		},
-		refs: []
+		primary: { any: 'procam' },
+		refs: [
+			context('procam', T('Below the PROCAM high risk line', 'Unter der PROCAM-Hochrisikogrenze'), [undefined, 5], 'millan2009', { note: T('In 4,559 men of the PROCAM study a ratio above 5 came with more than six times the rate of heart events.', 'Bei 4.559 Männern der PROCAM-Studie ging ein Quotient über 5 mit mehr als sechsmal so vielen Herzereignissen einher.') }),
+			clinical('secondary', T('Target after a heart event', 'Ziel nach einem Herzereignis'), [undefined, 3.7], 'millan2009', { note: T('Coronary patients in Barcelona who reached a ratio below 3.7 had less than half the risk of hospital stays and death.', 'Koronarpatienten in Barcelona mit einem Quotienten unter 3,7 hatten weniger als halb so viele Klinikaufenthalte und Todesfälle.') })
+		]
 	},
 	{
 		id: 'triglycerides',
@@ -404,7 +408,11 @@ export const metabolism: Analyte[] = [
 			en: { what: 'HbA1c translated into an average blood sugar: 28.7 × HbA1c − 46.7.', why: 'Makes HbA1c easier to relate to glucose readings.' },
 			de: { what: 'HbA1c umgerechnet in einen durchschnittlichen Blutzucker: 28,7 × HbA1c − 46,7.', why: 'Macht HbA1c mit Blutzuckermessungen vergleichbar.' }
 		},
-		refs: []
+		primary: { any: 'ada-normal' },
+		refs: [
+			clinical('ada-normal', T('Normal (ADA)', 'Normal (ADA)'), [undefined, 117], 'nathan2008', { note: T('HbA1c below 5.7 % (ADA) translated with the ADAG formula.', 'HbA1c unter 5,7 % (ADA), umgerechnet mit der ADAG-Formel.') }),
+			clinical('ada-pre', T('Prediabetes (ADA)', 'Prädiabetes (ADA)'), [117, 140], 'nathan2008', { note: T('HbA1c 5.7 to 6.4 %. From 140 mg/dl, matching 6.5 %, it means diabetes.', 'HbA1c 5,7 bis 6,4 %. Ab 140 mg/dl, entsprechend 6,5 %, bedeutet es Diabetes.') })
+		]
 	},
 	{
 		id: 'insulin',
@@ -463,7 +471,9 @@ export const metabolism: Analyte[] = [
 				note: 'Wird für jede Abnahme mit beiden Werten berechnet. Aussagekräftig nur, wenn nüchtern abgenommen wurde.'
 			}
 		},
-		refs: []
+		refs: [
+			clinical('ir', T('Below the insulin resistance cut-off', 'Unter der Grenze für Insulinresistenz'), [undefined, 2.05], 'gayoso2013', { note: T('Best cut-off for metabolic syndrome in 2,459 Spanish adults. Published cut-offs range from about 1.6 to 3.8 by population and method.', 'Beste Grenze für das metabolische Syndrom bei 2.459 spanischen Erwachsenen. Veröffentlichte Grenzen reichen je nach Bevölkerung und Methode von etwa 1,6 bis 3,8.') })
+		]
 	},
 	{
 		id: 'troponin-t',
@@ -488,7 +498,12 @@ export const metabolism: Analyte[] = [
 				note: 'pg/ml und ng/l sind dieselbe Zahl.'
 			}
 		},
-		refs: []
+		primary: { any: 'adult' },
+		refs: [
+			adult([undefined, 14], 'roche-tnt', { note: T('99th percentile of 533 healthy adults aged 20 to 71, the usual line for heart muscle damage.', '99. Perzentile von 533 gesunden Erwachsenen zwischen 20 und 71, die übliche Grenze für Herzmuskelschaden.') }),
+			female([undefined, 9], 'roche-tnt', { note: T('99th percentile of 265 women in the same study. Studies found separate lines by sex add little in practice.', '99. Perzentile von 265 Frauen derselben Studie. Getrennte Grenzen nach Geschlecht bringen laut Studien in der Praxis wenig.') }),
+			male([undefined, 16.8], 'roche-tnt', { note: T('99th percentile of 268 men in the same study.', '99. Perzentile von 268 Männern derselben Studie.') })
+		]
 	},
 	{
 		id: 'ck',
@@ -536,7 +551,9 @@ export const metabolism: Analyte[] = [
 			en: { what: 'Heart type form of the muscle enzyme creatine kinase.', why: 'Older heart damage marker, mostly replaced by troponin.' },
 			de: { what: 'Herztyp des Muskelenzyms Kreatinkinase.', why: 'Älterer Marker für Herzschäden, weitgehend durch Troponin ersetzt.' }
 		},
-		refs: []
+		refs: [
+			adult([undefined, 25], 'roche-ckmb', { note: T('Activity by immune inhibition at 37 °C.', 'Aktivität per Immuninhibition bei 37 °C.') })
+		]
 	},
 	{
 		id: 'ldh',
@@ -622,6 +639,23 @@ export const metabolism: Analyte[] = [
 				low: 'Ohne Bedeutung.'
 			}
 		},
-		refs: []
+		refs: [
+			female([undefined, 20], 'miller1983', { id: 'female-18', age: [18, 29] }),
+			male([undefined, 15], 'miller1983', { id: 'male-18', age: [18, 29] }),
+			female([undefined, 25], 'miller1983', { id: 'female-30', age: [30, 39] }),
+			male([undefined, 20], 'miller1983', { id: 'male-30', age: [30, 39] }),
+			female([undefined, 30], 'miller1983', { id: 'female-40', age: [40, 49] }),
+			male([undefined, 25], 'miller1983', { id: 'male-40', age: [40, 49] }),
+			female([undefined, 35], 'miller1983', { id: 'female-50', age: [50, 59] }),
+			male([undefined, 30], 'miller1983', { id: 'male-50', age: [50, 59] }),
+			female([undefined, 40], 'miller1983', { id: 'female-60', age: [60, 69] }),
+			male([undefined, 35], 'miller1983', { id: 'male-60', age: [60, 69] }),
+			female([undefined, 45], 'miller1983', { id: 'female-70', age: [70, 79] }),
+			male([undefined, 40], 'miller1983', { id: 'male-70', age: [70, 79] }),
+			female([undefined, 50], 'miller1983', { id: 'female-80', age: [80, 89] }),
+			male([undefined, 45], 'miller1983', { id: 'male-80', age: [80, 89] }),
+			female([undefined, 55], 'miller1983', { id: 'female-90', age: [90, 120] }),
+			male([undefined, 50], 'miller1983', { id: 'male-90', age: [90, 120] })
+		]
 	}
 ];

@@ -308,6 +308,150 @@ export const sources: Source[] = [
 		short: 'WHO BMI',
 		title: 'World Health Organization, BMI classification for adults',
 		url: 'https://www.who.int/data/gho/data/themes/topics/topic-details/GHO/body-mass-index'
+	},
+	{
+		id: 'roche-antitpo',
+		short: 'Roche Elecsys Anti-TPO',
+		title: 'Roche Diagnostics. Elecsys Anti-TPO method sheet, V 11.0 (2025). 95 % of 208 healthy adults from 3 centres in Austria and Germany below 34 IU/ml',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/e1c99dce-4f1f-f011-2f91-005056a71a5d?countryIsoCode=be'
+	},
+	{
+		id: 'roche-cortisol',
+		short: 'Roche Elecsys Cortisol II',
+		title: 'Roche Diagnostics. Elecsys Cortisol II method sheet, V 6.0 (2024). 5th–95th percentile of 300 healthy adults, morning and afternoon',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/8bf36eee-6456-ec11-0d91-005056a772fd?countryIsoCode=gb'
+	},
+	{
+		id: 'roche-tnt',
+		short: 'Roche Elecsys Troponin T hs',
+		title: 'Roche Diagnostics. Elecsys Troponin T hs STAT method sheet, V 3.0 (2024). 99th percentile of 533 healthy adults aged 20–71, by sex 9.0 and 16.8 ng/l',
+		url: 'https://assets.roche.com/f/173850/x/5cb135f61c/elecsystroponinthsstat-09315349190-en-can.pdf'
+	},
+	{
+		id: 'roche-ckmb',
+		short: 'Roche CKMB',
+		title: 'Roche Diagnostics. CKMB Creatine Kinase-MB method sheet, V 10.0 (2023). Reference range at 37 °C after Klein et al. and consensus values',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/731bb5df-169b-ee11-2191-005056a772fd?countryIsoCode=be'
+	},
+	{
+		id: 'roche-cysc',
+		short: 'Roche Cystatin C Gen.2',
+		title: 'Roche Diagnostics. Tina-quant Cystatin C Gen.2 (CYSC2) method sheet, V 6.0 (2023). 2.5th–97.5th percentile of 273 healthy adults aged 21–77 with eGFR above 80',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/3879362d-248b-ec11-1191-005056a71a5d?countryIsoCode=gb'
+	},
+	{
+		id: 'roche-trsf',
+		short: 'Roche Transferrin ver.2',
+		title: 'Roche Diagnostics. Tina-quant Transferrin ver.2 (TRSF2) method sheet, V 9.0 (2025)',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/76b7b3c9-8110-f011-2e91-005056a772fd?countryIsoCode=be'
+	},
+	{
+		id: 'roche-iron',
+		short: 'Roche Iron Gen.2',
+		title: 'Roche Diagnostics. Iron Gen.2 (IRON2) method sheet, V 13.0 (2024)',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/a8bcb7ca-3559-ef11-2b91-005056a71a5d?countryIsoCode=be'
+	},
+	{
+		id: 'roche-amyl',
+		short: 'Roche α-Amylase EPS ver.2',
+		title: 'Roche Diagnostics. α-Amylase EPS ver.2 (AMYL2) method sheet, V 4.0 (2022). Reference values after Junge et al. 1989',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/cd5c469e-f38f-ec11-1191-005056a71a5d?countryIsoCode=be'
+	},
+	{
+		id: 'roche-lipc',
+		short: 'Roche Lipase colorimetric',
+		title: 'Roche Diagnostics. Lipase colorimetric assay (LIPC) method sheet, V 5.0 (2024)',
+		url: 'https://elabdoc-prod.roche.com/eLD/api/downloads/1d4a0673-d07c-ef11-2b91-005056a71a5d?countryIsoCode=XG'
+	},
+	{
+		id: 'nhanes-biopro',
+		short: 'CDC NHANES 2017–2018',
+		title: 'Centers for Disease Control and Prevention. NHANES 2017–2018 laboratory procedure manuals, standard biochemistry profile on Roche cobas 6000 (albumin, total protein, bilirubin, calcium, phosphorus, chloride, urea nitrogen, iron), adult reference ranges',
+		url: 'https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/labmethods.aspx?Cycle=2017-2018'
+	},
+	{
+		id: 'arbiol2018',
+		short: 'Arbiol-Roca 2018 (Sysmex XN)',
+		title: 'Arbiol-Roca A et al. Reference intervals for a complete blood count on an automated haematology analyser Sysmex XN in healthy adults from the southern metropolitan area of Barcelona. EJIFCC 2018;29(1):48–54 (n = 191)',
+		url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5949618/'
+	},
+	{
+		id: 'almeida2026',
+		short: 'ELSA-Brasil 2026',
+		title: 'Almeida NA et al. Reference intervals for complete blood count parameters in the Longitudinal Study of Adult Health (ELSA-Brasil). 2026;144(2):e20253017 (n = 2,417)',
+		url: doi('10.1590/1516-3180.2025.3017.09122025')
+	},
+	{
+		id: 'isiklar2026',
+		short: 'Işıklar 2026 (Sysmex XN)',
+		title: 'Işıklar ÖÖ et al. Local reference intervals for MacroR, MicroR, IG% and IG# on Sysmex XN-1000: a retrospective indirect LIS-based study. Medicine (Baltimore) 2026;105(29):e49832 (n = 25,431)',
+		url: doi('10.1097/md.0000000000049832')
+	},
+	{
+		id: 'greene2019',
+		short: 'Greene 2019 (hematology)',
+		title: 'Greene DN et al. Hematology reference intervals for transgender adults on stable hormone therapy. Clin Chim Acta 2019;492:84–90 (93 on estrogen, 79 on testosterone, 12 months or more)',
+		url: doi('10.1016/j.cca.2019.02.011')
+	},
+	{
+		id: 'costello2016',
+		short: 'Costello 2016 (magnesium)',
+		title: 'Costello RB et al. Perspective: The Case for an Evidence-Based Reference Interval for Serum Magnesium: The Time Has Come. Adv Nutr 2016;7(6):977–993',
+		url: doi('10.3945/an.116.012765')
+	},
+	{
+		id: 'selhub1999',
+		short: 'NHANES III (homocysteine)',
+		title: 'Selhub J et al. Serum total homocysteine concentrations in the third National Health and Nutrition Examination Survey (1991–1994): population reference ranges and contribution of vitamin status to high serum concentrations. Ann Intern Med 1999;131(5):331–339',
+		url: doi('10.7326/0003-4819-131-5-199909070-00003')
+	},
+	{
+		id: 'gayoso2013',
+		short: 'Gayoso-Diz 2013 (HOMA-IR)',
+		title: 'Gayoso-Diz P et al. Insulin resistance (HOMA-IR) cut-off values and the metabolic syndrome in a general adult population: effect of gender and age: EPIRCE cross-sectional study. BMC Endocr Disord 2013;13:47',
+		url: doi('10.1186/1472-6823-13-47')
+	},
+	{
+		id: 'millan2009',
+		short: 'Millán 2009 (lipid ratios)',
+		title: 'Millán J et al. Lipoprotein ratios: physiological significance and clinical usefulness in cardiovascular prevention. Vasc Health Risk Manag 2009;5:757–765',
+		url: doi('10.2147/vhrm.s6269')
+	},
+	{
+		id: 'nathan2008',
+		short: 'ADAG 2008',
+		title: 'Nathan DM et al. Translating the A1C assay into estimated average glucose values. Diabetes Care 2008;31(8):1473–1478 (eAG = 28.7 × A1C − 46.7), applied to the ADA 2025 HbA1c thresholds',
+		url: doi('10.2337/dc08-0545')
+	},
+	{
+		id: 'miller1983',
+		short: 'Miller 1983 (ESR)',
+		title: 'Miller A, Green M, Robinson D. Simple rule for calculating normal erythrocyte sedimentation rate. Br Med J 1983;286(6361):266',
+		url: doi('10.1136/bmj.286.6361.266')
+	},
+	{
+		id: 'ulm-fib',
+		short: 'Uniklinik Ulm (fibrinogen)',
+		title: 'Universitätsklinikum Ulm, Zentrale Einrichtung Klinische Chemie. Leistungsverzeichnis Fibrinogen (Roche cobas t 711/511, range from the Roche package insert)',
+		url: 'https://www.uniklinik-ulm.de/fileadmin/default/09_Sonstige/Klinische-Chemie/Seiteninhalte/Seiteninhalte_F/Fibrinogen_FB-PAE_6_FIB_OE-MB.pdf'
+	},
+	{
+		id: 'ulm-aptt',
+		short: 'Uniklinik Ulm (aPTT)',
+		title: 'Universitätsklinikum Ulm, Zentrale Einrichtung Klinische Chemie. Leistungsverzeichnis aktivierte partielle Thromboplastinzeit (Roche cobas t 711/511, range from the Roche package insert)',
+		url: 'https://www.uniklinik-ulm.de/fileadmin/default/09_Sonstige/Klinische-Chemie/Seiteninhalte/Seiteninhalte_A/aktivierte_partielle_Thromboplastinzeit_FB-PAE_6_aPTT_OE-MB.pdf'
+	},
+	{
+		id: 'ulm-tpz',
+		short: 'Uniklinik Ulm (Quick, INR)',
+		title: 'Universitätsklinikum Ulm, Zentrale Einrichtung Klinische Chemie. Leistungsverzeichnis Thromboplastinzeit (Roche cobas t, Quick range from the Roche package insert, INR targets for vitamin K antagonists after Dt Ärztebl 1999;96:A2902)',
+		url: 'https://www.uniklinik-ulm.de/fileadmin/default/09_Sonstige/Klinische-Chemie/Seiteninhalte/Seiteninhalte_T/Thromboplastinzeit_FB-PAE_6_TPZ_OE-MB.pdf'
+	},
+	{
+		id: 'hhu-inr',
+		short: 'Uniklinik Düsseldorf (INR)',
+		title: 'Zentralinstitut für Klinische Chemie und Laboratoriumsdiagnostik, Universitätsklinikum Düsseldorf. Labormedizinisches Leistungsverzeichnis, INR',
+		url: 'https://zentrallabor.med.hhu.de/details/853'
 	}
 ];
 

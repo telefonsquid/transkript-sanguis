@@ -614,7 +614,11 @@ export const hormones: Analyte[] = [
 				note: 'Folgt einem starken Tagesrhythmus mit Maximum am frühen Morgen. Vergleiche nur Abnahmen zu ähnlicher Uhrzeit.'
 			}
 		},
-		refs: []
+		primary: { any: 'morning' },
+		refs: [
+			adult([6.02, 18.4], 'roche-cortisol', { id: 'morning', label: T('Adults, morning (6 to 10 am)', 'Erwachsene, morgens (6 bis 10 Uhr)'), note: T('5th to 95th percentile of 296 healthy adults. Estrogen raises the binding protein and with it total cortisol, so values on estrogen can sit higher.', '5. bis 95. Perzentile von 296 gesunden Erwachsenen. Östrogen erhöht das Bindungsprotein und damit das Gesamtcortisol, Werte unter Östrogen können daher höher liegen.') }),
+			adult([2.68, 10.5], 'roche-cortisol', { id: 'afternoon', label: T('Adults, afternoon (4 to 8 pm)', 'Erwachsene, nachmittags (16 bis 20 Uhr)'), note: T('5th to 95th percentile of 300 healthy adults.', '5. bis 95. Perzentile von 300 gesunden Erwachsenen.') })
+		]
 	},
 	{
 		id: 'tsh',
@@ -736,7 +740,9 @@ export const hormones: Analyte[] = [
 				note: 'Grenzwerte hängen stark vom Test ab, nutze den Laborbereich.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([undefined, 34], 'roche-antitpo', { note: T('Elecsys Anti-TPO, the assay many German labs run: 95 % of 208 healthy adults in Austria and Germany stay below 34. Other assays use other cut-offs, so a printed lab range wins.', 'Elecsys Anti-TPO, der Test vieler deutscher Labore: 95 % von 208 gesunden Erwachsenen in Österreich und Deutschland liegen unter 34. Andere Tests nutzen andere Grenzen, ein gedruckter Laborbereich hat daher Vorrang.') })
+		]
 	}
 ];
 

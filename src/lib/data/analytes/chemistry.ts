@@ -1,5 +1,5 @@
 import type { Analyte, Reference, Text } from '../types';
-import { T, clinical, female, male, transMen, transWomen } from './refs';
+import { T, adult, clinical, female, male, transMen, transWomen } from './refs';
 
 const KDIGO: Reference[] = [
 	clinical('kdigo-g1', T('Normal (KDIGO G1)', 'Normal (KDIGO G1)'), [90, undefined], 'kdigo2012'),
@@ -113,7 +113,11 @@ export const chemistry: Analyte[] = [
 				low: 'Erbrechen, Entwässerungsmittel.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([96, 108], 'nhanes-biopro'),
+			humble('f', [94.3, 105.7]),
+			humble('m', [97, 107])
+		]
 	},
 	{
 		id: 'calcium',
@@ -138,7 +142,9 @@ export const chemistry: Analyte[] = [
 				low: 'Vitamin-D-Mangel, niedriges Albumin, Nebenschilddrüsenunterfunktion.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([2.1, 2.54], 'nhanes-biopro', { note: T('8.4 to 10.2 mg/dl, adults 18 to 60.', '8,4 bis 10,2 mg/dl, Erwachsene von 18 bis 60.') })
+		]
 	},
 	{
 		id: 'magnesium',
@@ -168,7 +174,11 @@ export const chemistry: Analyte[] = [
 				note: 'Im Blut ist nur 1 % des Körpermagnesiums, ein normaler Wert schließt einen Mangel nicht aus.'
 			}
 		},
-		refs: []
+		primary: { any: 'adult' },
+		refs: [
+			adult([0.75, 0.95], 'costello2016', { note: T('Central 95 % of US adults in NHANES I, still the basis of most lab ranges.', 'Mittlere 95 % der US-Erwachsenen in NHANES I, bis heute Grundlage der meisten Laborbereiche.') }),
+			clinical('mg-health', T('Suggested for good health', 'Empfohlen für die Gesundheit'), [0.85, undefined], 'costello2016', { note: T('An expert panel argues that values below 0.85 mmol/l often already mean a deficit.', 'Ein Expertengremium hält Werte unter 0,85 mmol/l oft schon für einen Mangel.') })
+		]
 	},
 	{
 		id: 'phosphate',
@@ -193,7 +203,9 @@ export const chemistry: Analyte[] = [
 				low: 'Nebenschilddrüsenüberfunktion, Vitamin-D-Mangel, Mangelernährung.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([0.87, 1.45], 'nhanes-biopro', { note: T('2.7 to 4.5 mg/dl.', '2,7 bis 4,5 mg/dl.') })
+		]
 	},
 	{
 		id: 'creatinine',
@@ -336,7 +348,9 @@ export const chemistry: Analyte[] = [
 				masc: 'Hilfreich, wenn Kreatinin schwer zu deuten ist, weil sich die Muskelmasse ändert.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([0.61, 0.95], 'roche-cysc', { note: T('2.5th to 97.5th percentile of 273 healthy adults aged 21 to 77, standardised to ERM-DA471/IFCC.', '2,5. bis 97,5. Perzentile von 273 gesunden Erwachsenen zwischen 21 und 77, standardisiert auf ERM-DA471/IFCC.') })
+		]
 	},
 	{
 		id: 'egfr-cys-f',
@@ -404,7 +418,9 @@ export const chemistry: Analyte[] = [
 				note: 'Nicht dasselbe wie Harnstoff-Stickstoff (BUN): Harnstoff = BUN × 2,14.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([12.8, 49.2], 'nhanes-biopro', { note: T('Converted from urea nitrogen 6 to 23 mg/dl, adults 18 to 60.', 'Umgerechnet aus Harnstoff-Stickstoff 6 bis 23 mg/dl, Erwachsene von 18 bis 60.') })
+		]
 	},
 	{
 		id: 'uric-acid',
@@ -612,7 +628,9 @@ export const chemistry: Analyte[] = [
 				low: 'Ohne Bedeutung.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([undefined, 1.0], 'nhanes-biopro')
+		]
 	},
 	{
 		id: 'albumin',
@@ -638,7 +656,9 @@ export const chemistry: Analyte[] = [
 				low: 'Entzündung, Lebererkrankung, Eiweißverlust über Nieren oder Darm, Mangelernährung.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([3.5, 5.0], 'nhanes-biopro')
+		]
 	},
 	{
 		id: 'total-protein',
@@ -664,7 +684,9 @@ export const chemistry: Analyte[] = [
 				low: 'Mangelernährung, Lebererkrankung, Eiweißverlust über Nieren oder Darm.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([6.6, 8.7], 'nhanes-biopro')
+		]
 	},
 	{
 		id: 'amylase',
@@ -689,7 +711,9 @@ export const chemistry: Analyte[] = [
 				low: 'Selten von Bedeutung.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([28, 100], 'roche-amyl')
+		]
 	},
 	{
 		id: 'lipase',
@@ -714,6 +738,8 @@ export const chemistry: Analyte[] = [
 				low: 'Ohne Bedeutung.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([13, 60], 'roche-lipc')
+		]
 	}
 ];

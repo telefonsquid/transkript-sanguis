@@ -28,7 +28,11 @@ export const nutrients: Analyte[] = [
 				note: 'Schwankt stark über den Tag. Ferritin und Transferrinsättigung sagen viel mehr über die Eisenspeicher.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([33, 193], 'roche-iron', { note: T('5.83 to 34.5 µmol/l.', '5,83 bis 34,5 µmol/l.') }),
+			female([37, 145], 'nhanes-biopro'),
+			male([59, 158], 'nhanes-biopro')
+		]
 	},
 	{
 		id: 'ferritin',
@@ -98,7 +102,9 @@ export const nutrients: Analyte[] = [
 				fem: 'Orales Östrogen erhöht Transferrin, die Sättigung kann dadurch niedriger wirken.'
 			}
 		},
-		refs: []
+		refs: [
+			adult([200, 360], 'roche-trsf', { note: T('2.0 to 3.6 g/l.', '2,0 bis 3,6 g/l.') })
+		]
 	},
 	{
 		id: 'tsat',
@@ -262,7 +268,12 @@ export const nutrients: Analyte[] = [
 				low: 'Unbedenklich.'
 			}
 		},
-		refs: []
+		refs: [
+			female([undefined, 10.4], 'selhub1999', { age: [20, 59], note: T('95th percentile of vitamin replete women aged 20 to 39 in NHANES III. Limits rise with age.', '95. Perzentile vitaminversorgter Frauen zwischen 20 und 39 in NHANES III. Die Grenzen steigen mit dem Alter.') }),
+			male([undefined, 11.4], 'selhub1999', { age: [20, 59], note: T('95th percentile of vitamin replete men aged 20 to 39 in NHANES III. Limits rise with age.', '95. Perzentile vitaminversorgter Männer zwischen 20 und 39 in NHANES III. Die Grenzen steigen mit dem Alter.') }),
+			female([4.9, 11.6], 'selhub1999', { id: 'female-60', age: [60, 120], note: T('5th to 95th percentile of vitamin replete women from 60.', '5. bis 95. Perzentile vitaminversorgter Frauen ab 60.') }),
+			male([5.9, 15.3], 'selhub1999', { id: 'male-60', age: [60, 120], note: T('5th to 95th percentile of vitamin replete men from 60.', '5. bis 95. Perzentile vitaminversorgter Männer ab 60.') })
+		]
 	},
 	{
 		id: 'psa',
