@@ -80,7 +80,17 @@
 		<span class="text-xs text-ink-3">{t.profile.therapyHint}</span>
 	</fieldset>
 
-	<div class="grid gap-4 sm:grid-cols-2">
+	<div class="grid items-start gap-4 sm:grid-cols-2">
+		<div class="grid gap-1">
+			<label for="{uid}-sex" class="text-sm font-medium">{t.profile.sex}</label>
+			<select id="{uid}-sex" bind:value={sex} class={[input, !sex && !impliedSex && 'empty']} aria-describedby="{uid}-sex-hint">
+				<option value="">{impliedSex ? `${t.profile.sexes[impliedSex]} (${t.profile.therapyShort[therapy]})` : t.profile.sexes.unset}</option>
+				<option value="female">{t.profile.sexes.female}</option>
+				<option value="male">{t.profile.sexes.male}</option>
+			</select>
+			<span id="{uid}-sex-hint" class="text-xs text-ink-3">{t.profile.sexHint}</span>
+		</div>
+
 		{#if therapy !== 'none' && !editing}
 			<div class="grid gap-1">
 				<label for="{uid}-hrt" class="text-sm font-medium">{t.profile.hrtStart} <span class="font-normal text-ink-3">({t.common.optional})</span></label>
@@ -92,16 +102,6 @@
 				<span class="text-xs text-ink-3">{t.profile.hrtStartHint}</span>
 			</div>
 		{/if}
-
-		<div class="grid gap-1">
-			<label for="{uid}-sex" class="text-sm font-medium">{t.profile.sex}</label>
-			<select id="{uid}-sex" bind:value={sex} class={[input, !sex && !impliedSex && 'empty']} aria-describedby="{uid}-sex-hint">
-				<option value="">{impliedSex ? `${t.profile.sexes[impliedSex]} (${t.profile.therapyShort[therapy]})` : t.profile.sexes.unset}</option>
-				<option value="female">{t.profile.sexes.female}</option>
-				<option value="male">{t.profile.sexes.male}</option>
-			</select>
-			<span id="{uid}-sex-hint" class="text-xs text-ink-3">{t.profile.sexHint}</span>
-		</div>
 
 		<div class="grid gap-1">
 			<label for="{uid}-birth" class="text-sm font-medium">{t.profile.birth} <span class="font-normal text-ink-3">({t.common.optional})</span></label>

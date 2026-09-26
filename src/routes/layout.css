@@ -57,6 +57,7 @@
 	--flag-chip: #1b1b1a;
 	--flag-chip-ink: #fcfcfb;
 	--flag-pad: 1px 7px;
+	--blood: #a8172b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -105,6 +106,7 @@
 		--flag-chip: transparent;
 		--flag-chip-ink: var(--ink);
 		--flag-pad: 0;
+		--blood: #d93a45;
 	}
 }
 
@@ -153,10 +155,12 @@
 	--flag-chip: transparent;
 	--flag-chip-ink: var(--ink);
 	--flag-pad: 0;
+	--blood: #d93a45;
 }
 
 @theme inline {
 	--font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-logo: 'Fraunces Variable', Georgia, serif;
 	--font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', monospace;
 	--color-page: var(--page);
 	--color-surface: var(--surface);
@@ -227,6 +231,58 @@ body {
 
 ::selection {
 	background: color-mix(in srgb, var(--ref-target) 30%, transparent);
+}
+
+/* Wordmark with a blood drop as the dot of its last i, placed by eye against the real dot */
+.logo {
+	font-family: var(--font-logo);
+	font-style: italic;
+	font-weight: 600;
+	font-variation-settings: 'SOFT' 0, 'WONK' 1;
+	letter-spacing: 0;
+	white-space: nowrap;
+}
+.logo .tittle {
+	position: relative;
+}
+.logo .tittle svg {
+	position: absolute;
+	left: 0.125em;
+	top: 0.19em;
+	width: 0.17em;
+	height: 0.2295em;
+	rotate: 10deg;
+	overflow: visible;
+	fill: var(--blood);
+}
+.logo .glint {
+	fill: none;
+	stroke-width: 0.2;
+	stroke-linecap: round;
+}
+.flag-name {
+	--blood: #d93a45;
+}
+
+/* Page loader: the drop fills up and drains again, half full when motion is reduced */
+.loader rect {
+	fill: var(--blood);
+	translate: 0 6px;
+	animation: drop-fill 1.2s ease-in-out infinite alternate;
+}
+.loader path {
+	fill: none;
+	stroke: var(--blood);
+	stroke-width: 0.8;
+	stroke-linejoin: round;
+}
+@keyframes drop-fill {
+	from {
+		translate: 0 13.5px;
+	}
+	to {
+		translate: 0 0;
+	}
 }
 
 /* Trans flag stripes, one per letter. The white one needs a dark ground, which the light theme puts behind the whole name */

@@ -11,6 +11,7 @@ export const de: Dict = {
 		skip: 'Zum Inhalt springen'
 	},
 	common: {
+		loading: 'Lädt',
 		save: 'Speichern',
 		cancel: 'Abbrechen',
 		delete: 'Löschen',
@@ -94,7 +95,7 @@ export const de: Dict = {
 			'Beim Agent-Weg gibst du deine PDFs einem KI-Assistenten deiner Wahl. Deine Dateien gehen dann an diesen Anbieter, nicht an diese App. Das Importformat enthält keine Namen oder Kennungen, und du kannst persönliche Angaben vor dem Hochladen schwärzen.'
 	},
 	welcome: {
-		title: `Willkommen bei ${APP_NAME}`,
+		title: 'Willkommen bei',
 		intro: 'Sammle deine Blutwerte, sieh sie im Verlauf und vergleiche sie mit recherchierten Referenzbereichen, auch mit Bereichen für Menschen unter Hormontherapie.',
 		step: (n: number, of: number) => `${n} von ${of}`,
 		choose: 'Wie möchtest du anfangen?',
@@ -104,7 +105,10 @@ export const de: Dict = {
 		createBody: 'Starte mit deinen eigenen Werten. Tippe sie ein, lass einen KI-Agenten deine PDFs lesen oder importiere eine Sicherung.',
 		stepProfile: 'Profil anlegen',
 		stepIngest: 'Erste Werte hinzufügen',
-		later: 'Später, erst mal zur leeren Übersicht'
+		later: 'Später, erst mal zur leeren Übersicht',
+		pickDemo: 'Welche Demo möchtest du sehen?',
+		cis: { female: 'Cis Frau', male: 'Cis Mann' },
+		demoSpan: (n: number, since: string) => `${plural(n, 'Blutabnahme', 'Blutabnahmen')} seit ${since}`
 	},
 	profile: {
 		title: 'Profil',
@@ -113,7 +117,7 @@ export const de: Dict = {
 		own: 'Deine Profile',
 		noOwn: 'Noch kein eigenes Profil. Leg eins an, um deine eigenen Werte zu verfolgen.',
 		demos: 'Demo-Profile',
-		demosHint: 'Erfundene Menschen zum Ausprobieren. Sie lassen sich nicht löschen, Zurücksetzen macht deine Änderungen rückgängig.',
+		demosHint: 'Erfundene Menschen zum Ausprobieren.',
 		demoBadge: 'Demo',
 		active: 'Aktiv',
 		name: 'Name',
@@ -121,8 +125,8 @@ export const de: Dict = {
 		therapy: 'Hormontherapie',
 		therapyHint: 'Bestimmt, welche Zielwerte und Referenzbereiche angezeigt werden.',
 		therapies: {
-			feminizing: 'Feminisierende HRT',
-			masculinizing: 'Maskulinisierende HRT',
+			feminizing: 'Feminisierende HRT (MzF)',
+			masculinizing: 'Maskulinisierende HRT (FzM)',
 			none: 'Keine'
 		},
 		therapyShort: { feminizing: 'fem. HRT', masculinizing: 'mask. HRT', none: 'ohne HRT' },
@@ -513,8 +517,8 @@ export const de: Dict = {
 		info: {
 			what: 'Was es ist',
 			why: 'Warum es gemessen wird',
-			fem: 'Unter feminisierender HRT',
-			masc: 'Unter maskulinisierender HRT',
+			fem: 'Unter feminisierender HRT (MzF)',
+			masc: 'Unter maskulinisierender HRT (FzM)',
 			high: 'Wenn der Wert hoch ist',
 			low: 'Wenn der Wert niedrig ist',
 			notes: 'Hinweise',

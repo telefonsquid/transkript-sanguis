@@ -1,16 +1,18 @@
 <script lang="ts">
+	import '@fontsource-variable/fraunces/full-italic.css';
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/jetbrains-mono';
 	import './layout.css';
 	import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import AppearanceMenu from '#lib/components/AppearanceMenu.svelte';
 	import FilterBar from '#lib/components/FilterBar.svelte';
 	import LanguageMenu from '#lib/components/LanguageMenu.svelte';
 	import ProfileMenu from '#lib/components/ProfileMenu.svelte';
 	import Sidebar from '#lib/components/Sidebar.svelte';
 	import Timeline from '#lib/components/Timeline.svelte';
+	import Logo, { DROP } from '#lib/ui/Logo.svelte';
 	import { fmtDate } from '#lib/analysis.js';
 	import { REPO_URL } from '#lib/app.js';
 	import { t } from '#lib/i18n/index.js';
@@ -27,6 +29,18 @@
 	let scroller: HTMLElement | undefined = $state();
 
 	onNavigate(navigate);
+
+	// Clicks wait while a page loads, the animation only shows once the wait gets noticeable
+	const busy = $derived(!!navigating.to);
+	let slow = $state(false);
+	$effect(() => {
+		if (!busy) return;
+		const timer = setTimeout(() => (slow = true), 300);
+		return () => {
+			clearTimeout(timer);
+			slow = false;
+		};
+	});
 
 	// Content scrolls inside main, so each page starts at the top and back returns to where it was
 	const scrolls: Record<string, number> = {};
@@ -101,7 +115,7 @@
 
 	function onkeydown(e: KeyboardEvent) {
 		const el = e.target as HTMLElement;
-		if (el.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+		if (busy || el.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
 		const tab = tabs.find((x) => x.key === e.key);
 		if (tab && hasData) show(tab.view);
 		else if (e.key === 'x') settings.xMode = settings.xMode === 'time' ? 'draws' : settings.xMode === 'draws' ? 'points' : 'time';
@@ -140,17 +154,8 @@
 		class="vt-header relative z-30 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
 	>
 		<div class="flex min-w-0 items-center gap-3">
-			<a href={resolve('/')} onclick={() => (settings.view = 'grid')} class="flex shrink-0 items-center gap-2.5">
-				<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-					<rect x="1" y="1" width="20" height="20" rx="5" fill="#1b1b1a" stroke="var(--border-strong)" />
-					<rect x="5" y="5" width="12" height="12" rx="2" fill="#5bcefa" />
-					<rect x="5" y="7.4" width="12" height="7.2" fill="#f5a9b8" />
-					<rect x="5" y="9.8" width="12" height="2.4" fill="#ffffff" />
-					<polyline points="7,14.5 9.5,11 12,12.5 15,8" fill="none" stroke="#1b1b1a" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
-				</svg>
-				<span class={['text-[15px] font-semibold tracking-tight', flagged && 'flag-name']}>
-					{#if flagged}<span class="trans-flag">{#each [...t.app.name.slice(0, 5)] as letter, i (i)}<span>{letter}</span>{/each}</span>{t.app.name.slice(5)}{:else}{t.app.name}{/if}
-				</span>
+			<a href={resolve('/')} onclick={() => (settings.view = 'grid')} class="flex shrink-0 items-center">
+				<Logo {flagged} class="text-xl leading-none" />
 			</a>
 			{#if chrome}
 				<button type="button" onclick={() => (drawer = true)} class="h-8 shrink-0 rounded-md border border-line px-2 text-xs text-ink-2 hover:bg-hover lg:hidden">{t.nav.analytes}</button>
@@ -246,6 +251,21 @@
 		</button>
 	</footer>
 </div>
+
+{#if busy}
+	<div class="fixed inset-0 z-[60] cursor-progress" aria-busy="true">
+		{#if slow}
+			<div class="grid h-full place-items-center bg-surface/50" role="status" transition:fade={{ duration: 200 }}>
+				<svg class="loader" width="36" height="48" viewBox="-1 -1 12 15.5" aria-hidden="true">
+					<clipPath id="loader-drop"><path d={DROP} /></clipPath>
+					<rect x="-1" y="0" width="12" height="14" clip-path="url(#loader-drop)" />
+					<path d={DROP} />
+				</svg>
+				<span class="sr-only">{t.common.loading}</span>
+			</div>
+		{/if}
+	</div>
+{/if}
 
 {#if drawer && chrome}
 	<div class="fixed inset-0 z-50 flex lg:hidden">

@@ -4,18 +4,25 @@
 	import { resolve } from '$app/paths';
 	import IngestChoices from '#lib/components/IngestChoices.svelte';
 	import ProfileForm from '#lib/components/ProfileForm.svelte';
+	import TherapyName from '#lib/components/TherapyName.svelte';
+	import type { Profile } from '#lib/data/types.js';
 	import { t } from '#lib/i18n/index.js';
 	import { fly } from '#lib/motion.svelte.js';
-	import { createProfile, current, db, setActive } from '#lib/profiles.svelte.js';
+	import { createProfile, current, db, lists, setActive } from '#lib/profiles.svelte.js';
+	import Avatar from '#lib/ui/Avatar.svelte';
+	import Logo from '#lib/ui/Logo.svelte';
 
 	let medicalOk = $state(false);
 	let creating = $state(false);
+	let demos = $state(false);
 
-	const step = $derived(!db.consent ? (medicalOk ? 'local' : 'medical') : !current.profile ? (creating ? 'profile' : 'choose') : 'ingest');
+	// The demo picker stays until the dashboard takes over, the active profile alone would flash the ingest step
+	const step = $derived(
+		!db.consent ? (medicalOk ? 'local' : 'medical') : demos ? 'demo' : !current.profile ? (creating ? 'profile' : 'choose') : 'ingest'
+	);
 
-	// The feminizing demo shows the most of what the app does
-	function demo() {
-		setActive('demo-fem');
+	function view(p: Profile) {
+		setActive(p.id);
 		goto(resolve('/'));
 	}
 </script>
@@ -27,15 +34,42 @@
 		{@render disclaimer(2, 'var(--ref-target)', lock, t.disclaimer.localTitle, t.disclaimer.localPoints, () => (db.consent = new Date().toISOString()))}
 	{:else if step === 'choose'}
 		<header in:fly={{ y: 16 }}>
-			<h1 class="text-3xl font-bold tracking-tight">{t.welcome.title}</h1>
+			<h1>
+				<span class="block text-lg font-medium text-ink-2">{t.welcome.title}</span>
+				<Logo glint class="mt-1 block text-5xl leading-tight sm:text-6xl" />
+			</h1>
 			<p class="mt-2 max-w-2xl text-ink-2">{t.welcome.intro}</p>
 		</header>
 		<section class="space-y-3" aria-label={t.welcome.choose} in:fly={{ y: 16, delay: 80 }}>
 			<h2 class="label">{t.welcome.choose}</h2>
 			<div class="grid gap-3 sm:grid-cols-2">
-				{@render choice(t.welcome.demoTitle, t.welcome.demoBody, demo)}
+				{@render choice(t.welcome.demoTitle, t.welcome.demoBody, () => (demos = true))}
 				{@render choice(t.welcome.createTitle, t.welcome.createBody, () => (creating = true))}
 			</div>
+		</section>
+	{:else if step === 'demo'}
+		<section class="space-y-4" in:fly={{ y: 16 }}>
+			<button type="button" onclick={() => (demos = false)} class="text-xs text-ink-3 hover:text-ink">← {t.common.back}</button>
+			<h1 class="text-2xl font-semibold tracking-tight">{t.welcome.pickDemo}</h1>
+			<ul class="grid gap-3 sm:grid-cols-2">
+				{#each lists.demos as p, i (p.id)}
+					<li class="rise" style:--i={i}>
+						<button
+							type="button"
+							onclick={() => view(p)}
+							class="group flex w-full items-center gap-4 rounded-xl border border-line bg-surface p-4 text-left transition-[border-color,background-color] duration-200 hover:border-line-strong hover:bg-hover"
+						>
+							<Avatar profile={p} size={40} />
+							<span class="min-w-0 flex-1">
+								<span class="block text-base font-semibold">{p.name} <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span></span>
+								<span class="block text-xs text-ink-2">
+									{#if p.therapy === 'none'}{t.welcome.cis[p.sex ?? 'female']} ·&nbsp;{:else}<TherapyName therapy={p.therapy} />{/if}{t.welcome.demoSpan(p.draws.length, p.draws[0]?.date.slice(0, 4) ?? '')}
+								</span>
+							</span>
+						</button>
+					</li>
+				{/each}
+			</ul>
 		</section>
 	{:else if step === 'profile'}
 		<section class="space-y-4 rounded-xl border border-line bg-surface p-6" in:fly={{ y: 16 }}>

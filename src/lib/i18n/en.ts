@@ -10,6 +10,7 @@ export const en = {
 		skip: 'Skip to content'
 	},
 	common: {
+		loading: 'Loading',
 		save: 'Save',
 		cancel: 'Cancel',
 		delete: 'Delete',
@@ -93,7 +94,7 @@ export const en = {
 			'The agent route means you hand your PDFs to an AI assistant of your choice. Your files then go to that provider, not to this app. The import format carries no names or identifiers, and you can black out personal details before uploading.'
 	},
 	welcome: {
-		title: `Welcome to ${APP_NAME}`,
+		title: 'Welcome to',
 		intro: 'Collect your blood test results, see them over time and compare them with researched reference ranges, including ranges for people on hormone therapy.',
 		step: (n: number, of: number) => `${n} of ${of}`,
 		choose: 'How do you want to start?',
@@ -103,7 +104,10 @@ export const en = {
 		createBody: 'Start with your own results. Type them in, let an AI agent read your PDFs, or import a backup.',
 		stepProfile: 'Create a profile',
 		stepIngest: 'Add your first results',
-		later: 'Skip for now, go to the empty dashboard'
+		later: 'Skip for now, go to the empty dashboard',
+		pickDemo: 'Which demo do you want to see?',
+		cis: { female: 'Cis woman', male: 'Cis man' },
+		demoSpan: (n: number, since: string) => `${plural(n, 'blood draw', 'blood draws')} since ${since}`
 	},
 	profile: {
 		title: 'Profile',
@@ -112,7 +116,7 @@ export const en = {
 		own: 'Your profiles',
 		noOwn: 'No profile of your own yet. Create one to track your own results.',
 		demos: 'Demo profiles',
-		demosHint: 'Made-up people to explore the app with. They cannot be deleted, resetting undoes your changes.',
+		demosHint: 'Made-up people to explore the app with.',
 		demoBadge: 'Demo',
 		active: 'Active',
 		name: 'Name',
@@ -120,8 +124,8 @@ export const en = {
 		therapy: 'Hormone therapy',
 		therapyHint: 'Decides which targets and reference ranges are shown.',
 		therapies: {
-			feminizing: 'Feminizing HRT',
-			masculinizing: 'Masculinizing HRT',
+			feminizing: 'Feminizing HRT (MTF)',
+			masculinizing: 'Masculinizing HRT (FTM)',
 			none: 'None'
 		},
 		therapyShort: { feminizing: 'fem. HRT', masculinizing: 'masc. HRT', none: 'no HRT' },
@@ -512,8 +516,8 @@ export const en = {
 		info: {
 			what: 'What it is',
 			why: 'Why it is measured',
-			fem: 'On feminizing HRT',
-			masc: 'On masculinizing HRT',
+			fem: 'On feminizing HRT (MTF)',
+			masc: 'On masculinizing HRT (FTM)',
 			high: 'When it is high',
 			low: 'When it is low',
 			notes: 'Notes',

@@ -21,6 +21,8 @@ async function onboard(page: Page) {
 async function demo(page: Page) {
 	await onboard(page);
 	await page.getByRole('button', { name: /View demo/ }).click();
+	await expect(page.getByRole('heading', { name: 'Which demo do you want to see?' })).toBeVisible();
+	await page.getByRole('button', { name: /Raven/ }).click();
 	await expect(page).toHaveURL(/\/$/);
 }
 
@@ -85,7 +87,7 @@ test('focus view explains the value and lists profile specific references', asyn
 	await expect(page.getByRole('row', { name: /Monotherapy suppression zone/ })).toBeVisible();
 
 	// HRT specifics sit in their own box, the background unfolds on demand
-	await expect(page.getByText('On feminizing HRT', { exact: true })).toBeVisible();
+	await expect(page.getByText('On feminizing HRT (MTF)', { exact: true })).toBeVisible();
 	await page.getByRole('button', { name: 'Show more' }).click();
 	await expect(page.getByRole('button', { name: 'Show less' })).toHaveAttribute('aria-expanded', 'true');
 	await expect(page.locator('p', { hasText: 'Sources:' }).getByRole('link', { name: 'Endocrine Society 2017' })).toBeVisible();
