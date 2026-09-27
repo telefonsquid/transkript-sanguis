@@ -182,7 +182,7 @@
 		>
 			<div class="flex min-w-0 items-center gap-3">
 				<a href={resolve('/welcome')} class="flex shrink-0 items-center">
-					<Logo {flagged} flourish class="text-xl leading-none [--logo-ground:var(--surface)]" />
+					<Logo {flagged} flourish replay class="text-xl leading-none [--logo-ground:var(--surface)]" />
 				</a>
 				{#if chrome}
 					<button type="button" onclick={() => (drawer = true)} class="h-8 shrink-0 rounded-md border border-line px-2 text-xs text-ink-2 hover:bg-hover lg:hidden">{t.nav.analytes}</button>

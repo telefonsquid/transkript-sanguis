@@ -41,8 +41,9 @@
 		flagged = false,
 		glint = false,
 		flourish = false,
+		replay = false,
 		class: klass = ''
-	}: { flagged?: boolean; glint?: boolean; flourish?: boolean; class?: string } = $props();
+	}: { flagged?: boolean; glint?: boolean; flourish?: boolean; replay?: boolean; class?: string } = $props();
 	const uid = $props.id();
 
 	// A blood drop dots the i of "Sanguis", the flag colours the first five letters
@@ -51,11 +52,11 @@
 	const flag = $derived(flagged ? [...name.slice(0, 5)] : []);
 	const rest = $derived([...name.slice(flag.length)]);
 
-	// Swash draws itself again once per hover, never cut off while still drawing
+	// With replay the swash draws itself again once per hover, never cut off while still drawing
 	let runs = $state(0);
 	let drawing = true;
 	function redraw() {
-		if (!flourish || drawing) return;
+		if (!flourish || !replay || drawing) return;
 		drawing = true;
 		runs++;
 	}
