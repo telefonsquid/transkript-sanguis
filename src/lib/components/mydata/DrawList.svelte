@@ -100,7 +100,7 @@
 
 						<div class="flex items-center gap-0.5">
 							{#if report?.file}
-								<button type="button" onclick={() => openFile(fileKey(profile.id, report.id))} title={report.file.name} class="rounded-md border border-line px-2 py-1 text-[11px] font-medium text-ink-2 hover:bg-surface-3 hover:text-ink">
+								<button type="button" onclick={() => openFile(fileKey(profile.id, report.id), report.file?.name ?? '')} title={report.file.name} class="rounded-md border border-line px-2 py-1 text-[11px] font-medium text-ink-2 hover:bg-surface-3 hover:text-ink">
 									PDF
 								</button>
 								<button type="button" onclick={() => detach(d)} class={iconButton} aria-label={t.data.removePdf} title={t.data.removePdf}>×</button>

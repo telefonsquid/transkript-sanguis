@@ -71,7 +71,13 @@ export const en = {
 		languageSecondHint: 'Shows every lab value under a second name too, handy when your reports use another language.',
 		languageNone: 'No second language',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'draw', 'draws')} · ${plural(values, 'value', 'values')} · ${span}`,
-		storageError: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.'
+		storageError: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.',
+		changelog: 'Changelog',
+		desktopApp: 'Desktop app',
+		webVersion: 'Web version',
+		updates: 'Check for updates',
+		updatesHint: 'Asks GitHub every few hours whether a newer version is out. None of your data goes with it.',
+		update: (version: string) => `Version ${version} is out`
 	},
 	disclaimer: {
 		localTitle: 'Your data stays on this device',
@@ -661,7 +667,13 @@ export const en = {
 			['← →', 'Step through draws in a focused chart'],
 			['Esc', 'Back to the overview'],
 			['?', 'This overlay']
-		] as [string, string][]
+		] as [string, string][],
+		fullscreen: 'Fullscreen'
+	},
+	changelog: {
+		title: 'Changelog',
+		intro: 'What changed in each version. The notes are only written in English.',
+		current: 'This version'
 	},
 	units: {
 		conv: 'conventional',

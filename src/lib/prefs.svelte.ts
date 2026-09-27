@@ -10,6 +10,8 @@ interface Prefs {
 	theme: Theme;
 	/** Turns animations off even when the system allows them */
 	reduceMotion: boolean;
+	/** Lets the desktop app ask GitHub for new releases, off until switched on */
+	updates: boolean;
 }
 
 const KEY = `${SLUG}:prefs:v1`;
@@ -24,7 +26,7 @@ function detectLang(): Lang {
 
 function load(): Prefs {
 	const lang = detectLang();
-	const defaults: Prefs = { lang, second: lang === 'de' ? 'en' : 'de', theme: 'system', reduceMotion: false };
+	const defaults: Prefs = { lang, second: lang === 'de' ? 'en' : 'de', theme: 'system', reduceMotion: false, updates: false };
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
 		const isLang = (v: unknown): v is Lang => v === 'de' || v === 'en';
@@ -32,7 +34,8 @@ function load(): Prefs {
 			lang: isLang(saved.lang) ? saved.lang : defaults.lang,
 			second: isLang(saved.second) || saved.second === null ? saved.second : defaults.second,
 			theme: ['system', 'light', 'dark'].includes(saved.theme) ? saved.theme : defaults.theme,
-			reduceMotion: saved.reduceMotion === true
+			reduceMotion: saved.reduceMotion === true,
+			updates: saved.updates === true
 		};
 	} catch {
 		return defaults;

@@ -4,3 +4,6 @@ export const APP_NAME = 'Transkript Sanguis';
 export const SLUG = 'transkript-sanguis';
 
 export const REPO_URL = 'https://github.com/telefonsquid/transkript-sanguis';
+
+/** The hosted web version */
+export const SITE_URL = 'https://transkript-sanguis.henkys.dev';

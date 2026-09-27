@@ -372,7 +372,7 @@
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if report?.file && current.profile}
 										{const key = $derived(fileKey(current.profile.id, report.id))}
-										<button type="button" onclick={() => openFile(key)} class="text-[11px] text-ink-3 underline decoration-line-strong underline-offset-2 hover:text-ink" title={report.file.name}>{t.focus.openPdf}</button>
+										<button type="button" onclick={() => openFile(key, report.file?.name ?? '')} class="text-[11px] text-ink-3 underline decoration-line-strong underline-offset-2 hover:text-ink" title={report.file.name}>{t.focus.openPdf}</button>
 									{/if}
 								</td>
 								<td class="max-w-md px-3 py-1.5 font-sans text-ink-2">

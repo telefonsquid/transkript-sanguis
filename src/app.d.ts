@@ -8,6 +8,9 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	// Version from package.json, see define in vite.config.ts
+	const __APP_VERSION__: string;
 }
 
 export {};

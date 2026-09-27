@@ -3,6 +3,7 @@
  * Keyed by profile and report id, nothing here ever leaves the browser.
  */
 import { SLUG } from './app';
+import { desktop, openInViewer } from './desktop';
 
 const DB = `${SLUG}-files`;
 const STORE = 'files';
@@ -44,9 +45,15 @@ export async function deleteProfileFiles(profile: string) {
 	await run('readwrite', (s) => s.delete(range));
 }
 
-export async function openFile(key: string) {
+/** Shows a stored report, in the system viewer on desktop where the webview opens no tabs */
+export async function openFile(key: string, name: string) {
 	const blob = await getFile(key);
 	if (!blob) return false;
+	if (desktop) {
+		await openInViewer(name, blob);
+		return true;
+	}
+
 	const url = URL.createObjectURL(blob);
 	window.open(url, '_blank', 'noopener');
 	setTimeout(() => URL.revokeObjectURL(url), 60_000);

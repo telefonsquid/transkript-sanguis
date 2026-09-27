@@ -7,3 +7,4 @@ data
 .claude
 CLAUDE.local.md
 *.log
+src-tauri

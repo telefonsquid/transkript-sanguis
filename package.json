@@ -1,7 +1,8 @@
 {
 	"name": "transkript-sanguis",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
+	"license": "MIT",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -13,7 +14,11 @@
 		"lint": "eslint .",
 		"test:e2e": "playwright install && playwright test",
 		"test:unit": "bun test src",
-		"test": "bun run test:unit && bun run test:e2e"
+		"test": "bun run test:unit && bun run test:e2e",
+		"version:set": "bun scripts/set-version.ts",
+		"release-notes": "bun scripts/release-notes.ts",
+		"rename-release-assets": "bun scripts/rename-release-assets.ts",
+		"tauri": "tauri"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -27,6 +32,9 @@
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.3.0",
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/cli": "^2",
+		"@tauri-apps/plugin-opener": "^2",
 		"@types/bun": "^1.4.2",
 		"@types/d3-array": "^3.2.2",
 		"@types/d3-scale": "^4.0.9",

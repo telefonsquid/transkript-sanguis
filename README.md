@@ -90,10 +90,13 @@ bun run lint
 bun run test:unit    # catalogue, units, formulas, parsing
 npx playwright test  # end to end against a production build
 bun run build        # static site in build/
+bun run tauri dev    # desktop app against the dev server
+bun run tauri build  # desktop app and installers in src-tauri/target/release/
 ```
 
 - Set `CHROMIUM` to a Chrome executable if Playwright's pinned browser is not installed. The e2e tests fail on any console error, which catches CSP violations.
-- `node scripts/icons.ts` renders the PNG app icons from `static/favicon.svg`.
+- The desktop app needs [Rust](https://rustup.rs) and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/). Releases are built by CI from a version tag, see Releasing in [CLAUDE.md](CLAUDE.md).
+- `node scripts/icons.ts` renders the web and desktop app icons from `static/favicon.svg`.
 - `node scripts/readme.ts` renders the images in this README from the demo profiles against a running app (`BASE`, default `http://localhost:5173`).
 
 Decisions and conventions live in [CLAUDE.md](CLAUDE.md) and the project skills under `.claude/skills/`.

@@ -18,15 +18,17 @@
 	async function exportProfiles(list: Profile[], name: string) {
 		if (exporting) return;
 		exporting = true;
-		const file = await buildExport($state.snapshot(list), withPdfs);
-		const stamp = new Date().toISOString().slice(0, 10);
-		const slug = name
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/^-|-$/g, '');
-		download(`${SLUG}-${slug || 'profile'}-${stamp}.json`, JSON.stringify(file, null, 1));
-		db.lastExport = new Date().toISOString();
-		exporting = false;
+		try {
+			const file = await buildExport($state.snapshot(list), withPdfs);
+			const stamp = new Date().toISOString().slice(0, 10);
+			const slug = name
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, '-')
+				.replace(/^-|-$/g, '');
+			if (await download(`${SLUG}-${slug || 'profile'}-${stamp}.json`, JSON.stringify(file, null, 1))) db.lastExport = new Date().toISOString();
+		} finally {
+			exporting = false;
+		}
 	}
 
 	const secondary = 'rounded-md border border-line-strong px-3 py-1.5 text-xs font-medium hover:bg-hover disabled:opacity-50';

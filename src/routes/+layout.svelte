@@ -6,6 +6,7 @@
 	import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { navigating, page } from '$app/state';
+	import AppFooter from '#lib/components/AppFooter.svelte';
 	import AppearanceMenu from '#lib/components/AppearanceMenu.svelte';
 	import FilterBar from '#lib/components/FilterBar.svelte';
 	import LanguageMenu from '#lib/components/LanguageMenu.svelte';
@@ -16,6 +17,7 @@
 	import Progress from '#lib/ui/Progress.svelte';
 	import { fmtDate } from '#lib/analysis.js';
 	import { REPO_URL, SLUG } from '#lib/app.js';
+	import { bindDesktop, desktop } from '#lib/desktop.js';
 	import { t } from '#lib/i18n/index.js';
 	import { fade, fly, glide, morph, motion, navigate, pop, repaint } from '#lib/motion.svelte.js';
 	import { persistPrefs, prefs } from '#lib/prefs.svelte.js';
@@ -30,6 +32,7 @@
 	let scroller: HTMLElement | undefined = $state();
 
 	onNavigate(navigate);
+	$effect(bindDesktop);
 
 	// Clicks and shortcuts wait while a page loads
 	const busy = $derived(!!navigating.to);
@@ -78,7 +81,7 @@
 				// Only costs the reload shortcut
 			}
 		}
-		const open = route === '/welcome' || route === '/about';
+		const open = route === '/welcome' || route === '/about' || route === '/changelog';
 		if (!open && (!landed || !db.consent || !current.profile)) goto(resolve('/welcome'), { replace: true });
 	});
 
@@ -149,7 +152,9 @@
 	const flagged = $derived(current.therapy !== 'none' && t.app.name.startsWith('Trans'));
 
 	const utility = 'h-8 rounded-md px-2 text-xs font-medium text-ink-2 hover:bg-hover hover:text-ink';
-	const link = 'underline decoration-line-strong underline-offset-2 hover:text-ink';
+
+	// The webview has no F11 of its own, the app binds it
+	const keys = $derived<[string, string][]>(desktop ? [...t.help.keys, ['F11', t.help.fullscreen]] : t.help.keys);
 </script>
 
 <svelte:head>
@@ -248,15 +253,7 @@
 		</main>
 	</div>
 
-	<footer class="flex flex-wrap items-center gap-x-3 border-t border-line bg-surface px-4 py-1 text-[11px] text-ink-3">
-		<span>{t.disclaimer.footer}</span>
-		<a href={resolve('/about')} class={link}>{t.nav.about}</a>
-		<a href={resolve('/about')} class={link}>{t.nav.sources}</a>
-		<a href={REPO_URL} target="_blank" rel="noreferrer" class={link}>{t.nav.code}</a>
-		<button type="button" onclick={() => (help = !help)} aria-haspopup="dialog" class="ml-auto inline-flex items-center gap-1.5 hover:text-ink">
-			<kbd class="num rounded border border-line bg-surface-2 px-1 font-mono text-[10px] leading-4">?</kbd>{t.nav.help}
-		</button>
-	</footer>
+	<AppFooter onhelp={() => (help = !help)} />
 </div>
 
 {#snippet utilities()}
@@ -291,7 +288,7 @@
 		<section class="relative w-full max-w-md rounded-lg border border-line bg-surface p-5 shadow-[var(--shadow)]" aria-label={t.help.title} in:pop={{ y: 10 }} out:fade={{ duration: 100 }}>
 			<h2 class="mb-3 text-sm font-semibold">{t.help.title}</h2>
 			<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
-				{#each t.help.keys as [k, v] (k)}
+				{#each keys as [k, v] (k)}
 					<dt><kbd class="num rounded border border-line bg-surface-2 px-1.5 py-0.5 font-mono text-[11px]">{k}</kbd></dt>
 					<dd class="text-ink-2">{v}</dd>
 				{/each}

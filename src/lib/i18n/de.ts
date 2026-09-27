@@ -72,7 +72,13 @@ export const de: Dict = {
 		languageSecondHint: 'Zeigt jeden Laborwert zusätzlich unter einem zweiten Namen, praktisch wenn deine Befunde eine andere Sprache nutzen.',
 		languageNone: 'Keine zweite Sprache',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'Abnahme', 'Abnahmen')} · ${plural(values, 'Wert', 'Werte')} · ${span}`,
-		storageError: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.'
+		storageError: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.',
+		changelog: 'Änderungen',
+		desktopApp: 'Desktop-App',
+		webVersion: 'Webversion',
+		updates: 'Nach Updates suchen',
+		updatesHint: 'Fragt alle paar Stunden bei GitHub, ob eine neuere Version da ist. Deine Daten gehen dabei nicht mit.',
+		update: (version: string) => `Version ${version} ist da`
 	},
 	disclaimer: {
 		localTitle: 'Deine Daten bleiben auf diesem Gerät',
@@ -662,7 +668,13 @@ export const de: Dict = {
 			['← →', 'Durch Abnahmen gehen im fokussierten Diagramm'],
 			['Esc', 'Zurück zur Übersicht'],
 			['?', 'Diese Übersicht']
-		] as [string, string][]
+		] as [string, string][],
+		fullscreen: 'Vollbild'
+	},
+	changelog: {
+		title: 'Änderungen',
+		intro: 'Was sich in jeder Version geändert hat. Die Notizen gibt es nur auf Englisch.',
+		current: 'Diese Version'
 	},
 	units: {
 		conv: 'konventionell',

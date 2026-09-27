@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 /** Fails the test on any script error or CSP violation */
 function watchErrors(page: Page) {
@@ -234,4 +235,17 @@ test('agent instructions and schema are served as static files', async ({ reques
 
 	const schema = await request.get('/import-schema.json');
 	expect((await schema.json()).properties.format.const).toBe('transkript-sanguis/draws');
+});
+
+test('the changelog opens without consent and marks the running version', async ({ page }) => {
+	const errors = watchErrors(page);
+	const { version } = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+	await page.goto('/changelog');
+	await expect(page).toHaveURL(/\/changelog$/);
+	await expect(page.getByRole('heading', { level: 2 }).filter({ hasText: 'This version' })).toContainText(version);
+
+	await expect(page.getByRole('contentinfo').getByText(`v${version}`)).toBeVisible();
+	await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Desktop app' })).toHaveAttribute('href', /releases\/latest$/);
+	await expect(page.getByRole('contentinfo').getByText('Check for updates')).toHaveCount(0);
+	expect(errors).toEqual([]);
 });

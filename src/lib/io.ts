@@ -1,18 +1,23 @@
 import { SLUG } from './app';
 import { acceptUnit, analytes, cleanUnit, isIsoDate, parseNum, parseRange, parseValue, suggestUnit } from './data';
 import type { Analyte, Draw, Profile, Sex } from './data/types';
+import { desktop, saveFile } from './desktop';
 import { fileKey, getFile, putFile } from './files';
 import { rowProblem, type EditRow, type RowProblem } from './rows';
 
 export const EXPORT_FORMAT = `${SLUG}/export`;
 export const DRAWS_FORMAT = `${SLUG}/draws`;
 
-export function download(name: string, data: string | Blob, type = 'application/json') {
+/** Saves a file, false when the desktop save dialog was cancelled */
+export async function download(name: string, data: string | Blob, type = 'application/json'): Promise<boolean> {
 	const blob = typeof data === 'string' ? new Blob([data], { type }) : data;
+	if (desktop) return saveFile(name, blob);
+
 	const url = URL.createObjectURL(blob);
 	const link = Object.assign(document.createElement('a'), { href: url, download: name });
 	link.click();
 	setTimeout(() => URL.revokeObjectURL(url), 1000);
+	return true;
 }
 
 /* Full backups */

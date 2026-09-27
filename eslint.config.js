@@ -9,6 +9,8 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	// Rust build output, ignored by its own .gitignore
+	{ ignores: ['src-tauri/target/', 'src-tauri/gen/'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,
