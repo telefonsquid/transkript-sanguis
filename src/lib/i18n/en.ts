@@ -98,6 +98,7 @@ export const en = {
 			'Clearing your browser data deletes it, so export a backup now and then.'
 		],
 		footer: 'Not medical advice · Stored only in this browser',
+		footerDesktop: 'Not medical advice · Stored only on this device',
 		agentPrivacy:
 			'The agent route means you hand your PDFs to an AI assistant of your choice. Your files then go to that provider, not to this app. The import format carries no names or identifiers, and you can black out personal details before uploading.'
 	},

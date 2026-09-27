@@ -99,6 +99,7 @@ export const de: Dict = {
 			'Wenn du die Browserdaten löschst, ist alles weg. Exportiere ab und zu eine Sicherung.'
 		],
 		footer: 'Keine medizinische Beratung · Nur in diesem Browser gespeichert',
+		footerDesktop: 'Keine medizinische Beratung · Nur auf diesem Gerät gespeichert',
 		agentPrivacy:
 			'Beim Agent-Weg gibst du deine PDFs einem KI-Assistenten deiner Wahl. Deine Dateien gehen dann an diesen Anbieter, nicht an diese App. Das Importformat enthält keine Namen oder Kennungen, und du kannst persönliche Angaben vor dem Hochladen schwärzen.'
 	},
