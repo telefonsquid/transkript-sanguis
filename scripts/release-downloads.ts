@@ -3,10 +3,13 @@
  *
  * Fills the space between <!-- downloads --> and <!-- /downloads --> in the body, or appends it.
  * Called by .github/workflows/release.yml after the assets are renamed, safe to rerun by hand.
+ * With --readme the same table goes into README.md instead, version:set moves it along on later releases.
  * Needs GH_TOKEN (or GITHUB_TOKEN) with contents write and GITHUB_REPOSITORY as owner/repo.
  *
- *   bun run release-downloads v1.0.0 [--dry-run]
+ *   bun run release-downloads v1.0.0 [--readme] [--dry-run]
  */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { SLUG } from '../src/lib/app';
 import { api, findRelease, repoAccess } from './github';
 
@@ -49,7 +52,7 @@ function badge(label: string, logo: string, alt: string, url: string): string {
 }
 
 /** Markdown table with one badge per file, only for files the release really has */
-export function downloadSection(names: string[], repo: string, tag: string): string | null {
+export function downloadSection(names: string[], repo: string, tag: string, heading = '###'): string | null {
 	const version = tag.replace(/^v/, '');
 	const present = new Set(names);
 
@@ -66,7 +69,7 @@ export function downloadSection(names: string[], repo: string, tag: string): str
 
 	const head = `| | ${ARCHES.map((a) => a.name).join(' | ')} |`;
 	const rule = `| :-- | ${ARCHES.map(() => ':--').join(' | ')} |`;
-	return [OPEN, '', '### Download', '', head, rule, ...rows, '', CLOSE].join('\n');
+	return [OPEN, '', `${heading} Download`, '', head, rule, ...rows, '', CLOSE].join('\n');
 }
 
 /** Replaces an earlier table, so reruns never stack them */
@@ -80,8 +83,9 @@ export function withDownloads(body: string, section: string): string {
 async function main(): Promise<number> {
 	const [, , tag = '', ...flags] = process.argv;
 	const dryRun = flags.includes('--dry-run');
+	const readme = flags.includes('--readme');
 	if (!tag) {
-		console.error('usage: bun run release-downloads <tag> [--dry-run]');
+		console.error('usage: bun run release-downloads <tag> [--readme] [--dry-run]');
 		return 1;
 	}
 
@@ -98,9 +102,19 @@ async function main(): Promise<number> {
 		return 0;
 	}
 
-	const section = downloadSection(release.assets.map((a) => a.name), repo, tag);
+	const section = downloadSection(release.assets.map((a) => a.name), repo, tag, readme ? '##' : '###');
 	if (!section) {
 		console.log(`no asset on ${tag} has a known name, notes left as they are`);
+		return 0;
+	}
+
+	if (readme) {
+		const file = join(import.meta.dir, '..', 'README.md');
+		const before = readFileSync(file, 'utf8');
+		const after = withDownloads(before, section.replaceAll('\n', before.includes('\r\n') ? '\r\n' : '\n'));
+		if (dryRun) console.log(after);
+		else writeFileSync(file, after);
+		console.log(`download table of ${tag} written into README.md`);
 		return 0;
 	}
 

@@ -20,6 +20,7 @@
 
 </div>
 <br>
+
 Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts your results over time and compares them to reference ranges sourced from published research with additional information about every single value. None of your data ever touches a server, everything is kept and analyzed locally on your machine.
 
 🏳️‍⚧️ It has additional support for feminizing and masculinizing hormone therapy by offering profiles, ranges from trans-specific resources and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value.
@@ -27,6 +28,19 @@ Transkript Sanguis is an open source application for tracking and analyzing bloo
 > [!IMPORTANT]
 > **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor.
 
+<!-- downloads -->
+
+## Download
+
+| | x64 (Intel, AMD) | arm64 (Apple Silicon, Snapdragon) |
+| :-- | :-- | :-- |
+| **Windows** | [![Windows x64 Portable](https://img.shields.io/badge/Portable-a8172b?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgxMXYxMUgwem0xMyAwaDExdjExSDEzek0wIDEzaDExdjExSDB6bTEzIDBoMTF2MTFIMTN6Ii8%2BPC9zdmc%2B&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_windows_x64_portable.exe) [![Windows x64 Installer](https://img.shields.io/badge/Installer-a8172b?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgxMXYxMUgwem0xMyAwaDExdjExSDEzek0wIDEzaDExdjExSDB6bTEzIDBoMTF2MTFIMTN6Ii8%2BPC9zdmc%2B&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_windows_x64_setup.exe) [![Windows x64 MSI](https://img.shields.io/badge/MSI-a8172b?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgxMXYxMUgwem0xMyAwaDExdjExSDEzek0wIDEzaDExdjExSDB6bTEzIDBoMTF2MTFIMTN6Ii8%2BPC9zdmc%2B&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_windows_x64.msi) | [![Windows arm64 Portable](https://img.shields.io/badge/Portable-a8172b?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgxMXYxMUgwem0xMyAwaDExdjExSDEzek0wIDEzaDExdjExSDB6bTEzIDBoMTF2MTFIMTN6Ii8%2BPC9zdmc%2B&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_windows_arm64_portable.exe) [![Windows arm64 Installer](https://img.shields.io/badge/Installer-a8172b?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgxMXYxMUgwem0xMyAwaDExdjExSDEzek0wIDEzaDExdjExSDB6bTEzIDBoMTF2MTFIMTN6Ii8%2BPC9zdmc%2B&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_windows_arm64_setup.exe) |
+| **macOS** | [![macOS x64 dmg](https://img.shields.io/badge/dmg-a8172b?logo=apple&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_mac_x64.dmg) | [![macOS arm64 dmg](https://img.shields.io/badge/dmg-a8172b?logo=apple&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_mac_arm64.dmg) |
+| **Linux** | [![Linux x64 AppImage](https://img.shields.io/badge/AppImage-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_x64.AppImage) [![Linux x64 deb](https://img.shields.io/badge/deb-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_x64.deb) [![Linux x64 rpm](https://img.shields.io/badge/rpm-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_x64.rpm) | [![Linux arm64 AppImage](https://img.shields.io/badge/AppImage-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_arm64.AppImage) [![Linux arm64 deb](https://img.shields.io/badge/deb-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_arm64.deb) [![Linux arm64 rpm](https://img.shields.io/badge/rpm-a8172b?logo=linux&logoColor=white)](https://github.com/telefonsquid/transkript-sanguis/releases/download/v1.0.0/transkript-sanguis_1.0.0_linux_arm64.rpm) |
+
+<!-- /downloads -->
+
+> **macOS** – Builds are unsigned: right-click the app and choose Open on first launch, or macOS refuses it outright.
 
 ## Features
 

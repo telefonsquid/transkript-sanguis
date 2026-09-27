@@ -45,6 +45,14 @@ patch('src-tauri/tauri.conf.json', /"version": "[^"]+"/, `"version": "${version}
 patch('src-tauri/Cargo.toml', /version = "[^"]+"/, `version = "${version}"`);
 patch('src-tauri/Cargo.lock', /(name = "transkript-sanguis"\r?\nversion = )"[^"]+"/, `$1"${version}"`);
 
+// README downloads move to the new files, which answer once the release is published
+const readme = read('README.md');
+const moved = readme.replace(/(releases\/download\/v)[^/]+(\/transkript-sanguis_)[^_]+_/g, `$1${version}$2${version}_`);
+if (moved !== readme) {
+	writeFileSync(join(ROOT, 'README.md'), moved);
+	console.log('  README.md');
+}
+
 console.log(`
 Next:
   git commit -am "release ${version}"

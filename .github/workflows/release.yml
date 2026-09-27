@@ -43,8 +43,6 @@ jobs:
           <!-- downloads -->
           <!-- /downloads -->
 
-          > **Windows** – Not sure what to pick? Take **Portable** in the x64 column, it runs without installing anything.
-
           > **macOS** – Builds are unsigned: right-click the app and choose Open on first launch, or macOS refuses it outright.
           EOF
 
