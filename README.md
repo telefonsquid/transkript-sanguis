@@ -1,5 +1,5 @@
 <div align="center">
-
+<br>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.png">
   <img src="docs/assets/logo-light.png" alt="Transkript Sanguis" width="420">
@@ -11,8 +11,7 @@
 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
 <a href="https://github.com/telefonsquid/transkript-sanguis/releases/latest"><b>Download Desktop App</b></a>
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-a8172b?style=flat-square)](LICENSE)
-![Languages](https://img.shields.io/badge/lang-EN%20%7C%20DE-a8172b?style=flat-square)
+<br>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/overview-dark.png">
@@ -20,7 +19,7 @@
 </picture>
 
 </div>
-
+<br>
 Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts every value over time against reference ranges from published research, each with its source, and explains what the value measures and what a shift up or down can mean.
 
 It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.
