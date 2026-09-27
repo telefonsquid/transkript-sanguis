@@ -10,5 +10,7 @@ RUN bun run build
 FROM nginxinc/nginx-unprivileged:1.29-alpine
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/build /usr/share/nginx/html
+
+# Own folder, the nginx welcome page of the base image would otherwise answer on /
+COPY --from=build /app/build /srv/transkript-sanguis
 EXPOSE 3000
