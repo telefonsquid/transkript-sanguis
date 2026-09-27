@@ -9,7 +9,7 @@ headings matters.
 - Optional `### Added` / `### Changed` / `### Fixed` groups under it.
 - Everything else is plain bullets or short paragraphs.
 
-## 0.1.0 — 2026-09-27
+## 1.0.0 — 2026-09-27
 
 First release, and the first one as a desktop app.
 

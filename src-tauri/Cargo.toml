@@ -1,6 +1,6 @@
 [package]
 name = "transkript-sanguis"
-version = "0.1.0"
+version = "1.0.0"
 description = "Blood test results over time next to researched reference ranges"
 authors = ["Saskia Henkys"]
 license = "MIT"
