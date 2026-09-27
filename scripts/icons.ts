@@ -19,7 +19,7 @@ const variants = [
 ];
 
 // Windows picks the frame matching its display scale, a missing size gets scaled and blurs
-const ICO_SIZES = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256];
+const ICO_SIZES = [16, 20, 24, 32, 40, 48, 60, 64, 72, 96, 128, 256];
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM });
 const page = await browser.newPage();

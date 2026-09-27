@@ -113,7 +113,7 @@ mod taskbar_icon {
     use windows_sys::Win32::UI::HiDpi::{GetDpiForWindow, GetSystemMetricsForDpi};
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         LoadImageW, SendMessageW, ICON_BIG, ICON_SMALL, IDI_APPLICATION, IMAGE_ICON,
-        LR_DEFAULTCOLOR, SM_CXICON, SM_CXSMICON, SM_CYICON, SM_CYSMICON, WM_SETICON,
+        LR_DEFAULTCOLOR, SM_CXSMICON, WM_SETICON,
     };
 
     pub fn apply(window: &WebviewWindow) {
@@ -128,18 +128,19 @@ mod taskbar_icon {
                 d => d,
             };
 
-            // Big for taskbar and alt tab, small for title bar
-            for (slot, cx, cy) in [
-                (ICON_BIG, SM_CXICON, SM_CYICON),
-                (ICON_SMALL, SM_CXSMICON, SM_CYSMICON),
-            ] {
+            // The taskbar draws the big icon at 24 px, taskbar mods up to about 48.
+            // Loaded at 48 since scaling down stays sharp and scaling up blurs.
+            let big = (48 * dpi / 96) as i32;
+            let small = GetSystemMetricsForDpi(SM_CXSMICON, dpi);
+
+            for (slot, size) in [(ICON_BIG, big), (ICON_SMALL, small)] {
                 // Tauri's bundler files the app icon under IDI_APPLICATION
                 let icon = LoadImageW(
                     exe,
                     IDI_APPLICATION,
                     IMAGE_ICON,
-                    GetSystemMetricsForDpi(cx, dpi),
-                    GetSystemMetricsForDpi(cy, dpi),
+                    size,
+                    size,
                     LR_DEFAULTCOLOR,
                 );
                 // On failure the window keeps Tauri's icon
