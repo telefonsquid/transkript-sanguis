@@ -84,7 +84,11 @@ export const de: Dict = {
 		webVersion: 'Webversion',
 		updates: 'Nach Updates suchen',
 		updatesHint: 'Fragt alle paar Stunden bei GitHub, ob eine neuere Version da ist. Deine Daten gehen dabei nicht mit.',
-		update: (version: string) => `Version ${version} ist da`
+		update: (version: string) => `Version ${version} ist da`,
+		minimize: 'Minimieren',
+		maximize: 'Maximieren',
+		restore: 'Wiederherstellen',
+		close: 'Schließen'
 	},
 	disclaimer: {
 		localTitle: 'Deine Daten bleiben auf diesem Gerät',

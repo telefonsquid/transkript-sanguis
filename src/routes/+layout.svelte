@@ -13,6 +13,7 @@
 	import ProfileMenu from '#lib/components/ProfileMenu.svelte';
 	import Sidebar from '#lib/components/Sidebar.svelte';
 	import Timeline from '#lib/components/Timeline.svelte';
+	import WindowControls from '#lib/components/WindowControls.svelte';
 	import Logo from '#lib/ui/Logo.svelte';
 	import Progress from '#lib/ui/Progress.svelte';
 	import { fmtDate } from '#lib/analysis.js';
@@ -164,12 +165,19 @@
 <svelte:window {onkeydown} />
 
 <div class="relative flex h-dvh flex-col">
-	{#if route === '/welcome'}
+	{#if route === '/welcome' && desktop}
+		<!-- The window has no frame, so the landing page keeps a bar without background to drag it by -->
+		<div data-tauri-drag-region="deep" class="relative z-30 flex items-center justify-end px-4 py-2">
+			{@render utilities()}
+			<WindowControls class="-my-2 -mr-4 ml-2 self-stretch" />
+		</div>
+	{:else if route === '/welcome'}
 		<!-- The landing page keeps only the utilities, without a bar behind them -->
 		<div class="absolute top-2 right-4 z-30 flex items-center">{@render utilities()}</div>
 	{:else}
 		<!-- View tabs sit exactly in the middle once both sides fit, before that in the space between them -->
 		<header
+			data-tauri-drag-region={desktop ? 'deep' : undefined}
 			class="vt-header relative z-30 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
 		>
 			<div class="flex min-w-0 items-center gap-3">
@@ -227,6 +235,9 @@
 				{/if}
 				<span class="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true"></span>
 				<div class="flex shrink-0 items-center">{@render utilities()}</div>
+				{#if desktop}
+					<WindowControls class="-my-2 -mr-4 self-stretch" />
+				{/if}
 			</div>
 		</header>
 	{/if}

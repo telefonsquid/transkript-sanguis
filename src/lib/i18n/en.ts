@@ -83,7 +83,11 @@ export const en = {
 		webVersion: 'Web version',
 		updates: 'Check for updates',
 		updatesHint: 'Asks GitHub every few hours whether a newer version is out. None of your data goes with it.',
-		update: (version: string) => `Version ${version} is out`
+		update: (version: string) => `Version ${version} is out`,
+		minimize: 'Minimize',
+		maximize: 'Maximize',
+		restore: 'Restore',
+		close: 'Close'
 	},
 	disclaimer: {
 		localTitle: 'Your data stays on this device',
