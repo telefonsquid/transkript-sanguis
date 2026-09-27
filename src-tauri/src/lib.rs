@@ -4,7 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use percent_encoding::percent_decode_str;
 use tauri::ipc::{InvokeBody, Request};
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager, PhysicalPosition, PhysicalSize, WebviewWindow};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
 
@@ -12,6 +12,15 @@ use tauri_plugin_opener::OpenerExt;
 const VIEWABLE: &[&str] = &[
     "pdf", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "heic", "avif",
 ];
+
+/// Share of the free screen area the window opens at
+const FILL: f64 = 0.85;
+
+/// Widest start size in logical pixels, big screens get room to spare
+const WIDEST: f64 = 1920.0;
+
+/// Same as minWidth and minHeight in tauri.conf.json
+const SMALLEST: (f64, f64) = (960.0, 600.0);
 
 /// Where opened reports are written, cleared on every start
 fn scratch() -> PathBuf {
@@ -152,22 +161,65 @@ mod taskbar_icon {
     }
 }
 
+/// Opens the window at 16:9, as large as the screen comfortably allows
+fn open_window(window: &WebviewWindow) {
+    let monitor = window
+        .current_monitor()
+        .ok()
+        .flatten()
+        .or_else(|| window.primary_monitor().ok().flatten());
+
+    if let Some(monitor) = monitor {
+        // Screen without taskbar or dock, the whole screen where the system cannot tell
+        let work = monitor.work_area();
+        let (origin, free) = if work.size.width > 0 && work.size.height > 0 {
+            (work.position, work.size)
+        } else {
+            (*monitor.position(), *monitor.size())
+        };
+        let scale = monitor.scale_factor();
+
+        let width = (free.width as f64 * FILL)
+            .min(free.height as f64 * FILL * 16.0 / 9.0)
+            .min(WIDEST * scale)
+            .max(SMALLEST.0 * scale);
+        let height = (width * 9.0 / 16.0).max(SMALLEST.1 * scale);
+
+        // The first resize of a frameless window on Windows lands a caption too tall, a second one is exact
+        let asked = PhysicalSize::new(width as u32, height as u32);
+        let _ = window.set_size(asked);
+        if window.inner_size().is_ok_and(|got| got != asked) {
+            let _ = window.set_size(asked);
+        }
+
+        // Centred in the free area, measured by the content and not the invisible resize border
+        let border = match (window.inner_position(), window.outer_position()) {
+            (Ok(inner), Ok(outer)) => (inner.x - outer.x, inner.y - outer.y),
+            _ => (0, 0),
+        };
+        let x = origin.x + ((free.width as f64 - width).max(0.0) / 2.0) as i32 - border.0;
+        let y = origin.y + ((free.height as f64 - height).max(0.0) / 2.0) as i32 - border.1;
+        let _ = window.set_position(PhysicalPosition::new(x, y));
+    }
+
+    // Hidden until sized, so it never jumps
+    let _ = window.show();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![save_file, open_file])
-        .setup(|_app| {
+        .setup(|app| {
             // Reports opened in earlier sessions are health data, they should not linger
             let _ = fs::remove_dir_all(scratch());
 
-            #[cfg(windows)]
-            {
-                use tauri::Manager;
-                for window in _app.webview_windows().values() {
-                    taskbar_icon::apply(window);
-                }
+            for window in app.webview_windows().values() {
+                #[cfg(windows)]
+                taskbar_icon::apply(window);
+                open_window(window);
             }
             Ok(())
         })
