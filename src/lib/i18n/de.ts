@@ -115,10 +115,6 @@ export const de: Dict = {
 	},
 	welcome: {
 		about: 'Über die App',
-		aboutText: [
-			'Transkript Sanguis ist eine Open-Source-Anwendung, mit der du deine Blutwerte erfassen und auswerten kannst. Sie zeigt deine Ergebnisse im Verlauf und vergleicht sie mit Referenzbereichen aus veröffentlichter Forschung, dazu gibt es Hintergrundinfos zu jedem einzelnen Wert. Deine Daten landen nie auf einem Server, alles wird lokal auf deinem Gerät gespeichert und ausgewertet.',
-			'🏳️‍⚧️ Zusätzlich unterstützt sie feminisierende und maskulinisierende Hormontherapie mit eigenen Profilen, Bereichen aus trans-spezifischen Quellen und Therapiezielen, einer Medikationszeitleiste über den Diagrammen und Hinweisen, wie die Therapie jeden Wert beeinflusst.'
-		],
 		step: (n: number, of: number) => `${n} von ${of}`,
 		demo: 'Demo ansehen',
 		create: 'Profil anlegen',
@@ -655,7 +651,10 @@ export const de: Dict = {
 	},
 	about: {
 		title: 'Über & Quellen',
-		intro: `${APP_NAME} zeigt Blutwerte im Verlauf und stellt sie neben recherchierte Referenzbereiche. Gebaut für Menschen unter Hormontherapie, die auf ihren Befunden selten passende Bereiche finden, und genauso nutzbar für alle anderen.`,
+		intro: [
+			`${APP_NAME} ist eine Open-Source-Anwendung, mit der du deine Blutwerte erfassen und auswerten kannst. Sie zeigt deine Ergebnisse im Verlauf und vergleicht sie mit Referenzbereichen aus veröffentlichter Forschung, dazu gibt es Hintergrundinfos zu jedem einzelnen Wert. Deine Daten landen nie auf einem Server, alles wird lokal auf deinem Gerät gespeichert und ausgewertet.`,
+			'🏳️‍⚧️ Zusätzlich unterstützt sie feminisierende und maskulinisierende Hormontherapie mit eigenen Profilen, Bereichen aus trans-spezifischen Quellen und Therapiezielen, einer Medikationszeitleiste über den Diagrammen und Hinweisen, wie die Therapie jeden Wert beeinflusst.'
+		],
 		howTitle: 'Wie Referenzen funktionieren',
 		how: 'Jeder Wert kann mehrere Referenzen tragen: den Bereich deines Labors, HRT-Ziele aus Leitlinien, Bereiche von trans Menschen unter stabiler HRT, klinische Grenzwerte sowie cis weibliche und cis männliche Bereiche von Testherstellern oder großen Laboren. „Beste Wahl“ nimmt die passende für das aktive Profil, jede Auswahl lässt sich ändern.',
 		catalogue: 'Katalog',

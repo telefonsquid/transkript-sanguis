@@ -114,10 +114,6 @@ export const en = {
 	},
 	welcome: {
 		about: 'About',
-		aboutText: [
-			'Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts your results over time and compares them to reference ranges sourced from published research with additional information about every single value. None of your data ever touches a server, everything is kept and analyzed locally on your machine.',
-			'🏳️‍⚧️ It has additional support for feminizing and masculinizing hormone therapy by offering profiles, ranges from trans-specific resources and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value.'
-		],
 		step: (n: number, of: number) => `${n} of ${of}`,
 		demo: 'View demo',
 		create: 'Create profile',
@@ -653,8 +649,11 @@ export const en = {
 		draws: (n: number) => plural(n, 'draw', 'draws')
 	},
 	about: {
-		title: 'About & sources',
-		intro: `${APP_NAME} charts blood test results over time and puts them next to researched reference ranges. It is built for people on hormone therapy, who rarely find ranges that fit them on their lab reports, and works for everyone else too.`,
+		title: 'About & Sources',
+		intro: [
+			`${APP_NAME} is an open source application for tracking and analyzing blood tests. It charts your results over time and compares them to reference ranges sourced from published research with additional information about every single value. None of your data ever touches a server, everything is kept and analyzed locally on your machine.`,
+			'🏳️‍⚧️ It has additional support for feminizing and masculinizing hormone therapy by offering profiles, ranges from trans-specific resources and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value.'
+		],
 		howTitle: 'How references work',
 		how: 'Every value can carry several reference contexts: the range your lab printed, HRT targets from guidelines, ranges measured in trans people on stable HRT, clinical cutoffs, and cis female and cis male ranges from assay manufacturers or large labs. "Best fit" picks the one that suits the active profile, and every choice can be changed.',
 		catalogue: 'Catalogue',

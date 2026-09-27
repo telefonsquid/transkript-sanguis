@@ -58,8 +58,7 @@ async function shoot(page: Page, path: string) {
 // Flag colours on the top bar name stay a surprise for people who use the app
 async function plainLogo(page: Page) {
 	await page.addStyleTag({
-		content: `.flag-name { --blood: inherit; --logo-ground: var(--surface); padding: 0; background: none; color: inherit }
-			.trans-flag > * { color: inherit !important }`
+		content: '.trans-flag > * { color: inherit !important }'
 	});
 }
 

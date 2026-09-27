@@ -89,7 +89,7 @@
 			><path d={SWASH} mask="url(#{uid}-swash)" /></svg
 		>{/key}{/snippet}
 
-<span class={['logo', flagged && 'flag-name', klass]}>
+<span class={['logo', klass]}>
 	<span class="sr-only">{name}</span>
 	<span aria-hidden="true" class={[flourish && 'flourished']} onpointerenter={redraw}
 		>{#if flourish}{@render swash()}{/if}{#if flag.length}<span class="trans-flag"

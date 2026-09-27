@@ -102,7 +102,7 @@
 			</button>
 			{#if about}
 				<div class="mt-3 space-y-2 text-justify text-[0.8125rem] leading-relaxed hyphens-auto text-ink-3" transition:slide>
-					{#each t.welcome.aboutText as text (text)}<p>{text}</p>{/each}
+					{#each t.about.intro as text (text)}<p>{text}</p>{/each}
 				</div>
 			{/if}
 		</div>

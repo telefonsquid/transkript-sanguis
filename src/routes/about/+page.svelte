@@ -15,7 +15,9 @@
 <div class="mx-auto max-w-5xl space-y-8 p-6 text-sm">
 	<section>
 		<h1 class="text-2xl font-semibold tracking-tight">{t.about.title}</h1>
-		<p class="mt-2 max-w-3xl text-ink-2">{t.about.intro}</p>
+		<div class="mt-2 max-w-3xl space-y-2 text-ink-2">
+			{#each t.about.intro as text (text)}<p>{text}</p>{/each}
+		</div>
 		<a href={REPO_URL} target="_blank" rel="noreferrer" class="mt-2 inline-block text-xs text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink">{t.about.repo} ↗</a>
 	</section>
 

@@ -54,11 +54,9 @@
 	--masc: #5bcefa;
 	--fem-ink: #b83d68;
 	--masc-ink: #1a76a3;
-	--flag-chip: #1b1b1a;
-	--flag-halo: #1b1b1a;
-	--flag-chip-ink: #fcfcfb;
-	--flag-pad: 1px 7px;
-	--flag-pad-swash: 1px 7px 0.24em;
+	--flag-blue: #2aa9e0;
+	--flag-pink: #e9798f;
+	--flag-white: var(--ink);
 	--blood: #a8172b;
 }
 
@@ -105,11 +103,9 @@
 		--raised: #42423e;
 		--fem-ink: #f5a9b8;
 		--masc-ink: #5bcefa;
-		--flag-chip: transparent;
-		--flag-halo: var(--surface);
-		--flag-chip-ink: var(--ink);
-		--flag-pad: 0;
-		--flag-pad-swash: 0;
+		--flag-blue: #5bcefa;
+		--flag-pink: #f5a9b8;
+		--flag-white: #ffffff;
 		--blood: #d93a45;
 	}
 }
@@ -156,11 +152,9 @@
 	--raised: #42423e;
 	--fem-ink: #f5a9b8;
 	--masc-ink: #5bcefa;
-	--flag-chip: transparent;
-	--flag-halo: var(--surface);
-	--flag-chip-ink: var(--ink);
-	--flag-pad: 0;
-	--flag-pad-swash: 0;
+	--flag-blue: #5bcefa;
+	--flag-pink: #f5a9b8;
+	--flag-white: #ffffff;
 	--blood: #d93a45;
 }
 
@@ -266,10 +260,6 @@ body {
 	stroke-width: 0.2;
 	stroke-linecap: round;
 }
-.flag-name {
-	--blood: #d93a45;
-	--logo-ground: var(--flag-halo);
-}
 
 /* Pen swash behind the wordmark, a halo in the colour behind it fades it evenly around every letter */
 .logo .flourished {
@@ -292,27 +282,17 @@ body {
 	pointer-events: none;
 }
 
-/* Trans flag stripes, one per letter. The white one needs a dark ground, which the light theme puts behind the whole name */
-.flag-name {
-	padding: var(--flag-pad);
-	border-radius: 6px;
-	background: var(--flag-chip);
-	color: var(--flag-chip-ink);
-}
-/* Room below for the swash and the descenders of its halo */
-.flag-name:has(.flourished) {
-	padding: var(--flag-pad-swash);
-}
+/* Trans flag stripes, one per letter. The white one turns black on the light theme to stay legible */
 .trans-flag > :nth-child(1),
 .trans-flag > :nth-child(5) {
-	color: #5bcefa;
+	color: var(--flag-blue);
 }
 .trans-flag > :nth-child(2),
 .trans-flag > :nth-child(4) {
-	color: #f5a9b8;
+	color: var(--flag-pink);
 }
 .trans-flag > :nth-child(3) {
-	color: #ffffff;
+	color: var(--flag-white);
 }
 
 /* Empty date and time fields and unset choices read as hints, not as values */
