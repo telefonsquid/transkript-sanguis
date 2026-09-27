@@ -67,7 +67,7 @@
 					<span class="min-w-0 flex-1">
 						<span class="block truncate text-lg font-semibold">{mine.name}</span>
 						<span class="block truncate text-xs text-ink-2">
-							{#if mine.therapy !== 'none'}<TherapyName therapy={mine.therapy} /> ·&nbsp;{/if}<span class="num">{summary(mine)}</span>
+							<TherapyName therapy={mine.therapy} /><span class="num">{summary(mine)}</span>
 						</span>
 					</span>
 					<span class="shrink-0 text-sm font-semibold">{t.welcome.open} <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span></span>

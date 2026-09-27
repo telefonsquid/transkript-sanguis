@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { groups, presets } from '../data';
+	import { groupBy, groups, presets } from '../data';
 	import type { Analyte, GroupId, Preset } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { slide } from '../motion.svelte';
@@ -25,7 +25,7 @@
 	const allIds = $derived(current.analytes.map((a) => a.id));
 	const selected = $derived(new Set(settings.selection ?? allIds));
 
-	const counts = $derived(Map.groupBy(current.built.measurements, (m) => m.analyte));
+	const counts = $derived(groupBy(current.built.measurements, (m) => m.analyte));
 
 	const profilePresets = $derived.by((): Preset[] => {
 		const fixed = presets.filter((p) => !p.therapy || p.therapy === current.therapy);
@@ -145,11 +145,11 @@
 								{#if s === 'high' || s === 'low'}
 									<span class="text-[10px]" style:color="var(--{s})" title={t.status[s]}>{s === 'high' ? '▲' : '▼'}</span>
 								{/if}
-								<button type="button" onclick={() => setSelection([a.id])} class="hidden text-[10px] text-ink-3 group-hover:inline hover:text-ink" title={t.sidebar.onlyTitle}>{t.sidebar.only}</button>
+								<button type="button" onclick={() => setSelection([a.id])} class="hidden text-[10px] text-ink-3 group-focus-within:inline group-hover:inline hover:text-ink" title={t.sidebar.onlyTitle}>{t.sidebar.only}</button>
 								<button
 									type="button"
 									onclick={() => (settings.pinned = toggle(settings.pinned, a.id))}
-									class={['text-[11px]', settings.pinned.includes(a.id) ? 'text-ink' : 'hidden text-ink-3 group-hover:inline hover:text-ink']}
+									class={['text-[11px]', settings.pinned.includes(a.id) ? 'text-ink' : 'hidden text-ink-3 group-focus-within:inline group-hover:inline hover:text-ink']}
 									title={settings.pinned.includes(a.id) ? t.sidebar.unpin : t.sidebar.pin}>{settings.pinned.includes(a.id) ? '★' : '☆'}</button
 								>
 								<span class="num w-4 text-right text-[10.5px] text-ink-3">{n}</span>

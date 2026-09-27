@@ -31,14 +31,14 @@ Transkript Sanguis is an open source application for tracking and analyzing bloo
 ## Features
 
 - Collects and charts blood test results over time
-- Reference ranges for cis women, cis men, feminizing and masculinizing HRT, trans cohorts, clinical cutoffs and the lab's printed range. Each range cites its source.
-- All data is stored in the browser. Nothing is sent to a server
+- Reference ranges for cis women, cis men, feminizing and masculinizing HRT, trans cohorts, clinical cutoffs and the lab's printed range, each citing its source
+- All data stays on your device, in the browser or the desktop app, and is never sent to a server
 - 100+ values and reference ranges
 - Customizable medication timeline
 - Consistency checks for typing and parsing errors
-- Enter values by hand or let your AI Agent handle it
-- Multiple profiles support
-- Installable as a PWA
+- Enter results by hand or let an AI assistant transcribe your lab reports
+- Multiple profiles
+- Desktop app for Windows, macOS and Linux, or install the web version as a PWA
 - Conversion between conventional and SI units
 - Computed values: eGFR, calculated free testosterone, free androgen index, HOMA-IR and others
 
@@ -79,7 +79,7 @@ The image builds with bun and serves the files from an unprivileged nginx with S
 
 ## AI disclosure
 
-> This project was supported by AI-assisted coding tools. In fact, about ~90% of the code was generated using Claude Opus 5.5. I am a full stack developer and have been working with SvelteKit for years, so there was a lot of direction and code review involved. I'm all too aware and concerned about the negative effects of AI on society, the environment, and the world as a whole and in no way endorse it. Yet, while I had a project like this planned for years now, I would've never found the required time to see it through. So take it with a grain of salt but AI allowed this project to exist in the first place.
+> This project was supported by AI-assisted coding tools. In fact, about 90% of the code was generated using Claude Opus 5.5. I am a full stack developer and have been working with SvelteKit for years, so there was a lot of direction and code review involved. I'm all too aware and concerned about the negative effects of AI on society, the environment, and the world as a whole and in no way endorse it. Yet, while I had a project like this planned for years now, I would've never found the required time to see it through. So take it with a grain of salt but AI allowed this project to exist in the first place.
 
 ## Development
 

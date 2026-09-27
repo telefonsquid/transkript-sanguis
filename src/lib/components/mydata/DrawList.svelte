@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { fmtDay } from '../../analysis';
-	import { toTime } from '../../data';
+	import { groupBy, toTime } from '../../data';
 	import type { Draw, Measurement, Profile } from '../../data/types';
 	import { deleteFile, fileKey, openFile, putFile } from '../../files';
 	import { t } from '../../i18n';
@@ -10,10 +10,10 @@
 
 	let { profile }: { profile: Profile } = $props();
 
-	const byDraw = $derived(Map.groupBy(current.built.measurements, (m) => m.drawId));
+	const byDraw = $derived(groupBy(current.built.measurements, (m) => m.drawId));
 
 	/** Newest year first, newest draw first within it */
-	const years = $derived([...Map.groupBy([...profile.draws].reverse(), (d) => d.date.slice(0, 4))]);
+	const years = $derived([...groupBy([...profile.draws].reverse(), (d) => d.date.slice(0, 4))]);
 
 	function summary(ms: Measurement[]) {
 		let high = 0;
@@ -31,11 +31,16 @@
 	async function attach(draw: Draw, input: HTMLInputElement) {
 		const file = input.files?.[0];
 		if (!file) return;
-		const id = draw.report ?? newId('report');
-		profile.reports = [...profile.reports.filter((r) => r.id !== id), { id, lab: draw.lab, issued: draw.date, file: { name: file.name, type: file.type, size: file.size } }];
-		await putFile(fileKey(profile.id, id), file);
-		draw.report = id;
 		input.value = '';
+		const id = draw.report ?? newId('report');
+		try {
+			await putFile(fileKey(profile.id, id), file);
+		} catch {
+			alert(t.io.fileError);
+			return;
+		}
+		profile.reports = [...profile.reports.filter((r) => r.id !== id), { id, lab: draw.lab, issued: draw.date, file: { name: file.name, type: file.type, size: file.size } }];
+		draw.report = id;
 	}
 
 	async function detach(draw: Draw) {

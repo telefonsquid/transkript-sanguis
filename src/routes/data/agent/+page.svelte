@@ -15,7 +15,12 @@
 	let isBackup = $state(false);
 
 	async function copy() {
-		await navigator.clipboard.writeText(agentInstructions());
+		try {
+			await navigator.clipboard.writeText(agentInstructions());
+		} catch {
+			alert(t.agent.copyFailed);
+			return;
+		}
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
 	}

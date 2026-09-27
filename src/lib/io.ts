@@ -3,7 +3,7 @@ import { acceptUnit, analytes, cleanUnit, isIsoDate, parseNum, parseRange, parse
 import type { Analyte, Draw, Profile, Sex } from './data/types';
 import { desktop, saveFile } from './desktop';
 import { fileKey, getFile, putFile } from './files';
-import { rowProblem, type EditRow, type RowProblem } from './rows';
+import { customKey, rowProblem, type EditRow, type RowProblem } from './rows';
 
 export const EXPORT_FORMAT = `${SLUG}/export`;
 export const DRAWS_FORMAT = `${SLUG}/draws`;
@@ -111,18 +111,26 @@ export interface DrawsFile {
 
 export type Identified = { kind: 'export'; file: ExportFile } | { kind: 'draws'; file: DrawsFile } | { kind: 'error'; reason: 'json' | 'format' };
 
+/** Chat replies can put prose with braces before the JSON, so a few opening braces get a try */
+function findJson(text: string): unknown {
+	const end = text.lastIndexOf('}');
+	let start = text.indexOf('{');
+
+	// Capped, a broken large file would otherwise be parsed once per brace
+	for (let tries = 0; tries < 10 && start >= 0 && start < end; tries++) {
+		try {
+			return JSON.parse(text.slice(start, end + 1));
+		} catch {
+			start = text.indexOf('{', start + 1);
+		}
+	}
+	return undefined;
+}
+
 /** Accepts the raw answer of a chat assistant, code fences and chatter around the JSON included */
 export function identify(text: string): Identified {
-	const start = text.indexOf('{');
-	const end = text.lastIndexOf('}');
-	if (start < 0 || end < start) return { kind: 'error', reason: 'json' };
-
-	let data: unknown;
-	try {
-		data = JSON.parse(text.slice(start, end + 1));
-	} catch {
-		return { kind: 'error', reason: 'json' };
-	}
+	const data = findJson(text);
+	if (data === undefined) return { kind: 'error', reason: 'json' };
 	if (!data || typeof data !== 'object') return { kind: 'error', reason: 'format' };
 
 	const obj = data as Record<string, unknown>;
@@ -185,8 +193,7 @@ export interface PreviewDraw {
 	fasting?: boolean;
 	notes: string[];
 	rows: PreviewRow[];
-	/** Id of a draw already stored on the same date */
-	existing?: string;
+	/** Merge joins the first draw on the same date, stored or imported before this one */
 	mode: 'new' | 'merge' | 'skip';
 }
 
@@ -216,7 +223,7 @@ function rangeOf(r: AgentResult): Pick<PreviewRow, 'low' | 'high' | 'rangeNote'>
 export function toPreview(file: DrawsFile, profile: Profile | null, lookup: (id: string) => Analyte | undefined): PreviewDraw[] {
 	return file.draws.map((d, i) => {
 		const date = str(d.date).slice(0, 10);
-		const existing = profile?.draws.find((x) => x.date === date)?.id;
+		const clash = !!date && (profile?.draws.some((x) => x.date === date) || file.draws.slice(0, i).some((x) => str(x.date).slice(0, 10) === date));
 		const rows = (d.results ?? []).map((r, j): PreviewRow => {
 			const given = str(r.analyte);
 			const id = given && lookup(given) ? given : (matchName(given) ?? matchName(r.printed));
@@ -245,18 +252,23 @@ export function toPreview(file: DrawsFile, profile: Profile | null, lookup: (id:
 			fasting: typeof d.fasting === 'boolean' ? d.fasting : undefined,
 			notes: (d.notes ?? []).map(str).filter(Boolean),
 			rows,
-			existing,
-			mode: existing ? 'merge' : 'new'
+			mode: clash ? 'merge' : 'new'
 		};
 	});
 }
+
+/** Name a row kept as a value of the user's own is created under */
+export const customName = (row: PreviewRow) => row.printed || row.analyte || '?';
+
+const sameCustom = (a: PreviewRow, b: PreviewRow) => customKey(customName(a), a.unit) === customKey(customName(b), b.unit);
 
 /** Row checks plus the unit guess that waits for a confirmation */
 export function previewProblem(row: PreviewRow, rows: PreviewRow[], lookup: (id: string) => Analyte | undefined): RowProblem | undefined {
 	if (row.action === 'drop') return undefined;
 	const target = row.action === 'custom' ? 'custom' : row.analyte ? lookup(row.analyte) : undefined;
 	const siblings = rows.filter((r) => r.action === 'import');
-	return rowProblem(row, target, siblings) ?? (row.suggested ? 'confirm' : undefined);
+	const twin = row.action === 'custom' && rows.some((r) => r !== row && r.action === 'custom' && sameCustom(r, row));
+	return rowProblem(row, target, siblings) ?? (twin ? 'duplicate' : undefined) ?? (row.suggested ? 'confirm' : undefined);
 }
 
 export function drawProblem(d: PreviewDraw): 'date' | undefined {

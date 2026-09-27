@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fmtIso } from '../../analysis';
-	import { todayIso } from '../../data';
+	import { isIsoDate, todayIso } from '../../data';
 	import type { Profile } from '../../data/types';
 	import { t } from '../../i18n';
 	import { newId } from '../../profiles.svelte';
@@ -10,6 +10,9 @@
 	let editing: string | null = $state(null);
 
 	const phases = $derived([...profile.phases].sort((a, b) => a.start.localeCompare(b.start)));
+
+	// A start cleared or half typed in the date field counts as not set
+	const first = $derived(phases.find((p) => isIsoDate(p.start)));
 	const baseline = $derived(profile.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt);
 
 	function add() {
@@ -37,7 +40,7 @@
 	<ol class="mt-4 space-y-4 border-l border-line-strong pl-4">
 		<li class="relative">
 			<span class="absolute top-1 -left-[21px] size-2.5 rounded-full border border-line-strong bg-surface"></span>
-			<div class="text-[11px] text-ink-3">{phases.length ? t.data.until(fmtIso(phases[0].start)) : t.data.noPhases}</div>
+			<div class="text-[11px] text-ink-3">{first ? t.data.until(fmtIso(first.start)) : t.data.noPhases}</div>
 			<div class="text-sm text-ink-2">{baseline}</div>
 		</li>
 		{#each phases as p (p.id)}
@@ -68,7 +71,7 @@
 				{:else}
 					<button type="button" onclick={() => (editing = p.id)} class="group block w-full rounded-md text-left" title={t.common.edit}>
 						<div class="num flex items-baseline gap-2 text-[11px] text-ink-3">
-							{p.approx ? '≈ ' : ''}{p.start ? fmtIso(p.start) : t.common.notSet}{p.afterDraw ? ` · ${t.data.afterDrawShort}` : ''}
+							{p.approx ? '≈ ' : ''}{isIsoDate(p.start) ? fmtIso(p.start) : t.common.notSet}{p.afterDraw ? ` · ${t.data.afterDrawShort}` : ''}
 							<span class="ml-auto opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100">{t.common.edit}</span>
 						</div>
 						<div class={['text-sm', p.label ? 'font-medium text-ink' : 'text-ink-3']}>{p.label || t.data.phaseUnnamed}</div>

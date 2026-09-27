@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { scaleUtc } from 'd3-scale';
 	import { fmtDate, fmtMonth, phaseName } from '../analysis';
-	import { DAY, toTime } from '../data';
+	import { DAY, groupBy, toTime } from '../data';
 	import { t } from '../i18n';
 	import { current } from '../profiles.svelte';
 	import { hover } from '../chart/hover.svelte';
@@ -22,7 +22,7 @@
 	const x = $derived(scaleUtc().domain([t0, t1]).range([m.left, Math.max(m.left + 1, width - m.right)]));
 	const ticks = $derived(x.ticks(Math.max(2, Math.floor(width / 90))));
 
-	const counts = $derived(Map.groupBy(current.built.measurements, (mm) => mm.drawId));
+	const counts = $derived(groupBy(current.built.measurements, (mm) => mm.drawId));
 	const drawList = $derived(draws.map((d) => ({ ...d, lab: d.lab?.trim() ?? '', t: toTime(d.date, d.time), n: counts.get(d.id)?.length ?? 0 })));
 
 

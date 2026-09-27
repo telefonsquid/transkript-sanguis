@@ -1,6 +1,6 @@
 import { analyteById } from './catalogue';
 import * as f from './formulas';
-import { ageAt, parseValue, toTime } from './parse';
+import { ageAt, isIsoDate, parseValue, toTime } from './parse';
 import type { Analyte, CustomAnalyte, Draw, Input, Measurement, Phase, Profile, Range, Sex, Text } from './types';
 import { unitFactor } from './units';
 
@@ -9,7 +9,7 @@ export interface Issue {
 	date: string;
 	analyte: string;
 	value: string;
-	kind: 'value' | 'unit' | 'analyte';
+	kind: 'value' | 'unit' | 'analyte' | 'duplicate';
 	detail?: string;
 }
 
@@ -45,8 +45,9 @@ export function customToAnalyte(c: CustomAnalyte, what: Text): Analyte {
 	};
 }
 
+/** A phase without a valid start stays in the profile but covers no draws */
 export function resolvePhases(profile: Profile): ResolvedPhase[] {
-	const sorted = [...profile.phases].sort((a, b) => a.start.localeCompare(b.start));
+	const sorted = profile.phases.filter((p) => isIsoDate(p.start)).sort((a, b) => a.start.localeCompare(b.start));
 	return [{ id: BASELINE, label: '', start: '', implicit: true }, ...sorted];
 }
 
@@ -102,6 +103,10 @@ export function buildProfile(profile: Profile | null, lookup: (id: string) => An
 				issue('analyte');
 				continue;
 			}
+			if (values.has(a.id)) {
+				issue('duplicate');
+				continue;
+			}
 			const parsed = parseValue(res.value);
 			if (!parsed) {
 				issue('value');
@@ -134,7 +139,9 @@ export function buildProfile(profile: Profile | null, lookup: (id: string) => An
 			});
 		}
 
+		// A value the lab printed wins over the computed one
 		derive(draw, profile, sexes, values, (analyte, value, inputs, censor) => {
+			if (values.has(analyte)) return;
 			const a = analyteById.get(analyte)!;
 			out.push({ ...base, analyte, value, censor, raw: round(value, a.decimals), derived: a.derived, inputs });
 		});
@@ -172,19 +179,19 @@ function derive(draw: Draw, profile: Profile, sexes: Sex[], v: Map<string, Parse
 	const chol = exact('cholesterol');
 	const hdl = exact('hdl');
 	const ldl = exact('ldl');
-	if (chol !== undefined && hdl !== undefined && !v.has('non-hdl')) emit('non-hdl', f.nonHdl(chol, hdl), [input('cholesterol'), input('hdl')]);
-	if (ldl !== undefined && hdl !== undefined && hdl > 0 && !v.has('ldl-hdl')) emit('ldl-hdl', f.ldlHdl(ldl, hdl), [input('ldl'), input('hdl')]);
+	if (chol !== undefined && hdl !== undefined) emit('non-hdl', f.nonHdl(chol, hdl), [input('cholesterol'), input('hdl')]);
+	if (ldl !== undefined && hdl !== undefined && hdl > 0) emit('ldl-hdl', f.ldlHdl(ldl, hdl), [input('ldl'), input('hdl')]);
 
 	// A testosterone below the detection limit still gives an upper bound for both indices
 	const tt = v.get('testosterone');
 	const shbg = exact('shbg');
 	if (tt && tt.censor !== '>' && shbg !== undefined && shbg > 0) {
 		const censor = tt.censor;
-		if (!v.has('fai')) emit('fai', f.fai(tt.value, shbg), [input('testosterone'), input('shbg')], censor);
+		emit('fai', f.fai(tt.value, shbg), [input('testosterone'), input('shbg')], censor);
 
 		const alb = exact('albumin');
 		const albumin: Input = alb !== undefined ? input('albumin') : { of: 'albumin', value: f.ASSUMED_ALBUMIN, assumed: true };
-		if (!v.has('free-t-calc')) emit('free-t-calc', f.freeTestosterone(tt.value, shbg, albumin.value), [input('testosterone'), input('shbg'), albumin], censor);
+		emit('free-t-calc', f.freeTestosterone(tt.value, shbg, albumin.value), [input('testosterone'), input('shbg'), albumin], censor);
 	}
 
 	const glucose = exact('glucose');
@@ -195,7 +202,7 @@ function derive(draw: Draw, profile: Profile, sexes: Sex[], v: Map<string, Parse
 
 	const iron = exact('iron');
 	const trf = exact('transferrin');
-	if (iron !== undefined && trf !== undefined && trf > 0 && !v.has('tsat')) emit('tsat', f.tsat(iron, trf), [input('iron'), input('transferrin')]);
+	if (iron !== undefined && trf !== undefined && trf > 0) emit('tsat', f.tsat(iron, trf), [input('iron'), input('transferrin')]);
 
 	const weight = exact('weight');
 	if (weight !== undefined && profile.height) emit('bmi', f.bmi(weight, profile.height), [input('weight'), { of: 'height', value: profile.height }]);

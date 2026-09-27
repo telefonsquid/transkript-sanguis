@@ -29,7 +29,7 @@
 <footer class="flex flex-wrap items-center gap-x-3 border-t border-line bg-surface px-4 py-1 text-[11px] text-ink-3">
 	<span>{t.disclaimer.footer}</span>
 	<a href={resolve('/about')} class={link}>{t.nav.about}</a>
-	<a href={resolve('/about')} class={link}>{t.nav.sources}</a>
+	<a href="{resolve('/about')}#sources" class={link}>{t.nav.sources}</a>
 	<a href={resolve('/changelog')} class={link}>{t.nav.changelog}</a>
 	<a href={REPO_URL} target="_blank" rel="noreferrer" class={link}>{t.nav.code}</a>
 	<!-- Each build points at the other one -->

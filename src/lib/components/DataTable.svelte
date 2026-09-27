@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { SLUG } from '../app';
 	import { boundsLabel, convert, fmtBounds, fmtDate, fmtInputs, fmtLabRef, fmtNum, fmtValue, monthsOnHrt, unitOf } from '../analysis';
-	import { groupById } from '../data';
+	import { groupById, groupOrder } from '../data';
 	import type { Measurement } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { flip } from '../motion.svelte';
@@ -28,14 +28,15 @@
 			});
 
 		const rank = { low: 0, high: 1, in: 2, none: 3 };
+		const phaseAt = (id: string) => current.built.phases.findIndex((p) => p.id === id);
 		const cmp: Record<Key, (x: (typeof list)[0], y: (typeof list)[0]) => number> = {
 			date: (x, y) => x.m.t - y.m.t || nameOf(x.a).localeCompare(nameOf(y.a)),
 			analyte: (x, y) => nameOf(x.a).localeCompare(nameOf(y.a)) || x.m.t - y.m.t,
-			group: (x, y) => x.a.group.localeCompare(y.a.group) || nameOf(x.a).localeCompare(nameOf(y.a)),
+			group: (x, y) => groupOrder(x.a.group) - groupOrder(y.a.group) || nameOf(x.a).localeCompare(nameOf(y.a)),
 			value: (x, y) => x.m.value - y.m.value,
 			status: (x, y) => rank[x.status] - rank[y.status],
 			lab: (x, y) => x.m.lab.localeCompare(y.m.lab) || x.m.t - y.m.t,
-			phase: (x, y) => x.m.phase.localeCompare(y.m.phase) || x.m.t - y.m.t
+			phase: (x, y) => phaseAt(x.m.phase) - phaseAt(y.m.phase) || x.m.t - y.m.t
 		};
 		const sorted = list.sort(cmp[sortKey]);
 		return desc ? sorted.reverse() : sorted;
@@ -143,7 +144,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each rows as { m, a, b, status }, i (m.analyte + m.drawId)}
+				{#each rows as { m, a, b, status }, i (`${m.drawId}/${m.analyte}`)}
 					<tr class="rise-row border-b border-line align-top last:border-0 hover:bg-hover" style:--i={i} animate:flip={{ duration: rows.length > 400 ? 0 : 320 }}>
 						<td class="py-1.5 pr-2.5 pl-3 whitespace-nowrap text-ink">{fmtDate(m.t)}</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-3">{hrtCell(m.t)}</td>

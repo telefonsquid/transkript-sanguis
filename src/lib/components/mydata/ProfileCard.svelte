@@ -4,7 +4,7 @@
 	import type { Profile } from '../../data/types';
 	import { t } from '../../i18n';
 	import { slide } from '../../motion.svelte';
-	import { current, db, deleteProfile, resetDemo, type NewProfile } from '../../profiles.svelte';
+	import { current, deleteProfile, resetDemo, type NewProfile } from '../../profiles.svelte';
 	import Avatar from '../../ui/Avatar.svelte';
 	import DemoBadge from '../DemoBadge.svelte';
 	import ProfileForm from '../ProfileForm.svelte';
@@ -21,7 +21,7 @@
 		const [first, last] = [fmtMonth(toTime(d[0].date)), fmtMonth(toTime(d.at(-1)!.date))];
 		return first === last ? first : `${first} – ${last}`;
 	});
-	const storageKb = $derived(Math.round(JSON.stringify(db).length / 1024));
+	const storageKb = $derived(Math.round(JSON.stringify(profile).length / 1024));
 
 	const facts = $derived<{ label: string; value?: string | number; hint?: string; tint?: string }[]>([
 		...(profile.therapy === 'none' ? [] : [{ label: t.profile.therapy, value: t.profile.therapies[profile.therapy], tint: TINT[profile.therapy] }]),

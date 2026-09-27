@@ -10,8 +10,8 @@
 	import { fileKey, putFile } from '#lib/files.js';
 	import { t } from '#lib/i18n/index.js';
 	import { slide } from '#lib/motion.svelte.js';
-	import { addCustom, current, deleteDraw, newId, saveDraw } from '#lib/profiles.svelte.js';
-	import { fromResult, rowProblem, toResult, type EditRow } from '#lib/rows.js';
+	import { addCustom, current, deleteDraw, findCustom, newId, saveDraw } from '#lib/profiles.svelte.js';
+	import { customKey, fromResult, rowProblem, toResult, type EditRow } from '#lib/rows.js';
 
 	interface Row extends EditRow {
 		/** Name of a value that does not exist yet, created on save */
@@ -61,10 +61,19 @@
 
 	const filled = $derived(rows.filter((r) => r.analyte || r.custom || r.value.trim()));
 
+	/** A new value of the user's own matches a stored one by name and unit */
+	function identity(row: Row): string | null {
+		if (!row.custom) return row.analyte;
+		return (profile && findCustom(profile, row.custom, row.unit)?.id) || customKey(row.custom, row.unit);
+	}
+
 	/** A value of the user's own needs a unit here, unlike one read from a report */
 	function problem(row: Row): string | undefined {
 		const target = row.custom ? 'custom' : row.analyte ? current.lookup(row.analyte) : undefined;
-		const p = rowProblem(row, target, filled) ?? (row.custom && !row.unit.trim() ? 'unit' : undefined);
+		const p =
+			rowProblem(row, target, filled) ??
+			(row.custom && !row.unit.trim() ? 'unit' : undefined) ??
+			(filled.some((r) => r !== row && identity(r) === identity(row)) ? 'duplicate' : undefined);
 		return p && t.manual.errors[p];
 	}
 
@@ -94,9 +103,15 @@
 		let report = editing?.report;
 		if (file) {
 			report ??= newId('report');
+			try {
+				await putFile(fileKey(profile.id, report), file);
+			} catch {
+				alert(t.io.fileError);
+				saving = false;
+				return;
+			}
 			const meta = { id: report, lab: lab.trim() || undefined, issued: date, file: { name: file.name, type: file.type, size: file.size } };
 			profile.reports = [...profile.reports.filter((r) => r.id !== report), meta];
-			await putFile(fileKey(profile.id, report), file);
 		}
 
 		const results: Result[] = filled.map((row) => {
@@ -114,7 +129,7 @@
 		if (report) draw.report = report;
 
 		saveDraw(profile, draw);
-		goto(resolve('/'));
+		goto(resolve('/data'));
 	}
 
 	function remove() {

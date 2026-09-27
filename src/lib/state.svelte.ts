@@ -1,8 +1,8 @@
 import { SLUG } from './app';
 import { KIND_ORDER, boundsFor, isoDate, statusOf, type Basis, type Bounds, type Kind, type Status, type Units } from './analysis';
 import type { XMode } from './chart/types';
-import { DAY, groupOrder, toTime } from './data';
-import type { Analyte, GroupId, Measurement } from './data/types';
+import { DAY, groupBy, groupOrder, toTime } from './data';
+import type { Analyte, GroupId, Measurement, Phase } from './data/types';
 import { nameOf } from './i18n';
 import { current } from './profiles.svelte';
 
@@ -54,15 +54,19 @@ export type Settings = typeof defaults;
 
 const KEY = `${SLUG}:settings:v1`;
 
-const NULLABLE = new Set<keyof Settings>(['from', 'to', 'selection', 'preset']);
+/** Settings that start empty, with the kind of value they hold once set */
+const NULLABLE: Partial<Record<keyof Settings, string>> = { from: 'string', to: 'string', preset: 'string', selection: 'array' };
 
+const shape = (v: unknown) => (v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v);
+
+/** A stored value of the wrong kind falls back to its default */
 function load(): Settings {
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
 		const merged = structuredClone(defaults);
 		for (const key of Object.keys(defaults) as (keyof Settings)[]) {
 			const value = saved[key];
-			const fits = typeof value === typeof defaults[key] || (NULLABLE.has(key) && (value === null || typeof value === 'string' || Array.isArray(value)));
+			const fits = shape(value) === shape(defaults[key]) || (key in NULLABLE && (value === null || shape(value) === NULLABLE[key]));
 			if (key in saved && fits) (merged as Record<string, unknown>)[key] = value;
 		}
 		return merged;
@@ -90,15 +94,19 @@ export function resetProfileFilters() {
 	Object.assign(settings, { datePreset: 'all', from: null, to: null, hiddenLabs: [], hiddenPhases: [] });
 }
 
+/** A change after the draw on its start day covers draws from the next day on */
+const firstDay = (p: Phase) => (p.afterDraw ? isoDate(toTime(p.start) + DAY) : p.start);
+
 export function applyDatePreset(preset: DatePreset) {
 	settings.datePreset = preset;
-	const start = current.built.hrtStart ?? null;
 	const phases = current.built.phases.filter((p) => !p.implicit);
+	const start = current.built.hrtStart && phases.length ? firstDay(phases[0]) : null;
+	const latest = phases.at(-1);
 	const ranges: Record<Exclude<DatePreset, 'custom'>, [string | null, string | null]> = {
 		all: [null, null],
-		pre: [null, start],
+		pre: [null, start && isoDate(toTime(start) - DAY)],
 		hrt: [start, null],
-		latest: [phases.at(-1)?.start ?? null, null],
+		latest: [latest ? firstDay(latest) : null, null],
 		year: [isoDate(Date.now() - 365 * DAY), isoDate(Date.now())]
 	};
 	if (preset !== 'custom') [settings.from, settings.to] = ranges[preset];
@@ -153,7 +161,7 @@ class Filtered {
 		);
 	});
 
-	byAnalyte = $derived(Map.groupBy(this.measurements, (m) => m.analyte));
+	byAnalyte = $derived(groupBy(this.measurements, (m) => m.analyte));
 
 	/** Every blood draw left after filtering, used for the evenly spaced x axis */
 	drawTimes = $derived([...new Set(this.measurements.map((m) => m.t))].sort((a, b) => a - b));

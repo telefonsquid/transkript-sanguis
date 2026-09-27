@@ -55,7 +55,7 @@
 							<li>
 								<a href={resolve('/analyte/[id]', { id: a.id })} class="text-ink hover:underline">{nameOf(a)}</a>
 								{#if altNameOf(a)}<span class="text-ink-3">· {altNameOf(a)}</span>{/if}
-								<span class="text-ink-3">· {a.refs.length}</span>
+								<span class="text-ink-3">· {t.about.ranges(a.refs.length)}</span>
 							</li>
 						{/each}
 					</ul>
@@ -74,7 +74,7 @@
 		</div>
 	</section>
 
-	<section>
+	<section id="sources" class="scroll-mt-4">
 		<h2 class="mb-2 text-base font-semibold">{t.about.literature}</h2>
 		<ul class="space-y-1.5 text-xs">
 			{#each sources as s (s.id)}

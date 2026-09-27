@@ -23,12 +23,14 @@ function open(): Promise<IDBDatabase> {
 	return opening;
 }
 
+/** A write only counts once its transaction is committed, a full disk can still abort it after the request */
 async function run<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
 	const db = await open();
 	return new Promise((resolve, reject) => {
-		const req = fn(db.transaction(STORE, mode).objectStore(STORE));
-		req.onsuccess = () => resolve(req.result);
-		req.onerror = () => reject(req.error);
+		const tx = db.transaction(STORE, mode);
+		const req = fn(tx.objectStore(STORE));
+		tx.oncomplete = () => resolve(req.result);
+		tx.onerror = tx.onabort = () => reject(tx.error ?? req.error);
 	});
 }
 

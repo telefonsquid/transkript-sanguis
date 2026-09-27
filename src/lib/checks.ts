@@ -1,4 +1,4 @@
-import { ageAt, printedDecimals } from './data';
+import { ageAt, groupBy, printedDecimals } from './data';
 import * as f from './data/formulas';
 import type { Measurement, Profile } from './data/types';
 
@@ -22,7 +22,7 @@ export interface Check {
 export function runChecks(profile: Profile | null, measurements: Measurement[]): Check[] {
 	if (!profile) return [];
 	const out: Check[] = [];
-	const byDraw = Map.groupBy(
+	const byDraw = groupBy(
 		measurements.filter((m) => !m.derived && !m.censor),
 		(m) => m.drawId
 	);

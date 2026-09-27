@@ -74,7 +74,7 @@ export const en = {
 		languageSecond: 'Value names also in',
 		languageSecondHint: 'Shows every lab value under a second name too, handy when your reports use another language.',
 		languageNone: 'No second language',
-		summary: (draws: number, values: number, span: string) => `${plural(draws, 'draw', 'draws')} · ${plural(values, 'value', 'values')} · ${span}`,
+		summary: (draws: number, values: number, span: string) => `${plural(draws, 'draw', 'draws')} · ${plural(values, 'result', 'results')} · ${span}`,
 		storageError: desktop
 			? 'The app could not save. Your latest changes may be lost when you close it. Export a backup under My data.'
 			: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.',
@@ -82,7 +82,7 @@ export const en = {
 		desktopApp: 'Desktop app',
 		webVersion: 'Web version',
 		updates: 'Check for updates',
-		updatesHint: 'Asks GitHub every few hours whether a newer version is out. None of your data goes with it.',
+		updatesHint: 'Asks GitHub for the latest version when the app starts, at most every six hours. None of your data goes with it.',
 		update: (version: string) => `Version ${version} is out`,
 		minimize: 'Minimize',
 		maximize: 'Maximize',
@@ -185,7 +185,7 @@ export const en = {
 	},
 	ingest: {
 		title: 'Add results',
-		intro: `Three ways to get a lab report in. All of them end ${here.in} only.`,
+		intro: `Three ways to get a lab report in. Whichever you pick, the results are stored ${here.in} only.`,
 		manualTitle: 'By hand',
 		manualShort: 'Manually type in values.',
 		agentTitle: 'With AI',
@@ -266,6 +266,7 @@ export const en = {
 		step1Body: 'They explain the format and list every value the app knows, with its id and unit. They stay the same for every report.',
 		copyPrompt: 'Copy instructions',
 		downloadPrompt: 'Download as Markdown',
+		copyFailed: 'The instructions could not be copied. Download them as Markdown instead.',
 		downloadSchema: 'JSON schema',
 		step2: 'Give them to your assistant with the PDFs',
 		step2Body: 'Paste the instructions into a new chat, attach one or more lab reports and send. Scanned reports work too if the assistant can read images.',
@@ -315,13 +316,15 @@ export const en = {
 		importNow: 'Import',
 		importedOk: 'Import finished',
 		readError: 'The file could not be read.',
+		fileError: 'The PDF could not be stored, there may be too little space left.',
+		filesError: 'Some PDFs could not be stored and stay missing, there may be too little space left.',
 		lastExport: (d: string) => `Last export: ${d}`,
 		neverExported: 'Never exported'
 	},
 	data: {
 		title: 'My data',
 		draws: 'Blood draws',
-		values: (n: number) => plural(n, 'value', 'values'),
+		values: (n: number) => plural(n, 'result', 'results'),
 		attachPdf: 'Attach PDF',
 		removePdf: 'Remove PDF',
 		removePdfConfirm: `Remove the attached PDF ${here.from}?`,
@@ -341,7 +344,7 @@ export const en = {
 		baseline: { hrt: 'Before HRT', none: 'Baseline' },
 		issuesCount: (n: number) => plural(n, 'value could not be read', 'values could not be read'),
 		issuesIntro: 'These results are stored but not charted. Edit the draw to fix them.',
-		issueKind: { value: 'not a number', unit: 'unknown unit', analyte: 'unknown value' },
+		issueKind: { value: 'not a number', unit: 'unknown unit', analyte: 'unknown value', duplicate: 'listed twice in this draw' },
 		checks: 'Consistency checks',
 		checksIntro: 'Recomputed from your own values. A mismatch usually means a typo or a unit mix-up.',
 		checkOk: 'matches',
@@ -487,7 +490,7 @@ export const en = {
 		judged: 'judged against',
 		noRef: 'no reference',
 		derivedBadge: 'computed',
-		values: (n: number) => plural(n, 'value', 'values')
+		values: (n: number) => plural(n, 'result', 'results')
 	},
 	focus: {
 		back: 'Overview',
@@ -506,10 +509,10 @@ export const en = {
 		},
 		vs: (date: string) => `vs ${date}`,
 		change: 'Change since the previous value',
-		hidden: (n: number) => `${plural(n, 'more value', 'more values')} hidden by the current filters.`,
+		hidden: (n: number) => `${plural(n, 'more result', 'more results')} hidden by the current filters.`,
 		legend: {
 			measured: '● measured',
-			censored: '▽ below reporting limit',
+			censored: '▽ △ beyond a reporting limit',
 			derived: '◇ computed',
 			suspect: '◌ suspect',
 			outside: (basis: string) => `outside: ${basis}`,
@@ -518,7 +521,7 @@ export const en = {
 		references: 'Reference points',
 		referencesHint: 'click a row or a rail beside the chart to show it',
 		printedByLab: 'Printed by the lab',
-		printedByLabNote: (unit: string) => `Converted to ${unit}. Stored per value, because labs switch between ranges over time.`,
+		printedByLabNote: (unit: string) => `As printed, the chart shows them in ${unit}. Stored per value, because labs switch between ranges over time.`,
 		onChart: 'On chart',
 		showOnChart: (name: string) => `Show ${name} on the chart`,
 		showLabOnChart: "Show the lab's printed range on the chart",
@@ -557,7 +560,7 @@ export const en = {
 		disclaimer: 'General background, not medical advice. Interpretation belongs with the treating doctor.',
 		stats: {
 			title: 'Statistics',
-			n: 'Values',
+			n: 'Results',
 			first: 'First',
 			min: 'Minimum',
 			max: 'Maximum',
@@ -584,7 +587,7 @@ export const en = {
 		scale: 'Scale',
 		modes: { range: '% of reference range', index: 'Index, first = 100', z: 'z-score' },
 		modeText: {
-			range: (basis: string) => `Position inside the reference range (${basis}): 0 % = lower limit, 100 % = upper limit. One sided limits count 0 as the missing lower bound.`,
+			range: (basis: string) => `Position inside the reference range (${basis}): 0 % = lower limit, 100 % = upper limit. A missing lower limit counts as 0, a missing upper limit as twice the lower one.`,
 			index: 'Each series relative to its first value in the current date range (= 100).',
 			z: 'Standard deviations from each series’ own mean. Shows shape, hides magnitude.'
 		},
@@ -612,7 +615,7 @@ export const en = {
 		suspect: 'Suspect'
 	},
 	table: {
-		summary: (rows: number, analytes: number, si: boolean) => `${plural(rows, 'value', 'values')} · ${plural(analytes, 'analyte', 'analytes')} · units: ${si ? 'SI' : 'conventional'}`,
+		summary: (rows: number, analytes: number, si: boolean) => `${plural(rows, 'result', 'results')} · ${plural(analytes, 'value', 'values')} · units: ${si ? 'SI' : 'conventional'}`,
 		exportCsv: 'Export CSV',
 		exportJson: 'Export JSON',
 		cols: {
@@ -658,6 +661,7 @@ export const en = {
 		how: 'Every value can carry several reference contexts: the range your lab printed, HRT targets from guidelines, ranges measured in trans people on stable HRT, clinical cutoffs, and cis female and cis male ranges from assay manufacturers or large labs. "Best fit" picks the one that suits the active profile, and every choice can be changed.',
 		catalogue: 'Catalogue',
 		catalogueIntro: (n: number) => `${n} values with explanations and references in English and German.`,
+		ranges: (n: number) => plural(n, 'range', 'ranges'),
 		literature: 'Literature and method sheets',
 		conversions: 'Unit conversions',
 		privacyTitle: 'Privacy',

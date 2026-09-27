@@ -75,7 +75,7 @@ export const de: Dict = {
 		languageSecond: 'Wertnamen zusätzlich auf',
 		languageSecondHint: 'Zeigt jeden Laborwert zusätzlich unter einem zweiten Namen, praktisch wenn deine Befunde eine andere Sprache nutzen.',
 		languageNone: 'Keine zweite Sprache',
-		summary: (draws: number, values: number, span: string) => `${plural(draws, 'Abnahme', 'Abnahmen')} · ${plural(values, 'Wert', 'Werte')} · ${span}`,
+		summary: (draws: number, values: number, span: string) => `${plural(draws, 'Abnahme', 'Abnahmen')} · ${plural(values, 'Ergebnis', 'Ergebnisse')} · ${span}`,
 		storageError: desktop
 			? 'Die App konnte nicht speichern. Deine letzten Änderungen gehen beim Schließen womöglich verloren. Exportiere eine Sicherung unter Meine Daten.'
 			: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.',
@@ -83,7 +83,7 @@ export const de: Dict = {
 		desktopApp: 'Desktop-App',
 		webVersion: 'Webversion',
 		updates: 'Nach Updates suchen',
-		updatesHint: 'Fragt alle paar Stunden bei GitHub, ob eine neuere Version da ist. Deine Daten gehen dabei nicht mit.',
+		updatesHint: 'Fragt beim Start bei GitHub nach der neuesten Version, höchstens alle sechs Stunden. Deine Daten gehen dabei nicht mit.',
 		update: (version: string) => `Version ${version} ist da`,
 		minimize: 'Minimieren',
 		maximize: 'Maximieren',
@@ -186,7 +186,7 @@ export const de: Dict = {
 	},
 	ingest: {
 		title: 'Werte hinzufügen',
-		intro: `Drei Wege, einen Laborbefund hineinzubekommen. Alle enden ausschließlich ${here.in}.`,
+		intro: `Drei Wege, einen Laborbefund hineinzubekommen. Bei jedem landen die Ergebnisse nur ${here.in}.`,
 		manualTitle: 'Von Hand',
 		manualShort: 'Werte selbst eintippen.',
 		agentTitle: 'Mit KI',
@@ -267,6 +267,7 @@ export const de: Dict = {
 		step1Body: 'Sie erklärt das Format und listet jeden Wert, den die App kennt, mit Kennung und Einheit. Sie bleibt für jeden Befund gleich.',
 		copyPrompt: 'Anleitung kopieren',
 		downloadPrompt: 'Als Markdown herunterladen',
+		copyFailed: 'Die Anleitung konnte nicht kopiert werden. Lade sie stattdessen als Markdown herunter.',
 		downloadSchema: 'JSON-Schema',
 		step2: 'Mit den PDFs an deinen Assistenten geben',
 		step2Body: 'Füge die Anleitung in einen neuen Chat ein, hänge einen oder mehrere Befunde an und schicke ab. Gescannte Befunde gehen auch, wenn der Assistent Bilder lesen kann.',
@@ -316,13 +317,15 @@ export const de: Dict = {
 		importNow: 'Importieren',
 		importedOk: 'Import abgeschlossen',
 		readError: 'Die Datei konnte nicht gelesen werden.',
+		fileError: 'Das PDF konnte nicht gespeichert werden, vielleicht ist zu wenig Speicher frei.',
+		filesError: 'Einige PDFs konnten nicht gespeichert werden und fehlen, vielleicht ist zu wenig Speicher frei.',
 		lastExport: (d: string) => `Letzter Export: ${d}`,
 		neverExported: 'Noch nie exportiert'
 	},
 	data: {
 		title: 'Meine Daten',
 		draws: 'Blutabnahmen',
-		values: (n: number) => plural(n, 'Wert', 'Werte'),
+		values: (n: number) => plural(n, 'Ergebnis', 'Ergebnisse'),
 		attachPdf: 'PDF anhängen',
 		removePdf: 'PDF entfernen',
 		removePdfConfirm: `Das angehängte PDF ${here.from} entfernen?`,
@@ -342,7 +345,7 @@ export const de: Dict = {
 		baseline: { hrt: 'Vor HRT', none: 'Ausgangswerte' },
 		issuesCount: (n: number) => (n === 1 ? '1 Wert konnte nicht gelesen werden' : `${n} Werte konnten nicht gelesen werden`),
 		issuesIntro: 'Diese Werte sind gespeichert, erscheinen aber nicht in den Diagrammen. Bearbeite die Abnahme, um sie zu korrigieren.',
-		issueKind: { value: 'keine Zahl', unit: 'unbekannte Einheit', analyte: 'unbekannter Wert' },
+		issueKind: { value: 'keine Zahl', unit: 'unbekannte Einheit', analyte: 'unbekannter Wert', duplicate: 'doppelt in dieser Abnahme' },
 		checks: 'Plausibilitätsprüfungen',
 		checksIntro: 'Aus deinen eigenen Werten nachgerechnet. Eine Abweichung bedeutet meist einen Tippfehler oder eine Verwechslung der Einheit.',
 		checkOk: 'stimmt',
@@ -440,7 +443,7 @@ export const de: Dict = {
 		primary: 'Beste Wahl',
 		lab: 'Laborbereich (wie gedruckt)',
 		target: 'HRT-Ziel',
-		trans: 'Trans Kohorte unter HRT',
+		trans: 'Trans-Kohorte unter HRT',
 		female: 'Cis Frauen',
 		male: 'Cis Männer',
 		adult: 'Erwachsene',
@@ -450,7 +453,7 @@ export const de: Dict = {
 		lab: 'Laborbereich',
 		target: 'HRT-Ziel',
 		context: 'HRT-Kontext',
-		trans: 'Trans Kohorte unter HRT',
+		trans: 'Trans-Kohorte unter HRT',
 		clinical: 'Klinischer Grenzwert',
 		adult: 'Erwachsene',
 		female: 'Cis Frauen',
@@ -462,7 +465,7 @@ export const de: Dict = {
 		searchHint: 'Suchen…',
 		presets: 'Sammlungen',
 		onlyOut: 'Nur Werte mit Ergebnissen außerhalb des Bereichs',
-		onlyOutTitle: 'Mindestens ein Ergebnis im gewählten Zeitraum liegt über oder unter dem Bereich, an dem es gemessen wird',
+		onlyOutTitle: 'Mindestens ein Ergebnis im gewählten Zeitraum liegt über oder unter dem Bereich, nach dem es beurteilt wird',
 		minPoints: 'Mindestanzahl Ergebnisse pro Wert',
 		groups: 'Gruppen',
 		only: 'nur',
@@ -482,13 +485,13 @@ export const de: Dict = {
 	grid: {
 		empty: 'Keine Werte passen zu den aktuellen Filtern.',
 		clearFilters: 'Filter zurücksetzen',
-		noData: 'In diesem Profil gibt es noch keine Werte.',
+		noData: 'In diesem Profil gibt es noch keine Ergebnisse.',
 		addFirst: 'Erste Werte hinzufügen',
 		last: 'zuletzt',
 		judged: 'beurteilt nach',
 		noRef: 'ohne Referenz',
 		derivedBadge: 'berechnet',
-		values: (n: number) => plural(n, 'Wert', 'Werte')
+		values: (n: number) => plural(n, 'Ergebnis', 'Ergebnisse')
 	},
 	focus: {
 		back: 'Übersicht',
@@ -507,10 +510,10 @@ export const de: Dict = {
 		},
 		vs: (date: string) => `ggü. ${date}`,
 		change: 'Veränderung zum vorigen Wert',
-		hidden: (n: number) => (n === 1 ? '1 weiterer Wert durch die aktuellen Filter ausgeblendet.' : `${n} weitere Werte durch die aktuellen Filter ausgeblendet.`),
+		hidden: (n: number) => (n === 1 ? '1 weiteres Ergebnis durch die aktuellen Filter ausgeblendet.' : `${n} weitere Ergebnisse durch die aktuellen Filter ausgeblendet.`),
 		legend: {
 			measured: '● gemessen',
-			censored: '▽ unter der Nachweisgrenze',
+			censored: '▽ △ jenseits einer Messgrenze',
 			derived: '◇ berechnet',
 			suspect: '◌ verdächtig',
 			outside: (basis: string) => `außerhalb: ${basis}`,
@@ -519,7 +522,7 @@ export const de: Dict = {
 		references: 'Referenzpunkte',
 		referencesHint: 'Zeile oder Leiste neben dem Diagramm anklicken, um sie zu zeigen',
 		printedByLab: 'Vom Labor angegeben',
-		printedByLabNote: (unit: string) => `Umgerechnet in ${unit}. Pro Wert gespeichert, weil Labore ihre Bereiche mit der Zeit wechseln.`,
+		printedByLabNote: (unit: string) => `Wie gedruckt, das Diagramm zeigt sie in ${unit}. Pro Wert gespeichert, weil Labore ihre Bereiche mit der Zeit wechseln.`,
 		onChart: 'Im Diagramm',
 		showOnChart: (name: string) => `${name} im Diagramm zeigen`,
 		showLabOnChart: 'Vom Labor angegebenen Bereich im Diagramm zeigen',
@@ -558,7 +561,7 @@ export const de: Dict = {
 		disclaimer: 'Allgemeiner Hintergrund, keine medizinische Beratung. Die Bewertung gehört zur behandelnden Ärztin oder zum behandelnden Arzt.',
 		stats: {
 			title: 'Statistik',
-			n: 'Werte',
+			n: 'Ergebnisse',
 			first: 'Erster',
 			min: 'Minimum',
 			max: 'Maximum',
@@ -585,7 +588,7 @@ export const de: Dict = {
 		scale: 'Skala',
 		modes: { range: '% des Referenzbereichs', index: 'Index, erster = 100', z: 'z-Wert' },
 		modeText: {
-			range: (basis: string) => `Lage im Referenzbereich (${basis}): 0 % = Untergrenze, 100 % = Obergrenze. Bei einseitigen Grenzen zählt 0 als fehlende Untergrenze.`,
+			range: (basis: string) => `Lage im Referenzbereich (${basis}): 0 % = Untergrenze, 100 % = Obergrenze. Eine fehlende Untergrenze zählt als 0, eine fehlende Obergrenze als das Doppelte der Untergrenze.`,
 			index: 'Jede Reihe relativ zu ihrem ersten Wert im gewählten Zeitraum (= 100).',
 			z: 'Standardabweichungen vom eigenen Mittelwert jeder Reihe. Zeigt die Form, verbirgt die Größe.'
 		},
@@ -630,7 +633,7 @@ export const de: Dict = {
 			phase: 'Phase',
 			notes: 'Hinweise'
 		},
-		limit: 'Nachweisgrenze'
+		limit: 'Messgrenze'
 	},
 	customInfo: 'Ein selbst angelegter Wert. Er trägt nur den Bereich, den dein Labor angegeben hat.',
 	chart: {
@@ -659,6 +662,7 @@ export const de: Dict = {
 		how: 'Jeder Wert kann mehrere Referenzen tragen: den Bereich deines Labors, HRT-Ziele aus Leitlinien, Bereiche von trans Menschen unter stabiler HRT, klinische Grenzwerte sowie cis weibliche und cis männliche Bereiche von Testherstellern oder großen Laboren. „Beste Wahl“ nimmt die passende für das aktive Profil, jede Auswahl lässt sich ändern.',
 		catalogue: 'Katalog',
 		catalogueIntro: (n: number) => `${n} Werte mit Erklärungen und Referenzen auf Deutsch und Englisch.`,
+		ranges: (n: number) => plural(n, 'Bereich', 'Bereiche'),
 		literature: 'Literatur und Methodenblätter',
 		conversions: 'Einheiten umrechnen',
 		privacyTitle: 'Datenschutz',
@@ -677,7 +681,7 @@ export const de: Dict = {
 			['[  ]', 'Vorheriger / nächster Wert in der Detailansicht'],
 			['← →', 'Durch Abnahmen gehen im fokussierten Diagramm'],
 			['Esc', 'Zurück zur Übersicht'],
-			['?', 'Diese Übersicht']
+			['?', 'Diese Hilfe']
 		] as [string, string][],
 		fullscreen: 'Vollbild'
 	},

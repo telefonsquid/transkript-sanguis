@@ -45,4 +45,9 @@ describe('toResult and fromResult', () => {
 		expect(toResult(row({ unit: estradiol.unit }), 'estradiol', estradiol.unit).unit).toBeUndefined();
 		expect(fromResult({ analyte: 'estradiol', value: '1' }, estradiol, 'r').unit).toBe(estradiol.unit);
 	});
+
+	test('a suspect flag survives an edit', () => {
+		const r = { analyte: 'estradiol', value: '120', suspect: 'aged sample' };
+		expect(toResult(fromResult(r, estradiol, 'r'), 'estradiol', estradiol.unit)).toEqual(r);
+	});
 });

@@ -8,6 +8,9 @@ export interface PrintedRange {
 /** Lab style number: decimal comma or point, no thousands separators */
 const NUM = String.raw`\d+(?:[.,]\d+)?|[.,]\d+`;
 
+/** A number that may carry a sign, like the lower limit of a base excess */
+const SIGNED = String.raw`[-+]?(?:${NUM})`;
+
 const num = (s: string) => Number(s.replace(',', '.'));
 
 function clean(text: string): string {
@@ -24,7 +27,7 @@ function clean(text: string): string {
 /** Parses printed values like "12,5", "<0.3", "> 90" or "≤ 5" */
 export function parseValue(raw: string): { value: number; censor?: '<' | '>' } | undefined {
 	const t = clean(raw).replace(/^(<|>)=/, '$1');
-	const m = t.match(new RegExp(`^([<>])?\\s*(${NUM})$`));
+	const m = t.match(new RegExp(`^([<>])?\\s*(${SIGNED})$`));
 	if (!m) return undefined;
 	return { value: num(m[2]), censor: m[1] as '<' | '>' | undefined };
 }
@@ -34,7 +37,7 @@ export function parseNum(raw: string | number | null | undefined): number | unde
 	if (typeof raw === 'number') return Number.isFinite(raw) ? raw : undefined;
 	if (!raw) return undefined;
 	const t = clean(raw);
-	return new RegExp(`^-?(?:${NUM})$`).test(t) ? num(t) : undefined;
+	return new RegExp(`^${SIGNED}$`).test(t) ? num(t) : undefined;
 }
 
 /** Parses printed ranges like "136 - 145", "3,5 bis 5,1", "< 50", "bis 40", ">= 60" or "über 39" */
@@ -44,13 +47,13 @@ export function parseRange(text: string | null | undefined): PrintedRange | unde
 		.toLowerCase()
 		.replace(/^(?:ref\.?|referenz(?:bereich)?:?|normal:?)\s*/, '');
 
-	let m = t.match(new RegExp(`^(?:<=?|bis|unter|below|up to|max\\.?)\\s*(${NUM})$`));
+	let m = t.match(new RegExp(`^(?:<=?|bis|unter|below|up to|max\\.?)\\s*(${SIGNED})$`));
 	if (m) return { high: num(m[1]) };
 
-	m = t.match(new RegExp(`^(?:>=?|über|ueber|ab|above|min\\.?)\\s*(${NUM})$`));
+	m = t.match(new RegExp(`^(?:>=?|über|ueber|ab|above|min\\.?)\\s*(${SIGNED})$`));
 	if (m) return { low: num(m[1]) };
 
-	m = t.match(new RegExp(`^(${NUM})\\s*(?:-|bis|to|–)\\s*(${NUM})$`));
+	m = t.match(new RegExp(`^(${SIGNED})\\s*(?:-|bis|to|–)\\s*(${SIGNED})$`));
 	if (m) return { low: num(m[1]), high: num(m[2]) };
 
 	return { note: text.trim() };
@@ -80,7 +83,12 @@ export function ageAt(birth: string | undefined, date: string): number | undefin
 	return y - by - (m < bm || (m === bm && d < bd) ? 1 : 0);
 }
 
-export const isIsoDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
+/** Engines roll a day like 02-30 over into the next month, the round trip catches it */
+export function isIsoDate(s: string): boolean {
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+	const t = Date.parse(s);
+	return !Number.isNaN(t) && new Date(t).toISOString().startsWith(s);
+}
 
 export const nowIso = () => new Date().toISOString();
 

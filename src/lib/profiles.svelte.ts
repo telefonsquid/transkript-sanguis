@@ -10,17 +10,21 @@ interface Db {
 	active: string | null;
 	/** When both disclaimers were accepted */
 	consent: string | null;
-	lastExport: string | null;
+	/** Last backup per profile id */
+	exported: Record<string, string>;
 	demoVersion: number;
 }
 
 const KEY = `${SLUG}:db:v1`;
 
 function load(): Db {
-	const empty: Db = { profiles: [], active: null, consent: null, lastExport: null, demoVersion: 0 };
+	const empty: Db = { profiles: [], active: null, consent: null, exported: {}, demoVersion: 0 };
 	try {
 		const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
 		if (!saved || !Array.isArray(saved.profiles)) return withDemos(empty);
+
+		// Older builds kept one date for all profiles, which said nothing about any single one
+		delete saved.lastExport;
 		return withDemos({ ...empty, ...saved, profiles: saved.profiles.map(normalizeProfile) });
 	} catch {
 		return withDemos(empty);
@@ -127,6 +131,7 @@ export const lists = {
 export async function deleteProfile(id: string) {
 	if (profileById(id)?.demo) return;
 	db.profiles = db.profiles.filter((p) => p.id !== id);
+	delete db.exported[id];
 
 	// Without an own profile left the start page offers the demo or a new profile
 	if (db.active === id) db.active = db.profiles.find((p) => !p.demo)?.id ?? null;
@@ -167,17 +172,22 @@ export function deleteDraw(profile: Profile, drawId: string) {
 	profile.draws = profile.draws.filter((d) => d.id !== drawId);
 }
 
+export function findCustom(profile: Profile, name: string, unit: string): CustomAnalyte | undefined {
+	return profile.custom.find((c) => c.name.toLowerCase() === name.trim().toLowerCase() && c.unit === unit.trim());
+}
+
 /** Creates a value the catalogue lacks, or reuses one with the same name and unit */
 export function addCustom(profile: Profile, name: string, unit: string): CustomAnalyte {
-	const same = profile.custom.find((c) => c.name.toLowerCase() === name.trim().toLowerCase() && c.unit === unit.trim());
+	const same = findCustom(profile, name, unit);
 	if (same) return same;
 	const slug = name
 		.toLowerCase()
 		.normalize('NFKD')
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-|-$/g, '');
-	let id = `x-${slug || 'value'}`;
-	for (let n = 2; profile.custom.some((c) => c.id === id); n++) id = `x-${slug}-${n}`;
+	const base = `x-${slug || 'value'}`;
+	let id = base;
+	for (let n = 2; profile.custom.some((c) => c.id === id); n++) id = `${base}-${n}`;
 	const custom = { id, name: name.trim(), unit: unit.trim() };
 	profile.custom.push(custom);
 	return custom;

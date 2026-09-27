@@ -42,7 +42,10 @@
 		e.preventDefault();
 		over = true;
 	}}
-	ondragleave={() => (over = false)}
+	ondragleave={(e) => {
+		// Moving onto the textarea or a button also counts as leaving
+		if (!e.currentTarget.contains(e.relatedTarget as Node | null)) over = false;
+	}}
 	{ondrop}
 	class={['grid gap-2 rounded-lg border-2 border-dashed p-3', over ? 'border-[var(--ref-target)] bg-hover' : 'border-line']}
 >

@@ -14,6 +14,11 @@ describe('parseValue', () => {
 		expect(parseValue('≤ 5')).toEqual({ value: 5, censor: '<' });
 	});
 
+	test('keeps the sign of negative values', () => {
+		expect(parseValue('-2,5')).toEqual({ value: -2.5, censor: undefined });
+		expect(parseValue('−1')).toEqual({ value: -1, censor: undefined });
+	});
+
 	test('rejects text', () => {
 		expect(parseValue('negativ')).toBeUndefined();
 		expect(parseValue('')).toBeUndefined();
@@ -37,6 +42,13 @@ describe('parseRange', () => {
 		expect(parseRange('136 - 145')).toEqual({ low: 136, high: 145 });
 		expect(parseRange('3,5 bis 5,1')).toEqual({ low: 3.5, high: 5.1 });
 		expect(parseRange('0.5 – 1.2')).toEqual({ low: 0.5, high: 1.2 });
+		expect(parseRange('136-145')).toEqual({ low: 136, high: 145 });
+	});
+
+	test('reads negative limits', () => {
+		expect(parseRange('-2 - +3')).toEqual({ low: -2, high: 3 });
+		expect(parseRange('−3 bis 3')).toEqual({ low: -3, high: 3 });
+		expect(parseRange('> -2')).toEqual({ low: -2 });
 	});
 
 	test('reads one sided ranges', () => {
@@ -76,5 +88,8 @@ describe('dates', () => {
 		expect(isIsoDate('2024-02-29')).toBe(true);
 		expect(isIsoDate('2024-13-01')).toBe(false);
 		expect(isIsoDate('01.02.2024')).toBe(false);
+		expect(isIsoDate('2026-02-30')).toBe(false);
+		expect(isIsoDate('2023-02-29')).toBe(false);
+		expect(isIsoDate('')).toBe(false);
 	});
 });

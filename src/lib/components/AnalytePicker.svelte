@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { groupById, groups } from '../data';
+	import { groupBy, groupById, groups } from '../data';
 	import type { Analyte, Therapy } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { normName } from '../io';
@@ -45,7 +45,7 @@
 
 	/** What this profile measures most often, topped up with the common values */
 	const suggested = $derived.by(() => {
-		const measured = [...Map.groupBy(current.built.measurements.filter((m) => !m.derived), (m) => m.analyte)]
+		const measured = [...groupBy(current.built.measurements.filter((m) => !m.derived), (m) => m.analyte)]
 			.sort((a, b) => b[1].length - a[1].length)
 			.map(([id]) => id);
 		const ids = [...measured, ...COMMON[current.therapy]].filter((id, i, all) => all.indexOf(id) === i);

@@ -15,9 +15,14 @@ export interface EditRow {
 	note: string;
 	/** Name as printed on the report */
 	printed?: string;
+	/** Kept through edits, no form shows it */
+	suspect?: string;
 }
 
 export type RowProblem = 'value' | 'range' | 'unit' | 'confirm' | 'analyte' | 'duplicate';
+
+/** Values of the user's own count as the same when name and unit match */
+export const customKey = (name: string, unit: string) => `custom:${name.trim().toLowerCase()}|${unit.trim()}`;
 
 /** Bounds that are not numbers, or a lower bound above the upper one */
 export function rangeProblem(low: string, high: string): boolean {
@@ -50,7 +55,7 @@ export function toResult(row: EditRow, analyte: string, canonical?: string): Res
 	if (low !== undefined) r.low = low;
 	if (high !== undefined) r.high = high;
 
-	for (const k of ['rangeNote', 'flag', 'printed', 'note'] as const) {
+	for (const k of ['rangeNote', 'flag', 'printed', 'note', 'suspect'] as const) {
 		const v = row[k]?.trim();
 		if (v) r[k] = v;
 	}
@@ -71,6 +76,7 @@ export function fromResult(r: Result, a: Analyte | undefined, key: string): Edit
 		rangeNote: r.rangeNote ?? '',
 		flag: r.flag ?? '',
 		note: r.note ?? '',
-		printed: r.printed
+		printed: r.printed,
+		suspect: r.suspect
 	};
 }

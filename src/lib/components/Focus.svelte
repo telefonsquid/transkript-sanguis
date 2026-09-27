@@ -77,7 +77,9 @@
 		const out: { text: string; lab: string; sex?: string; from: number; to: number }[] = [];
 		for (const m of ms) {
 			if (!m.labRef) continue;
-			const text = fmtLabRef(m.labRef);
+			const { low, high } = m.labRef.printed;
+			const bounds = low !== undefined || high !== undefined;
+			const text = `${fmtLabRef(m.labRef)}${bounds ? ` ${m.printedUnit ?? a.unit}` : ''}`;
 			const key = `${text}|${m.lab}|${m.rangesFor}`;
 			const prev = out.at(-1);
 			if (prev && `${prev.text}|${prev.lab}|${prev.sex}` === key) prev.to = m.t;
@@ -258,7 +260,7 @@
 											<span class="on-tag" in:pop={{ y: 0, from: 0.6 }}>{t.focus.onChart}</span>
 										{/if}
 									</div>
-									<div class="text-ink-3">{t.focus.printedByLabNote(a.unit)}</div>
+									<div class="text-ink-3">{t.focus.printedByLabNote(unit)}</div>
 								</td>
 								<td class="num px-2 py-2 text-ink-2" colspan="3">
 									{#each labRanges as r, i (i)}

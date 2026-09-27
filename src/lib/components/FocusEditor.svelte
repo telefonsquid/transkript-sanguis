@@ -54,8 +54,7 @@
 				continue;
 			}
 
-			// Fields the form does not show survive the edit
-			const next = { ...toResult(row, a.id, a.unit), ...(old?.suspect && { suspect: old.suspect }) };
+			const next = toResult(row, a.id, a.unit);
 			if (old) draw.results[i] = next;
 			else draw.results.push(next);
 		}

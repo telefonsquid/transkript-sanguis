@@ -78,7 +78,7 @@ function dateFormat(kind: keyof typeof DATE_FORMATS): Intl.DateTimeFormat {
 	return f;
 }
 
-export const fmtDate = (t: number) => dateFormat('long').format(t);
+export const fmtDate = (t: number) => (Number.isFinite(t) ? dateFormat('long').format(t) : '—');
 export const fmtMonth = (t: number) => dateFormat('short').format(t);
 export const fmtDay = (t: number) => dateFormat('day').format(t);
 export const fmtIso = (date: string) => fmtDate(toTime(date));

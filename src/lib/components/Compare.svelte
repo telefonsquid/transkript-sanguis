@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { untrack } from 'svelte';
 	import { fmtValue, position, unitOf } from '../analysis';
 	import Chart from '../chart/Chart.svelte';
 	import type { ChartSeries } from '../chart/types';
@@ -25,9 +26,15 @@
 			.filter((q) => q.ids.length)
 	);
 
-	// A first visit starts with the profile's hormones instead of an empty chart
+	let seededFor: string | undefined;
+
+	// A profile with none of the compared values starts with its hormones, an emptied chart stays empty
 	$effect(() => {
-		if (!settings.compare.length && quick.length) setQuick(quick[0].ids);
+		const id = current.profile?.id;
+		if (id === seededFor || !quick.length) return;
+		seededFor = id;
+		const ids = quick[0].ids;
+		untrack(() => !current.built.measurements.some((m) => settings.compare.includes(m.analyte)) && setQuick(ids));
 	});
 
 	function slotOf(id: string): number {

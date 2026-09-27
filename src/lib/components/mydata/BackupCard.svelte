@@ -14,6 +14,7 @@
 
 	// Demo profiles ship with the app and need no backup
 	const own = $derived(db.profiles.filter((p) => !p.demo));
+	const lastExport = $derived(db.exported[profile.id]);
 
 	async function exportProfiles(list: Profile[], name: string) {
 		if (exporting) return;
@@ -25,7 +26,10 @@
 				.toLowerCase()
 				.replace(/[^a-z0-9]+/g, '-')
 				.replace(/^-|-$/g, '');
-			if (await download(`${SLUG}-${slug || 'profile'}-${stamp}.json`, JSON.stringify(file, null, 1))) db.lastExport = new Date().toISOString();
+			if (!(await download(`${SLUG}-${slug || 'profile'}-${stamp}.json`, JSON.stringify(file, null, 1)))) return;
+
+			const now = new Date().toISOString();
+			for (const p of list) db.exported[p.id] = now;
 		} finally {
 			exporting = false;
 		}
@@ -39,8 +43,8 @@
 	<p class="mt-1 text-xs text-ink-3">{t.io.exportBody}</p>
 
 	<p class="mt-3 flex items-center gap-2 text-xs font-medium">
-		{#if db.lastExport}
-			<span class="text-ink-2">{t.io.lastExport(fmtDate(Date.parse(db.lastExport)))}</span>
+		{#if lastExport}
+			<span class="text-ink-2">{t.io.lastExport(fmtDate(Date.parse(lastExport)))}</span>
 		{:else}
 			<span style:color="var(--serious)" aria-hidden="true">⚠</span><span class="text-ink">{t.io.neverExported}</span>
 		{/if}

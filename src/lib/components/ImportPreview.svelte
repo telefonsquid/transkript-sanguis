@@ -2,7 +2,7 @@
 	import { unitChoices } from '../data';
 	import type { Draw, Result } from '../data/types';
 	import { t } from '../i18n';
-	import { drawProblem, newDraw, normName, previewProblem, resolveUnit, type PreviewDraw, type PreviewRow } from '../io';
+	import { customName, drawProblem, newDraw, normName, previewProblem, resolveUnit, type PreviewDraw, type PreviewRow } from '../io';
 	import { addCustom, current, newId, saveDraw } from '../profiles.svelte';
 	import { toResult, type RowProblem } from '../rows';
 	import AnalytePicker from './AnalytePicker.svelte';
@@ -31,6 +31,18 @@
 		return !a || ![a.name.en, a.name.de].some((n) => normName(n) === normName(row.printed));
 	}
 
+	/** Another draw on the same date, stored or earlier in the file */
+	function clash(d: PreviewDraw): boolean {
+		if (!d.date) return false;
+		if (current.profile?.draws.some((x) => x.date === d.date)) return true;
+		return draws.slice(0, draws.indexOf(d)).some((x) => x.mode !== 'skip' && x.date === d.date);
+	}
+
+	// A merge without a draw to join falls back to a new one
+	$effect(() => {
+		for (const d of draws) if (d.mode === 'merge' && !clash(d)) d.mode = 'new';
+	});
+
 	const active = $derived(draws.filter((d) => d.mode !== 'skip'));
 	const guessed = $derived(active.flatMap((d) => d.rows.filter((r) => r.suggested && r.action === 'import')));
 	const problems = $derived(
@@ -46,19 +58,22 @@
 				.filter((r) => r.action !== 'drop')
 				.map((r) =>
 					r.action === 'custom'
-						? toResult(r, addCustom(profile, r.printed || r.analyte || '?', r.unit).id, r.unit)
+						? toResult(r, addCustom(profile, customName(r), r.unit).id, r.unit)
 						: toResult(r, r.analyte!, current.lookup(r.analyte!)?.unit)
 				);
 
-			const target = d.mode === 'merge' ? profile.draws.find((x) => x.id === d.existing) : undefined;
+			const target = d.mode === 'merge' ? profile.draws.find((x) => x.date === d.date) : undefined;
 			if (target) {
 				// Newly read values win over the stored ones of the same analyte
 				const incoming = new Set(results.map((r) => r.analyte));
+				const notes = [...new Set([...(target.notes ?? []), ...d.notes])];
 				const merged: Draw = {
 					...target,
+					time: target.time ?? (d.time || undefined),
 					lab: target.lab ?? (d.lab || undefined),
 					rangesFor: target.rangesFor ?? d.rangesFor,
-					notes: [...new Set([...(target.notes ?? []), ...d.notes])],
+					fasting: target.fasting ?? d.fasting,
+					notes: notes.length ? notes : undefined,
 					results: [...target.results.filter((r) => !incoming.has(r.analyte)), ...results]
 				};
 				saveDraw(profile, merged);
@@ -80,9 +95,16 @@
 
 	{#each draws as d (d.key)}
 		{const dp = $derived(drawProblem(d))}
+		{const clashes = $derived(clash(d))}
 		<section class={['rounded-lg border bg-surface', d.mode === 'skip' ? 'border-dashed border-line opacity-60' : 'border-line']}>
 			<header class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-2.5 text-sm">
-				<input type="date" bind:value={d.date} class={['h-8 rounded-md bg-surface px-2 text-sm', !d.date && 'empty', dp ? 'border-[var(--critical)]' : 'border-line']} aria-label={t.manual.date} />
+				<input
+					type="date"
+					bind:value={d.date}
+					onchange={() => d.mode !== 'skip' && (d.mode = clash(d) ? 'merge' : 'new')}
+					class={['h-8 rounded-md bg-surface px-2 text-sm', !d.date && 'empty', dp ? 'border-[var(--critical)]' : 'border-line']}
+					aria-label={t.manual.date}
+				/>
 				<input bind:value={d.lab} placeholder={t.manual.lab} class="h-8 w-48 rounded-md border-line bg-surface px-2 text-sm" aria-label={t.manual.lab} />
 				<select bind:value={d.rangesFor} class={['h-8 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs', !d.rangesFor && 'empty']} aria-label={t.manual.rangesFor}>
 					<option value={undefined}>{t.manual.rangesFor}: {t.profile.sexes.unset}</option>
@@ -91,10 +113,10 @@
 				</select>
 				<span class="text-xs text-ink-3">{t.data.values(d.rows.filter((r) => r.action !== 'drop').length)}</span>
 				<span class="ml-auto flex items-center gap-2 text-xs">
-					{#if d.existing}<span class="text-[var(--serious)]">{t.agent.duplicateDraw}</span>{/if}
+					{#if clashes}<span class="text-[var(--serious)]">{t.agent.duplicateDraw}</span>{/if}
 					<select bind:value={d.mode} class="h-7 rounded-md border-line bg-surface py-0 pr-7 pl-2 text-xs">
-						{#if d.existing}<option value="merge">{t.agent.merge}</option>{/if}
-						<option value="new">{d.existing ? t.agent.addSeparate : t.common.add}</option>
+						{#if clashes || d.mode === 'merge'}<option value="merge">{t.agent.merge}</option>{/if}
+						<option value="new">{clashes ? t.agent.addSeparate : t.common.add}</option>
 						<option value="skip">{t.agent.skip}</option>
 					</select>
 				</span>

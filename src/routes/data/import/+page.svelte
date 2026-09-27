@@ -31,6 +31,15 @@
 	async function importBackup() {
 		if (!backup || busy) return;
 		busy = true;
+		try {
+			await restore(backup);
+		} finally {
+			busy = false;
+		}
+		goto(resolve('/'));
+	}
+
+	async function restore(backup: ExportFile) {
 		const ids: Record<string, string> = {};
 
 		for (const raw of backup.profiles) {
@@ -49,11 +58,8 @@
 			const reports = (raw.reports ?? []).map((r) => (carried.has(r.id) ? r : { ...r, file: undefined }));
 			addProfile(normalizeProfile({ ...raw, id, reports } as Profile));
 		}
-		if (backup.files?.length) await restoreFiles(backup.files, ids);
-
 		db.active = ids[backup.profiles[0]?.id] ?? db.active;
-		busy = false;
-		goto(resolve('/'));
+		if (backup.files?.length) await restoreFiles(backup.files, ids).catch(() => alert(t.io.filesError));
 	}
 </script>
 
