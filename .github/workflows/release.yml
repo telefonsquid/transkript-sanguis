@@ -106,7 +106,10 @@ jobs:
 
             ---
 
-            > **Windows** – Not sure what to pick? Expand the asset list below and download the file ending in `_windows_x64_portable.exe` — it runs without installing anything.
+            <!-- downloads -->
+            <!-- /downloads -->
+
+            > **Windows** – Not sure what to pick? Take **Portable** in the x64 column, it runs without installing anything.
 
             > **macOS** – Builds are unsigned: right-click the app and choose Open on first launch, or macOS refuses it outright.
           releaseDraft: true
@@ -128,7 +131,7 @@ jobs:
   # Each bundler names its output its own way, one pass over the finished release evens them out.
   # Runs after failed builds too, so a partial release still reads as one set.
   rename:
-    name: Normalise asset names
+    name: Normalise asset names and link downloads
     needs: build
     if: always()
     runs-on: ubuntu-latest
@@ -141,3 +144,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run rename-release-assets "${{ github.ref_name }}"
+
+      # GitHub folds most assets away, badges in the notes keep every file in view.
+      # Runs after a failed rename too, files it could not name just get no badge.
+      - name: Link every download in the release notes
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run release-downloads "${{ github.ref_name }}"

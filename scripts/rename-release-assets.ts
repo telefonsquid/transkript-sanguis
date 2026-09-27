@@ -8,6 +8,7 @@
  *
  *   bun run rename-release-assets v0.1.0 [--dry-run]
  */
+import { api, findRelease, repoAccess } from './github';
 
 // Longest first, so .app.tar.gz wins over .tar.gz
 const EXTENSIONS = ['.app.tar.gz', '.AppImage', '.tar.gz', '.msi', '.exe', '.dmg', '.deb', '.rpm'];
@@ -54,30 +55,6 @@ export function targetName(name: string, version: string): string | null {
 	return parts.join('_') + extension;
 }
 
-interface Asset {
-	id: number;
-	name: string;
-}
-
-interface Release {
-	tag_name: string;
-	assets: Asset[];
-}
-
-async function api(token: string, path: string, init?: RequestInit): Promise<unknown> {
-	const response = await fetch(`https://api.github.com${path}`, {
-		...init,
-		headers: {
-			Accept: 'application/vnd.github+json',
-			Authorization: `Bearer ${token}`,
-			'X-GitHub-Api-Version': '2022-11-28',
-			...init?.headers
-		}
-	});
-	if (!response.ok) throw new Error(`${init?.method ?? 'GET'} ${path}: ${response.status} ${await response.text()}`);
-	return response.json();
-}
-
 async function main(): Promise<number> {
 	const [, , tag = '', ...flags] = process.argv;
 	const dryRun = flags.includes('--dry-run');
@@ -86,16 +63,15 @@ async function main(): Promise<number> {
 		return 1;
 	}
 
-	const repo = process.env.GITHUB_REPOSITORY;
-	const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
-	if (!repo || !token) {
+	const access = repoAccess();
+	if (!access) {
 		console.error('GITHUB_REPOSITORY and GH_TOKEN (or GITHUB_TOKEN) must be set');
 		return 1;
 	}
+	const { repo, token } = access;
 
 	const version = tag.replace(/^v/, '');
-	const releases = (await api(token, `/repos/${repo}/releases?per_page=100`)) as Release[];
-	const release = releases.find((r) => r.tag_name === tag);
+	const release = await findRelease(token, repo, tag);
 
 	// Every build failed, their red jobs already say so
 	if (!release) {

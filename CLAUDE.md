@@ -46,7 +46,7 @@ Topic knowledge lives in project skills under `.claude/skills/`. Load the matchi
 3. `bun run check && bun run lint && bun run test:unit`.
 4. Commit, then `git tag v0.2.0` and `git push origin main --tags`. Ask the owner before pushing any tag.
 5. The `Release` workflow builds Windows (x64 and ARM64, MSI/NSIS plus a portable exe), macOS (Apple Silicon and Intel, dmg) and Linux (x64 and ARM64, AppImage/deb/rpm) into a **draft** release, named "Transkript Sanguis v<version>". It fails when the tag disagrees with `package.json`.
-6. A final job renames every asset to `transkript-sanguis_<version>_<os>_<arch>[_<variant>].<ext>` (`scripts/rename-release-assets.ts`, rerun by hand with `bun run rename-release-assets v0.2.0 [--dry-run]`).
+6. A final job renames every asset to `transkript-sanguis_<version>_<os>_<arch>[_<variant>].<ext>` (`scripts/rename-release-assets.ts`, rerun by hand with `bun run rename-release-assets v0.2.0 [--dry-run]`). It then writes a table of shields.io download badges between `<!-- downloads -->` and `<!-- /downloads -->` in the release notes (`scripts/release-downloads.ts`, `bun run release-downloads v0.2.0 [--dry-run]`), because GitHub folds most assets of a big release away. Only files the release really has get a badge. The links point at the tag, so they only work once the release is published. Shields.io lost the Windows logo, the script draws its own.
 7. Review the draft on GitHub and publish it. Only published releases count as `releases/latest` for the download link and the update check.
 
 ## Architecture
