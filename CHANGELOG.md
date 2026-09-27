@@ -9,6 +9,17 @@ headings matters.
 - Optional `### Added` / `### Changed` / `### Fixed` groups under it.
 - Everything else is plain bullets or short paragraphs.
 
+## 1.0.1 — 2026-09-27
+
+### Changed
+
+- The desktop app opens as a large centred 16:9 window instead of maximized
+- Release pages and the README list every download in one table
+
+### Fixed
+
+- The swash under the title on the start page no longer redraws on every hover
+
 ## 1.0.0 — 2026-09-27
 
 First release, and the first one as a desktop app.
