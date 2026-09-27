@@ -11,4 +11,4 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 8080
+EXPOSE 3000

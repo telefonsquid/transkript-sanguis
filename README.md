@@ -86,7 +86,7 @@ Found a range that looks wrong, a text that is misleading or contradicts another
 The build is a static single page app. With Docker:
 
 ```sh
-docker compose up -d --build   # http://localhost:8080
+docker compose up -d --build   # http://localhost:3000
 ```
 
 The image builds with bun and serves the files from an unprivileged nginx with SPA fallback, security headers and no access log. Any other static host works too: serve `build/` and fall back to `200.html` for unknown paths.
