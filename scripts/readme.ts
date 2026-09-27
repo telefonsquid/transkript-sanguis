@@ -40,8 +40,8 @@ for (const theme of ['light', 'dark'] as const) {
 	}
 	await page.goto(`${BASE}/analyte/estradiol`);
 	await shoot(page, `${OUT}/focus-${theme}.png`);
-	await page.goto(`${BASE}/data/agent`);
-	await shoot(page, `${OUT}/agent-${theme}.png`);
+	await page.goto(`${BASE}/data`);
+	await shoot(page, `${OUT}/data-${theme}.png`);
 
 	await context.close();
 }
@@ -50,8 +50,17 @@ await browser.close();
 
 async function shoot(page: Page, path: string) {
 	await page.waitForLoadState('networkidle');
+	await plainLogo(page);
 	await page.waitForTimeout(800);
 	await page.screenshot({ path });
+}
+
+// Flag colours on the top bar name stay a surprise for people who use the app
+async function plainLogo(page: Page) {
+	await page.addStyleTag({
+		content: `.flag-name { --blood: inherit; --logo-ground: var(--surface); padding: 0; background: none; color: inherit }
+			.trans-flag > * { color: inherit !important }`
+	});
 }
 
 // The hero wordmark alone on a transparent ground, swash included

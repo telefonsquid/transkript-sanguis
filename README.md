@@ -5,48 +5,40 @@
   <img src="docs/assets/logo-light.png" alt="Transkript Sanguis" width="420">
 </picture>
 
-**Your blood test results over time, next to reference ranges that actually fit you.**
+**An open source app for tracking and analyzing blood tests, with hormone therapy support.**
 
-Built for people on hormone therapy, useful for everyone else too.
-
-### [Open transkript-sanguis.henkys.dev](https://transkript-sanguis.henkys.dev)
+<a href="https://transkript-sanguis.henkys.dev"><b>Open in Browser</b></a>
+&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+<a href="https://github.com/telefonsquid/transkript-sanguis/releases/latest"><b>Download Desktop App</b></a>
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-a8172b?style=flat-square)](LICENSE)
 ![Languages](https://img.shields.io/badge/lang-EN%20%7C%20DE-a8172b?style=flat-square)
-![Local only](https://img.shields.io/badge/data-stays%20in%20your%20browser-a8172b?style=flat-square)
 ![Offline](https://img.shields.io/badge/PWA-works%20offline-a8172b?style=flat-square)
-![SvelteKit](https://img.shields.io/badge/SvelteKit-Svelte%205-a8172b?style=flat-square&logo=svelte&logoColor=white)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/overview-dark.png">
-  <img src="docs/assets/overview-light.png" alt="Overview of a demo profile on feminizing HRT: a grid of charts with reference bands and the medication timeline on top">
+  <img src="docs/assets/overview-light.png" alt="Overview of a demo profile on feminizing HRT: a grid of charts with reference bands and the medication timeline on top" width="80%">
 </picture>
 
 </div>
 
-Lab reports print one reference range, usually for cis men or cis women, and on hormone therapy neither of them fits. Transkript Sanguis puts every value you ever had measured on one timeline, next to HRT targets, ranges measured in trans people on stable HRT, clinical cutoffs, both cis ranges and the range your lab printed. Every number comes with its source.
+Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts every value over time against reference ranges from published research, each with its source, and explains what the value measures and what a shift up or down can mean.
 
-## How to use
-
-1. **Look around first.** Open the page and pick one of four made up demo profiles: a cis woman, a cis man, feminizing and masculinizing HRT.
-2. **Create your profile.** Name, sex assigned at birth, HRT (feminizing, masculinizing or none) and your medication timeline.
-3. **Add your results.** Type them in by hand, or let an AI assistant of your choice transcribe your PDFs and paste its answer. The app checks every value before it is saved.
-4. **Read the charts.** Switch reference contexts, units and axes, compare values, open any value for the full story.
-5. **Keep a backup.** Everything lives in your browser, so export a file now and then.
+It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.
 
 ## Features
 
-- **Researched references** - about 100 values, each with HRT targets, ranges from trans cohorts, clinical cutoffs, cis female and cis male ranges (age banded where it matters) and the printed lab range. Every range cites its guideline, study or assay sheet.
-- **Explained in plain words** - what each value is, why it is measured and what HRT changes, in English and German.
-- **Medication timeline** - phases and regimen changes drawn onto every chart, time counted from the start of HRT if you like.
-- **Five views** - overview grid, compare (% of range, index or z-score), matrix heatmap, sortable table with CSV and JSON export, and a focus page per value.
-- **Computed series** - eGFR (both CKD-EPI equations and from cystatin C), calculated free testosterone, free androgen index, non-HDL, HOMA-IR, transferrin saturation, BMI.
-- **Values as printed** - stored exactly as on the report, converted on the fly between conventional and SI units.
-- **AI import** - instructions and a JSON schema generated from the catalogue. The format has no fields for names or identifiers, and a preview flags odd values, units, ranges and duplicates before anything is saved.
-- **Consistency checks** - recompute red cell indices, lipids, FAI, HbA1c and eGFR from your own numbers to catch typos.
-- **Several profiles** - for you, your partner, your friends, all in one browser. Each keeps its own PDFs.
-- **Installable and offline** - a PWA that keeps working without a connection.
-- **Light and dark, animated or still** - charts draw themselves and glide when scales change, one switch turns every animation off and the system's reduced motion setting is respected.
+- Charts each value over time.
+- Reference ranges for cis women, cis men, feminizing and masculinizing HRT, trans cohorts, clinical cutoffs and the lab's printed range. Each range cites its source.
+- 103 values. Each has a description in English and German.
+- Medication timeline shown on all charts.
+- Values stored as printed. Conversion between conventional and SI units on display.
+- Computed values: eGFR, calculated free testosterone, free androgen index, HOMA-IR and others.
+- Consistency checks for typing errors.
+- Manual entry. Import of PDF reports transcribed by an AI assistant.
+- Multiple profiles per browser.
+- All data is stored in the browser. Nothing is sent to a server.
+- Runs offline. Installable as a PWA.
 
 ## Screenshots
 
@@ -64,19 +56,13 @@ Lab reports print one reference range, usually for cis men or cis women, and on 
     <img src="docs/assets/matrix-light.png" alt="Matrix heatmap of every value per blood draw, coloured by distance from the range" width="49%">
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/agent-dark.png">
-    <img src="docs/assets/agent-light.png" alt="Import with an AI agent in three steps" width="49%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/data-dark.png">
+    <img src="docs/assets/data-light.png" alt="My data with the profile, the blood draws and the medication timeline" width="49%">
   </picture>
 </p>
 
-## Your data stays yours
-
-- **No backend.** No account, no server, no analytics, no external fonts or scripts. Profiles live in localStorage, PDFs in IndexedDB.
-- **Enforced, not promised.** The content security policy only allows connections to the page's own origin, so the app cannot send your data anywhere even by accident.
-- **Your choice to share.** The AI import is the one route where files leave your device, to the assistant you pick. You can black out personal details first.
-
 > [!IMPORTANT]
-> **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor. Talk to them before changing anything about your treatment.
+> **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor.
 
 ## Host it yourself
 
@@ -87,16 +73,6 @@ docker compose up -d --build   # http://localhost:8080
 ```
 
 The image builds with bun and serves the files from an unprivileged nginx with SPA fallback, security headers and no access log. Any other static host works too: serve `build/` and fall back to `200.html` for unknown paths.
-
-## Data formats
-
-| Path | What it is |
-| --- | --- |
-| `/agent-instructions.md` | The prompt for AI assistants, generated from the catalogue |
-| `/import-schema.json` | JSON schema of `transkript-sanguis/draws` v2, deliberately without personal fields |
-| Backup files | `transkript-sanguis/export` v2: profiles and, optionally, the attached PDFs |
-
-Older v1 files still import.
 
 ## AI disclosure
 

@@ -52,7 +52,7 @@ export const de: Dict = {
 		profiles: 'Profile',
 		about: 'Über',
 		sources: 'Quellen',
-		code: 'Quellcode',
+		code: 'GitHub',
 		help: 'Tastenkürzel',
 		github: 'Quellcode auf GitHub',
 		analytes: '☰ Werte',
@@ -646,7 +646,7 @@ export const de: Dict = {
 		literature: 'Literatur und Methodenblätter',
 		conversions: 'Einheiten umrechnen',
 		privacyTitle: 'Datenschutz',
-		repo: 'Quellcode'
+		repo: 'GitHub'
 	},
 	help: {
 		title: 'Tastenkürzel',

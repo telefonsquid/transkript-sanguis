@@ -51,7 +51,7 @@ export const en = {
 		profiles: 'Profiles',
 		about: 'About',
 		sources: 'Sources',
-		code: 'Source code',
+		code: 'GitHub',
 		help: 'Keyboard shortcuts',
 		github: 'Source code on GitHub',
 		analytes: '☰ Values',
@@ -645,7 +645,7 @@ export const en = {
 		literature: 'Literature and method sheets',
 		conversions: 'Unit conversions',
 		privacyTitle: 'Privacy',
-		repo: 'Source code'
+		repo: 'GitHub'
 	},
 	help: {
 		title: 'Keyboard shortcuts',
