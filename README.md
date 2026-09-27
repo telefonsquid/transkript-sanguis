@@ -20,9 +20,9 @@
 
 </div>
 <br>
-Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts every value over time against reference ranges from published research, each with its source, and explains what the value measures and what a shift up or down can mean.
+Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts your results over time and compares them to reference ranges sourced from published research with additional information about every single value. None of your data ever touches a server, everything is kept and analyzed locally on your machine.
 
-It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.
+🏳️‍⚧️ It has additional support for feminizing and masculinizing hormone therapy by offering profiles, ranges from trans-specific resources and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value.
 
 > [!IMPORTANT]
 > **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor.
