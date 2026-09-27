@@ -113,7 +113,7 @@ async function main(): Promise<number> {
 	await api(token, `/repos/${repo}/releases/${release.id}`, {
 		method: 'PATCH',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ body })
+		body: JSON.stringify({ tag_name: tag, body }) // Drafts drop their tag on edits without it
 	});
 	console.log(`download table written into the notes of ${tag}`);
 	return 0;
