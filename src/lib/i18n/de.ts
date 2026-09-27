@@ -463,7 +463,7 @@ export const de: Dict = {
 	status: { low: 'niedrig', in: 'im Bereich', high: 'hoch', none: 'ohne Referenz' },
 	sidebar: {
 		search: 'Werte suchen',
-		searchHint: 'Deutscher oder englischer Name, Abkürzung',
+		searchHint: 'Suchen…',
 		presets: 'Sammlungen',
 		onlyOut: 'Nur Werte mit Ergebnissen außerhalb des Bereichs',
 		onlyOutTitle: 'Mindestens ein Ergebnis im gewählten Zeitraum liegt über oder unter dem Bereich, an dem es gemessen wird',

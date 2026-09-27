@@ -63,6 +63,10 @@ It comes with extensive support for hormone therapy: feminizing and masculinizin
   </picture>
 </p>
 
+## Feedback
+
+Found a range that looks wrong, a text that is misleading or contradicts another, a unit that does not convert or any other bug? Missing a value or a feature? Please [open an issue](https://github.com/telefonsquid/transkript-sanguis/issues/new). For ranges and texts, name the value and add a source if you have one. Leave your own results and anything that identifies you out of it.
+
 ## Host it yourself
 
 The build is a static single page app. With Docker:

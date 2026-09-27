@@ -462,7 +462,7 @@ export const en = {
 	status: { low: 'low', in: 'in range', high: 'high', none: 'no reference' },
 	sidebar: {
 		search: 'Search values',
-		searchHint: 'English or German name, abbreviation',
+		searchHint: 'Search…',
 		presets: 'Sets',
 		onlyOut: 'Only values with results outside the range',
 		onlyOutTitle: 'At least one result in the selected dates lies above or below the range it is judged against',
