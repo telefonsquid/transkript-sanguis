@@ -115,7 +115,8 @@
 	}
 </script>
 
-<div class="p-4">
+<!-- The table scrolls inside the visible area, so its horizontal scrollbar never hides below the fold -->
+<div class="flex h-full flex-col p-4">
 	<div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
 		<span class="num text-ink-2">{t.table.summary(rows.length, visibleIds.size, settings.units === 'si')}</span>
 		<span class="ml-auto"></span>
@@ -123,12 +124,13 @@
 		<button type="button" onclick={exportJson} class="rounded-md border border-line bg-surface px-2 py-1 font-medium text-ink-2 hover:bg-hover hover:text-ink">{t.table.exportJson}</button>
 	</div>
 
-	<div class="overflow-auto rounded-lg border border-line bg-surface">
+	<div class="min-h-64 overflow-auto rounded-lg border border-line bg-surface">
 		<table class="num w-full text-xs">
 			<thead class="sticky top-0 z-10 bg-surface text-left text-ink-3">
-				<tr class="border-b border-line">
+				<!-- Collapsed borders stay behind when the header sticks, a shadow travels with it -->
+				<tr>
 					{#each headers as h (h.label)}
-						<th class={['px-2.5 py-2 font-medium whitespace-nowrap first:pl-3', h.right && 'text-right']} aria-sort={h.key && sortKey === h.key ? (desc ? 'descending' : 'ascending') : undefined}>
+						<th class={['px-2.5 py-2 font-medium whitespace-nowrap shadow-[inset_0_-1px_var(--color-line)] first:pl-3', h.right && 'text-right']} aria-sort={h.key && sortKey === h.key ? (desc ? 'descending' : 'ascending') : undefined}>
 							{#if h.key}
 								<button type="button" onclick={() => sortBy(h.key!)} class="hover:text-ink">
 									{h.label}{sortKey === h.key ? (desc ? ' ↓' : ' ↑') : ''}
@@ -161,7 +163,7 @@
 						</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
 						<td class="max-w-40 truncate px-2.5 py-1.5 whitespace-nowrap text-ink-2">{phaseLabel(m.phase)}</td>
-						<td class="max-w-sm px-2.5 py-1.5 font-sans text-ink-2">
+						<td class="max-w-sm min-w-80 px-2.5 py-1.5 font-sans text-ink-2">
 							{#if m.derived}◇ {tx(m.derived)}{/if}
 							{#if m.inputs?.length}<span class="text-ink-3">{t.chart.from}: {fmtInputs(m.inputs, settings.units)}</span>{/if}
 							{#if m.suspect}<span style:color="var(--serious)">⚠ {t.focus.suspect}</span>{/if}

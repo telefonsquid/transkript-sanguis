@@ -55,7 +55,8 @@
 	}
 </script>
 
-<div class="p-4">
+<!-- The table scrolls inside the visible area, so its horizontal scrollbar never hides below the fold -->
+<div class="flex h-full flex-col p-4">
 	<div class="mb-3 flex flex-wrap items-center gap-4 text-xs text-ink-2">
 		<span>{t.matrix.judged(t.basis[settings.basis])}</span>
 		<span class="flex items-center gap-1">
@@ -71,7 +72,7 @@
 		<span class="text-ink-3">{t.matrix.marks}</span>
 	</div>
 
-	<div class="overflow-auto rounded-lg border border-line bg-surface">
+	<div class="min-h-64 overflow-auto rounded-lg border border-line bg-surface">
 		<table class="num border-separate border-spacing-0 text-xs">
 			<thead class="sticky top-0 z-20 bg-surface">
 				<tr>
@@ -99,8 +100,9 @@
 				{#each rows as { a, byDraw, groupStart }, i (a.id)}
 					{#if groupStart}
 						<tr>
-							<td colspan={columns.length + 2} class="sticky left-0 border-b border-line bg-surface-2 px-3 py-1 text-[11px] font-semibold text-ink-2">
-								{tx(groupById.get(a.group)?.label)}
+							<!-- A cell spanning the whole row cannot stick, the label inside it can -->
+							<td colspan={columns.length + 2} class="border-b border-line bg-surface-2 p-0 text-[11px] font-semibold text-ink-2">
+								<div class="sticky left-0 w-fit px-3 py-1">{tx(groupById.get(a.group)?.label)}</div>
 							</td>
 						</tr>
 					{/if}
