@@ -1,19 +1,18 @@
 <script lang="ts">
 	import { scaleLinear, scaleLog } from 'd3-scale';
 	import { curveLinear, curveMonotoneX, curveStepAfter, line } from 'd3-shape';
-	import { fmtDate, fmtHrt, fmtLabRef, hrtStartTime } from '../analysis';
+	import { fmtDate, fmtHrt, fmtInputs, fmtLabRef, phaseName, type Units } from '../analysis';
 	import { toTime, type ResolvedPhase } from '../data';
+	import type { Therapy } from '../data/types';
 	import { t, tx } from '../i18n';
 	import { fade } from '../motion.svelte';
-	import { current } from '../profiles.svelte';
-	import { hover, type XMode } from '../state.svelte';
-	import type { ChartBand, ChartPoint, ChartSeries } from './types';
+	import { hover } from './hover.svelte';
+	import type { ChartBand, ChartPoint, ChartSeries, XMode } from './types';
 	import { makeX } from './xscale';
 
 	interface Props {
 		series: ChartSeries[];
 		bands?: ChartBand[];
-		labBand?: boolean;
 		height: number;
 		compact?: boolean;
 		rails?: boolean;
@@ -27,6 +26,11 @@
 		showEvents?: boolean;
 		labels?: 'none' | 'last' | 'extremes' | 'all';
 		curve?: 'linear' | 'step' | 'monotone';
+		/** Units the tooltip names the inputs of computed values in */
+		units?: Units;
+		phases?: ResolvedPhase[];
+		hrtStart?: number;
+		therapy?: Therapy;
 		yTitle?: string;
 		/** Band shown filled on top of the configured ones, driven by hovering a legend row */
 		highlight?: string | null;
@@ -41,7 +45,6 @@
 	let {
 		series,
 		bands = [],
-		labBand = true,
 		height,
 		compact = false,
 		rails = false,
@@ -55,6 +58,10 @@
 		showEvents = true,
 		labels = 'last',
 		curve = 'linear',
+		units = 'conv',
+		phases = [],
+		hrtStart,
+		therapy = 'none',
 		yTitle,
 		highlight = null,
 		onbandhover,
@@ -68,7 +75,7 @@
 	let width = $state(0);
 
 	const railStep = 9;
-	const railBands = $derived(rails ? bands : []);
+	const railBands = $derived(rails ? bands.filter((b) => !b.steps) : []);
 	const margin = $derived({
 		top: compact ? 6 : 22,
 		right: compact ? 8 : railBands.length ? 18 + railBands.length * railStep : 14,
@@ -83,7 +90,7 @@
 
 	const pad = $derived(compact ? 10 : 18);
 	const xs = $derived(
-		makeX(xMode, positions, domain, [margin.left + pad, margin.left + plotW - pad], xLabel, compact)
+		makeX(xMode, positions, domain, [margin.left + pad, margin.left + plotW - pad], xLabel, hrtStart, compact)
 	);
 
 	// Log needs strictly positive values, otherwise fall back to linear
@@ -94,13 +101,9 @@
 		if (zeroLine !== undefined) vals.push(zeroLine);
 		if (fitBands) {
 			for (const b of bands.filter((b) => b.filled)) {
-				if (b.low !== undefined) vals.push(b.low);
-				if (b.high !== undefined) vals.push(b.high);
-			}
-			if (labBand) {
-				for (const p of allPoints) {
-					if (p.lab?.low !== undefined) vals.push(p.lab.low);
-					if (p.lab?.high !== undefined) vals.push(p.lab.high);
+				for (const s of b.steps ?? [b]) {
+					if (s.low !== undefined) vals.push(s.low);
+					if (s.high !== undefined) vals.push(s.high);
 				}
 			}
 		}
@@ -168,25 +171,25 @@
 		);
 	}
 
-	/** Printed lab ranges as a stepped band, each value owns the span halfway to its neighbours */
-	const labSteps = $derived.by(() => {
-		if (!series[0]) return [];
-		const pts = series[0].points.filter((p) => p.lab);
-		return pts.map((p, i) => {
-			const x0 = i === 0 ? plotLeft : (xs.x(pts[i - 1].t) + xs.x(p.t)) / 2;
-			const x1 = i === pts.length - 1 ? plotRight : (xs.x(p.t) + xs.x(pts[i + 1].t)) / 2;
-			return { x0, x1, y0: yOf(p.lab!.high, plotTop), y1: yOf(p.lab!.low, plotBottom), hasLow: p.lab!.low !== undefined, hasHigh: p.lab!.high !== undefined };
-		});
-	});
+	const colorOf = (b: ChartBand) => b.color ?? `var(--ref-${b.kind})`;
 
-	// Always drawn so switching the lab range fades like the curated bands
-	const labLit = $derived(highlight === 'lab');
-	const labFill = $derived(labLit ? 0.16 : labBand ? 0.08 : 0);
-	const labEdge = $derived(labLit ? 1 : labBand ? 0.55 : 0);
+	/** Pieces of a band across the plot, a stepped one gives each step the span halfway to its neighbours */
+	function segments(b: ChartBand) {
+		const steps = b.steps ?? [{ t: 0, low: b.low, high: b.high }];
+		return steps.map((s, i) => ({
+			x0: i === 0 ? plotLeft : (xs.x(steps[i - 1].t) + xs.x(s.t)) / 2,
+			x1: i === steps.length - 1 ? plotRight : (xs.x(s.t) + xs.x(steps[i + 1].t)) / 2,
+			y0: yOf(s.high, plotTop),
+			y1: yOf(s.low, plotBottom),
+			low: s.low,
+			high: s.high
+		}));
+	}
 
-	const phases = $derived(current.built.phases);
-	const baselineLabel = $derived(current.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt);
-	const phaseName = (p: ResolvedPhase) => (p.implicit ? baselineLabel : p.label);
+	/** Stepped bands sit behind the curated ones */
+	const drawnBands = $derived([...bands].sort((x, y) => Number(!x.steps) - Number(!y.steps)));
+
+	const baselineLabel = $derived(phaseName(phases.find((p) => p.implicit), therapy));
 
 	const phaseRegions = $derived.by(() => {
 		const starts = phases.filter((p) => p.start).map((p) => ({ p, x: xs.x(toTime(p.start)) }));
@@ -255,7 +258,7 @@
 	// Phase name cut to its region at roughly 5.8 px per character
 	function phaseLabel(p: ResolvedPhase, w: number): string {
 		const mark = p.approx && p.start ? ' ≈' : '';
-		const name = phaseName(p);
+		const name = phaseName(p, therapy);
 		const room = Math.floor((w - 12) / 5.8) - mark.length;
 		if (room >= name.length) return name + mark;
 		return room >= 6 ? name.slice(0, room - 1).trimEnd() + '…' + mark : '';
@@ -265,6 +268,8 @@
 
 	// Markers pop in as the drawing line reaches them
 	const reach = (x: number) => `${Math.round(120 + (700 * (x - plotLeft)) / Math.max(1, plotW))}ms`;
+
+	const railTitle = (b: ChartBand) => `${b.kind ? `${t.kind[b.kind]}: ` : ''}${b.label} (${b.range})`;
 
 	function railKey(e: KeyboardEvent, id: string) {
 		if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -337,23 +342,18 @@
 			{/if}
 
 			<g clip-path="url(#clip-{uid})">
-				<!-- Printed lab ranges, stepped because they change between reports -->
-				{#each labSteps as s, i (i)}
-					<rect x={s.x0} y={s.y0} width={Math.max(0, s.x1 - s.x0)} height={Math.max(0, s.y1 - s.y0)} fill="var(--ref-lab)" opacity={labFill} class="glide" />
-					{#if s.hasHigh}<rect x={s.x0} y={s.y0 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity={labEdge} class="glide" />{/if}
-					{#if s.hasLow}<rect x={s.x0} y={s.y1 - 0.5} width={Math.max(0, s.x1 - s.x0)} height="1" fill="var(--ref-lab)" opacity={labEdge} class="glide" />{/if}
-				{/each}
-
-				<!-- Curated reference bands, all drawn so showing and hiding one fades -->
-				{#each bands as b (b.id)}
-					{const y0 = $derived(yOf(b.high, plotTop))}
-					{const y1 = $derived(yOf(b.low, plotBottom))}
+				<!-- Reference bands, all drawn so showing and hiding one fades. Stepped ones get softer edges -->
+				{#each drawnBands as b (b.id)}
 					{const lit = $derived(highlight === b.id)}
 					{const shown = $derived(b.filled || lit)}
 					{const edge = $derived(lit ? 1.5 : 1)}
-					<rect x={plotLeft} y={y0} width={plotW} height={Math.max(0, y1 - y0)} fill="var(--ref-{b.kind})" opacity={!shown ? 0 : lit ? 0.16 : 0.09} class="glide" />
-					{#if b.high !== undefined}<rect x={plotLeft} y={y0 - edge / 2} width={plotW} height={edge} fill="var(--ref-{b.kind})" opacity={shown ? 1 : 0} class="glide" />{/if}
-					{#if b.low !== undefined}<rect x={plotLeft} y={y1 - edge / 2} width={plotW} height={edge} fill="var(--ref-{b.kind})" opacity={shown ? 1 : 0} class="glide" />{/if}
+					{const edgeOpacity = $derived(!shown ? 0 : b.steps && !lit ? 0.55 : 1)}
+					{#each segments(b) as s, i (i)}
+						{const w = $derived(Math.max(0, s.x1 - s.x0))}
+						<rect x={s.x0} y={s.y0} width={w} height={Math.max(0, s.y1 - s.y0)} fill={colorOf(b)} opacity={!shown ? 0 : lit ? 0.16 : 0.09} class="glide" />
+						{#if s.high !== undefined}<rect x={s.x0} y={s.y0 - edge / 2} width={w} height={edge} fill={colorOf(b)} opacity={edgeOpacity} class="glide" />{/if}
+						{#if s.low !== undefined}<rect x={s.x0} y={s.y1 - edge / 2} width={w} height={edge} fill={colorOf(b)} opacity={edgeOpacity} class="glide" />{/if}
+					{/each}
 				{/each}
 
 				<!-- Regimen changes, dotted when the date is approximate -->
@@ -446,7 +446,7 @@
 					role="button"
 					tabindex="0"
 					aria-pressed={b.filled}
-					aria-label="{t.kind[b.kind]}: {b.label} ({b.range})"
+					aria-label={railTitle(b)}
 					onpointerenter={() => onbandhover?.(b.id)}
 					onpointerleave={() => onbandhover?.(null)}
 					onfocus={() => onbandhover?.(b.id)}
@@ -457,10 +457,10 @@
 				>
 					<rect x={rx - 4} y={plotTop - 6} width={railStep} height={plotH + 12} fill="transparent" />
 					<rect x={rx - 4} y={ry0 - 4} width="8" height={Math.max(0, ry1 - ry0) + 8} rx="4" fill="none" stroke="var(--ref-target)" stroke-width="1.5" class="rail-focus" />
-					<rect x={rx - w / 2} y={ry0} width={w} height={Math.max(0, ry1 - ry0)} rx={w / 2} fill="var(--ref-{b.kind})" opacity={highlight && highlight !== b.id ? 0.35 : 1} class="glide" />
-					{#if b.high === undefined}<path d="M{rx - 3},{ry0 + 4}L{rx},{ry0}L{rx + 3},{ry0 + 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" class="glide" />{/if}
-					{#if b.low === undefined}<path d="M{rx - 3},{ry1 - 4}L{rx},{ry1}L{rx + 3},{ry1 - 4}" fill="none" stroke="var(--ref-{b.kind})" stroke-width="1.5" class="glide" />{/if}
-					<title>{t.kind[b.kind]}: {b.label} ({b.range})</title>
+					<rect x={rx - w / 2} y={ry0} width={w} height={Math.max(0, ry1 - ry0)} rx={w / 2} fill={colorOf(b)} opacity={highlight && highlight !== b.id ? 0.35 : 1} class="glide" />
+					{#if b.high === undefined}<path d="M{rx - 3},{ry0 + 4}L{rx},{ry0}L{rx + 3},{ry0 + 4}" fill="none" stroke={colorOf(b)} stroke-width="1.5" class="glide" />{/if}
+					{#if b.low === undefined}<path d="M{rx - 3},{ry1 - 4}L{rx},{ry1}L{rx + 3},{ry1 - 4}" fill="none" stroke={colorOf(b)} stroke-width="1.5" class="glide" />{/if}
+					<title>{railTitle(b)}</title>
 				</g>
 			{/each}
 
@@ -482,7 +482,6 @@
 		{#if isSource && hoverT !== null && tipPoints.length}
 			{const first = $derived(tipPoints[0].p!)}
 			{const phase = $derived(phases.find((p) => p.id === first.m.phase))}
-			{const start = $derived(hrtStartTime())}
 			<div
 				class="pointer-events-none absolute z-30 min-w-44 max-w-72 rounded-md border border-line bg-surface px-3 py-2 text-xs shadow-[var(--shadow)] transition-[left,right] duration-150 ease-out"
 				transition:fade={{ duration: 100 }}
@@ -492,7 +491,7 @@
 			>
 				<div class="mb-1 flex items-baseline justify-between gap-3">
 					<span class="font-semibold text-ink">{fmtDate(hoverT)}</span>
-					{#if start !== undefined}<span class="num text-ink-3">{hoverT < start ? baselineLabel : fmtHrt(hoverT)}</span>{/if}
+					{#if hrtStart !== undefined}<span class="num text-ink-3">{hoverT < hrtStart ? baselineLabel : fmtHrt(hoverT, hrtStart)}</span>{/if}
 				</div>
 				{#each tipPoints as { s, p } (s.id)}
 					<div class="flex items-center gap-2 py-0.5">
@@ -513,11 +512,14 @@
 								{#if first.m.rangesFor}<span class="text-ink-3">({t.profile.sexes[first.m.rangesFor]})</span>{/if}
 							</div>
 						{/if}
-						<div>{first.m.lab || t.common.noLab}{#if phase} · {phaseName(phase)}{/if}</div>
+						<div>{first.m.lab || t.common.noLab}{#if phase} · {phaseName(phase, therapy)}{/if}</div>
 						{#if first.m.censor}<div class="text-ink-3">{t.chart.censored}</div>{/if}
-						{#if first.m.derived}<div class="text-ink-3">{t.chart.derived}: {tx(first.m.derived)}</div>{/if}
+						{#if first.m.derived}
+							<div class="text-ink-3">{t.chart.derived}: {tx(first.m.derived)}</div>
+							{#if first.m.inputs?.length}<div class="text-ink-3">{t.chart.from}: {fmtInputs(first.m.inputs, units)}</div>{/if}
+						{/if}
 						{#if first.m.suspect}<div class="text-[var(--serious)]">⚠ {t.chart.suspect}: {first.m.suspect}</div>{/if}
-						{#if first.m.note && !first.m.derived}<div class="text-ink-3">{first.m.note}</div>{/if}
+						{#if first.m.note}<div class="text-ink-3">{first.m.note}</div>{/if}
 					</div>
 				{/if}
 			</div>

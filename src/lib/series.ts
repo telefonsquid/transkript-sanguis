@@ -1,64 +1,39 @@
-import { bestRef, boundsFor, convert, fmtBounds, fmtValue, refsFor, statusOf, unitOf } from './analysis';
-import type { ChartBand, ChartPoint, ChartSeries } from './chart/types';
-import type { Analyte, Measurement } from './data/types';
-import { nameOf, tx } from './i18n';
-import { lookup } from './profiles.svelte';
-import { filtered, settings } from './state.svelte';
+import { convert, fmtBounds, fmtValue, unitOf, type Status, type Units } from './analysis';
+import type { ChartBand, ChartPoint } from './chart/types';
+import type { Analyte, Measurement, Reference } from './data/types';
+import { t, tx } from './i18n';
 
-/** Chart points in the current display units, judged against the current basis */
-export function toPoints(a: Analyte, ms: Measurement[]): ChartPoint[] {
-	return ms.map((m) => ({
-		t: m.t,
-		v: convert(a, m.value, settings.units),
-		m,
-		text: fmtValue(m, settings.units),
-		status: statusOf(m, boundsFor(a, m, settings.basis)),
-		lab: m.labRef
-			? {
-					low: m.labRef.low === undefined ? undefined : convert(a, m.labRef.low, settings.units),
-					high: m.labRef.high === undefined ? undefined : convert(a, m.labRef.high, settings.units)
-				}
-			: undefined
+const inUnits = (a: Analyte, v: number | undefined, units: Units) => (v === undefined ? undefined : convert(a, v, units));
+
+/** Chart points in display units, each with the status it was judged to */
+export function toPoints(a: Analyte, ms: Measurement[], units: Units, statusOf: (m: Measurement) => Status): ChartPoint[] {
+	return ms.map((m) => ({ t: m.t, v: convert(a, m.value, units), m, text: fmtValue(a, m, units), status: statusOf(m) }));
+}
+
+/** Curated references as chart bands, `filled` decides which are drawn and which stay rails */
+export function refBands(a: Analyte, refs: Reference[], units: Units, filled: (r: Reference) => boolean): ChartBand[] {
+	return refs.map((r) => ({
+		id: r.id,
+		kind: r.kind,
+		label: tx(r.label),
+		low: inUnits(a, r.low, units),
+		high: inUnits(a, r.high, units),
+		range: `${fmtBounds(a, r, units)} ${unitOf(a, units)}`,
+		filled: filled(r)
 	}));
 }
 
-export function seriesFor(id: string, color = 'var(--line)'): ChartSeries {
-	const a = lookup(id)!;
+/** Printed lab ranges as one band that steps where the lab changed them */
+export function labBand(a: Analyte, ms: Measurement[], units: Units, filled: boolean): ChartBand | undefined {
+	const printed = ms.filter((m) => m.labRef && (m.labRef.low !== undefined || m.labRef.high !== undefined));
+	const last = printed.at(-1)?.labRef;
+	if (!last) return undefined;
 	return {
-		id,
-		name: nameOf(a),
-		color,
-		unit: unitOf(a, settings.units),
-		points: toPoints(a, filtered.byAnalyte.get(id) ?? [])
+		id: 'lab',
+		kind: 'lab',
+		label: t.kind.lab,
+		steps: printed.map((m) => ({ t: m.t, low: inUnits(a, m.labRef!.low, units), high: inUnits(a, m.labRef!.high, units) })),
+		range: `${fmtBounds(a, last, units)} ${unitOf(a, units)}`,
+		filled
 	};
-}
-
-/**
- * Curated references as chart bands. The one the status is judged against is filled,
- * the rest stay available as rails and legend rows.
- */
-export function bandsFor(a: Analyte, fill: 'primary' | 'all' | 'none' = settings.bandFill): ChartBand[] {
-	const refs = refsFor(a);
-	const basisRef = settings.basis === 'primary' ? bestRef(a) : refs.find((r) => r.kind === settings.basis);
-
-	return refs
-		.filter((r) => settings.kinds.includes(r.kind))
-		.map((r) => ({
-			id: r.id,
-			kind: r.kind,
-			label: tx(r.label),
-			low: r.low === undefined ? undefined : convert(a, r.low, settings.units),
-			high: r.high === undefined ? undefined : convert(a, r.high, settings.units),
-			range: `${fmtBounds(a, r, settings.units)} ${unitOf(a, settings.units)}`,
-			filled: fill === 'all' || (fill === 'primary' && r === basisRef)
-		}));
-}
-
-export function useLog(a: Analyte): boolean {
-	return settings.yScale === 'log' || (settings.yScale === 'auto' && a.scale === 'log');
-}
-
-export function positionsFor(series: ChartSeries[]): number[] {
-	if (settings.xMode === 'draws') return filtered.drawTimes;
-	return [...new Set(series.flatMap((s) => s.points.map((p) => p.t)))].sort((x, y) => x - y);
 }

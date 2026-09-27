@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { boundsFor, convert, decimalsOf, fmtBounds, fmtNum, statusOf, unitOf } from '../analysis';
+	import { boundsLabel, convert, decimalsOf, fmtBounds, fmtNum, labBounds, unitOf } from '../analysis';
 	import Chart from '../chart/Chart.svelte';
 	import type { Analyte } from '../data/types';
 	import { altNameOf, nameOf, t } from '../i18n';
 	import { fly } from '../motion.svelte';
-	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
 	import { filtered, settings } from '../state.svelte';
+	import { bandsFor, chartProps, judge, seriesFor, useLog } from '../view.svelte';
 
 	interface Props {
 		analyte: Analyte;
@@ -21,8 +21,9 @@
 	const last = $derived(ms.at(-1));
 	const prev = $derived(ms.at(-2));
 	const lastPoint = $derived(series.points.at(-1));
-	const bounds = $derived(last ? boundsFor(a, last, settings.basis) : undefined);
-	const status = $derived(last ? statusOf(last, bounds) : 'none');
+	const judged = $derived(last ? judge(last) : undefined);
+	const bounds = $derived(judged?.bounds);
+	const status = $derived(judged?.status ?? 'none');
 
 	const delta = $derived.by(() => {
 		if (!last || !prev || last.censor || prev.censor) return undefined;
@@ -34,9 +35,8 @@
 	const alt = $derived(altNameOf(a));
 
 	// Small charts draw the band values are judged against next to the printed lab range
-	const cardBands = $derived(bandsFor(a).filter((b) => b.filled));
-	const showLab = $derived(settings.kinds.includes('lab'));
-	const lab = $derived(showLab && bounds?.kind !== 'lab' && last ? boundsFor(a, last, 'lab') : undefined);
+	const cardBands = $derived(bandsFor(a.id).filter((b) => b.filled));
+	const lab = $derived(settings.kinds.includes('lab') && bounds?.kind !== 'lab' && last ? labBounds(last) : undefined);
 	const href = $derived(resolve('/analyte/[id]', { id: a.id }));
 </script>
 
@@ -74,19 +74,10 @@
 		<Chart
 			series={[series]}
 			bands={cardBands}
-			labBand={showLab}
+			{...chartProps([series])}
 			{height}
 			compact
-			log={useLog(a)}
-			fitBands={settings.yFit === 'refs'}
-			xMode={settings.xMode}
-			positions={positionsFor([series])}
-			domain={filtered.domain}
-			xLabel={settings.xLabel}
-			showPhases={settings.showPhases}
-			showEvents={settings.showEvents}
-			labels={settings.labels}
-			curve={settings.curve}
+			log={useLog(a.id)}
 			onpick={() => goto(href)}
 			ariaLabel="{t.chart.ariaChart(nameOf(a))}, {t.grid.values(ms.length)}, {unit}"
 		/>
@@ -96,8 +87,9 @@
 		<span class="num shrink-0">n = {ms.length}</span>
 		<span class="flex min-w-0 items-center gap-2.5">
 			{#each [bounds, lab].filter((b) => b !== undefined) as b (b.kind)}
-				<span class={['truncate', b.kind === 'lab' && 'shrink-0']} title={b.label}>
-					<span class="mr-1 inline-block h-2 w-0.5 rounded-full align-middle" style:background="var(--ref-{b.kind})"></span>{b.label}
+				{const label = $derived(boundsLabel(b))}
+				<span class={['truncate', b.kind === 'lab' && 'shrink-0']} title={label}>
+					<span class="mr-1 inline-block h-2 w-0.5 rounded-full align-middle" style:background="var(--ref-{b.kind})"></span>{label}
 					<span class="num text-ink-2">{fmtBounds(a, b, settings.units)}</span>
 				</span>
 			{/each}

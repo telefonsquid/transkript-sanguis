@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { boundsFor, fmtValue, position, statusOf, unitOf } from '../analysis';
+	import { fmtValue, position, unitOf } from '../analysis';
 	import Chart from '../chart/Chart.svelte';
 	import type { ChartSeries } from '../chart/types';
 	import { groups } from '../data';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { fade, flip, pop } from '../motion.svelte';
 	import { current, lookup } from '../profiles.svelte';
-	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
 	import { filtered, settings } from '../state.svelte';
+	import { bandsFor, chartProps, judge, seriesFor, useLog } from '../view.svelte';
 	import Segmented from '../ui/Segmented.svelte';
 
 	const MAX = 8;
@@ -70,11 +70,11 @@
 				const points = raw.points.flatMap((p) => {
 					let v: number | undefined;
 					if (settings.compareMode === 'range') {
-						const pos = position(p.m.value, boundsFor(a, p.m, settings.basis));
+						const pos = position(p.m.value, judge(p.m).bounds);
 						v = pos === undefined ? undefined : pos * 100;
 					} else if (settings.compareMode === 'index') v = first ? (p.m.value / first) * 100 : undefined;
 					else v = sd > 0 ? (p.m.value - mean) / sd : undefined;
-					return v === undefined || !Number.isFinite(v) ? [] : [{ ...p, v, status: statusOf(p.m, boundsFor(a, p.m, settings.basis)) }];
+					return v === undefined || !Number.isFinite(v) ? [] : [{ ...p, v, status: judge(p.m).status }];
 				});
 				return { ...raw, name: nameOf(a), points };
 			})
@@ -85,6 +85,13 @@
 	const modeText = $derived(
 		settings.compareMode === 'range' ? t.compare.modeText.range(t.basis[settings.basis]) : t.compare.modeText[settings.compareMode]
 	);
+
+	/** Filled curated bands of a small chart, the printed lab range only without one */
+	function smallBands(id: string) {
+		const bands = bandsFor(id);
+		const curated = bands.filter((b) => b.filled && b.id !== 'lab');
+		return curated.length ? curated : bands.filter((b) => b.id === 'lab').map((b) => ({ ...b, filled: true }));
+	}
 
 	const available = $derived(current.analytes.filter((a) => !settings.compare.includes(a.id) && (filtered.byAnalyte.get(a.id)?.length ?? 0) > 0));
 </script>
@@ -140,21 +147,14 @@
 		{#if normalized.some((s) => s.points.length)}
 			<Chart
 				series={normalized}
-				labBand={false}
+				{...chartProps(normalized)}
 				height={420}
-				xMode={settings.xMode}
-				positions={positionsFor(normalized)}
-				domain={filtered.domain}
-				xLabel={settings.xLabel}
-				showPhases={settings.showPhases}
-				showEvents={settings.showEvents}
 				labels={settings.labels === 'all' ? 'all' : 'none'}
-				curve={settings.curve}
 				bands={settings.compareMode === 'range'
-					? [{ id: 'inside', kind: 'lab', label: t.compare.inside, low: 0, high: 100, range: '0 – 100 %', filled: true }]
+					? [{ id: 'inside', color: 'var(--ink-3)', label: t.compare.inside, low: 0, high: 100, range: t.compare.insideRange, filled: true }]
 					: []}
 				zeroLine={settings.compareMode === 'index' ? 100 : 0}
-				yTitle={settings.compareMode === 'range' ? '% of range' : settings.compareMode === 'index' ? 'index' : 'z'}
+				yTitle={t.compare.yTitles[settings.compareMode]}
 				ariaLabel={normalized.map((s) => s.name).join(', ')}
 			/>
 			<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
@@ -163,7 +163,7 @@
 					<span class="inline-flex items-center gap-1.5">
 						<span class="inline-block h-0.5 w-4 rounded" style:background={s.color}></span>
 						<span class="text-ink">{s.name}</span>
-						{#if last}<span class="num text-ink-3">{t.compare.last} {fmtValue(last.m, settings.units)} {s.unit}</span>{/if}
+						{#if last}<span class="num text-ink-3">{t.compare.last} {fmtValue(lookup(s.id), last.m, settings.units)} {s.unit}</span>{/if}
 					</span>
 				{/each}
 			</div>
@@ -191,20 +191,11 @@
 					</div>
 					<Chart
 						series={[s]}
-						bands={bandsFor(a).filter((b) => b.filled)}
-						labBand={!bandsFor(a).some((b) => b.filled)}
+						{...chartProps(settings.xMode === 'points' ? normalized : [s])}
+						bands={smallBands(id)}
 						height={150}
 						compact
-						log={useLog(a)}
-						fitBands={settings.yFit === 'refs'}
-						xMode={settings.xMode}
-						positions={settings.xMode === 'points' ? positionsFor(normalized) : positionsFor([s])}
-						domain={filtered.domain}
-						xLabel={settings.xLabel}
-						showPhases={settings.showPhases}
-						showEvents={settings.showEvents}
-						labels={settings.labels}
-						curve={settings.curve}
+						log={useLog(id)}
 						ariaLabel={t.chart.ariaChart(`${nameOf(a)} (${unitOf(a, settings.units)})`)}
 					/>
 				</article>

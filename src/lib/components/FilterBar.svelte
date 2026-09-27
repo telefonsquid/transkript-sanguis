@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { BASES, KIND_ORDER } from '../analysis';
+	import { BASES, KIND_ORDER, phaseName } from '../analysis';
 	import { t } from '../i18n';
 	import { glide } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
@@ -33,7 +33,6 @@
 			Number(settings.suspect === 'hide')
 	);
 
-	const baseline = $derived(current.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt);
 
 	function setDate(which: 'from' | 'to', value: string) {
 		settings[which] = value || null;
@@ -219,7 +218,7 @@
 					{#each phases as p (p.id)}
 						<label class="flex items-center gap-2 py-0.5 text-ink">
 							<input type="checkbox" checked={!settings.hiddenPhases.includes(p.id)} onchange={() => (settings.hiddenPhases = toggle(settings.hiddenPhases, p.id))} class={CHECK} />
-							{p.implicit ? baseline : p.label}
+							{phaseName(p, current.therapy)}
 						</label>
 					{/each}
 				</div>

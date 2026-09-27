@@ -56,6 +56,15 @@ export function parseRange(text: string | null | undefined): PrintedRange | unde
 	return { note: text.trim() };
 }
 
+/** Decimals a printed value was given with, "12,50" has two */
+export function printedDecimals(raw: string): number {
+	return raw.match(/[.,](\d+)\s*$/)?.[1].length ?? 0;
+}
+
+export const DAY = 86_400_000;
+export const MONTH = 30.4375 * DAY;
+export const YEAR = 365.25 * DAY;
+
 export function toTime(date: string, time = '12:00'): number {
 	const [y, mo, d] = date.split('-').map(Number);
 	const [h, mi] = time.split(':').map(Number);

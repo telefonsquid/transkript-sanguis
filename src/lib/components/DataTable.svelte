@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { SLUG } from '../app';
-	import { boundsFor, convert, fmtBounds, fmtDate, fmtLabRef, fmtNum, fmtValue, monthsOnHrt, phaseName, statusOf, unitOf } from '../analysis';
+	import { boundsLabel, convert, fmtBounds, fmtDate, fmtInputs, fmtLabRef, fmtNum, fmtValue, monthsOnHrt, unitOf } from '../analysis';
 	import { groupById } from '../data';
 	import type { Measurement } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { flip } from '../motion.svelte';
-	import { lookup } from '../profiles.svelte';
+	import { current, lookup } from '../profiles.svelte';
 	import { download } from '../io';
 	import { filtered, settings } from '../state.svelte';
+	import { judge, phaseLabel } from '../view.svelte';
 
 	type Key = 'date' | 'analyte' | 'group' | 'value' | 'status' | 'lab' | 'phase';
 
@@ -22,8 +23,8 @@
 			.filter((m) => visibleIds.has(m.analyte))
 			.map((m) => {
 				const a = lookup(m.analyte)!;
-				const b = boundsFor(a, m, settings.basis);
-				return { m, a, b, status: statusOf(m, b) };
+				const { bounds: b, status } = judge(m);
+				return { m, a, b, status };
 			});
 
 		const rank = { low: 0, high: 1, in: 2, none: 3 };
@@ -53,8 +54,8 @@
 	/** Machine readable row, always in English keys with dot decimals */
 	function record(m: Measurement) {
 		const a = lookup(m.analyte)!;
-		const b = boundsFor(a, m, settings.basis);
-		const months = monthsOnHrt(m.t);
+		const { bounds: b, status } = judge(m);
+		const months = monthsOnHrt(m.t, current.hrtStart);
 		return {
 			date: m.date,
 			months_on_hrt: months === undefined ? '' : +months.toFixed(2),
@@ -67,14 +68,15 @@
 			unit: unitOf(a, settings.units),
 			as_printed: m.raw,
 			printed_unit: m.printedUnit ?? '',
-			status: statusOf(m, b),
-			judged_against: b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '',
+			status,
+			judged_against: b ? `${b.ref?.label.en ?? 'lab'} ${fmtBounds(a, b, settings.units)}` : '',
 			printed_range: m.labRef ? fmtLabRef(m.labRef) : '',
 			ranges_for: m.rangesFor ?? '',
 			lab_flag: m.labFlag ?? '',
 			lab: m.lab,
-			phase: phaseName(m.phase),
+			phase: phaseLabel(m.phase),
 			computed: m.derived?.en ?? '',
+			computed_from: m.inputs?.map((i) => `${i.of}=${i.censor ?? ''}${i.value}${i.assumed ? ' (assumed)' : ''}`).join(' ') ?? '',
 			suspect: m.suspect ?? '',
 			note: m.note ?? ''
 		};
@@ -107,7 +109,7 @@
 	]);
 
 	function hrtCell(time: number): string {
-		const mo = monthsOnHrt(time);
+		const mo = monthsOnHrt(time, current.hrtStart);
 		if (mo === undefined) return '';
 		return mo < 0 ? t.data.baseline.hrt : t.months(fmtNum(mo, 1));
 	}
@@ -148,22 +150,23 @@
 							{#if altNameOf(a)}<span class="text-ink-3">{altNameOf(a)}</span>{/if}
 						</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-2">{tx(groupById.get(a.group)?.label)}</td>
-						<td class="px-2.5 py-1.5 text-right font-semibold whitespace-nowrap text-ink">{fmtValue(m, settings.units)}</td>
+						<td class="px-2.5 py-1.5 text-right font-semibold whitespace-nowrap text-ink">{fmtValue(a, m, settings.units)}</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap text-ink-3">{unitOf(a, settings.units)}</td>
 						<td class="px-2.5 py-1.5 whitespace-nowrap">
 							{#if status === 'high' || status === 'low'}<span style:color="var(--{status})">{status === 'high' ? '▲' : '▼'} {t.status[status]}</span>{:else if status === 'in'}<span class="text-ink-3">{t.status.in}</span>{/if}
 						</td>
-						<td class={['px-2.5 py-1.5 whitespace-nowrap', b ? 'text-ink-2' : 'text-ink-3']}>{b ? `${b.label} ${fmtBounds(a, b, settings.units)}` : '—'}</td>
+						<td class={['px-2.5 py-1.5 whitespace-nowrap', b ? 'text-ink-2' : 'text-ink-3']}>{b ? `${boundsLabel(b)} ${fmtBounds(a, b, settings.units)}` : '—'}</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.labRef ? 'text-ink-2' : 'text-ink-3']}>
 							{fmtLabRef(m.labRef)}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> {m.rangesFor === 'male' ? '♂' : '♀'}</span>{/if}
 						</td>
 						<td class={['px-2.5 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
-						<td class="max-w-40 truncate px-2.5 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>
+						<td class="max-w-40 truncate px-2.5 py-1.5 whitespace-nowrap text-ink-2">{phaseLabel(m.phase)}</td>
 						<td class="max-w-sm px-2.5 py-1.5 font-sans text-ink-2">
 							{#if m.derived}◇ {tx(m.derived)}{/if}
+							{#if m.inputs?.length}<span class="text-ink-3">{t.chart.from}: {fmtInputs(m.inputs, settings.units)}</span>{/if}
 							{#if m.suspect}<span style:color="var(--serious)">⚠ {t.focus.suspect}</span>{/if}
 							{#if m.censor}<span class="text-ink-3">{t.table.limit}</span>{/if}
-							{#if m.note && !m.derived}<span class="text-ink-3">{m.note}</span>{/if}
+							{#if m.note}<span class="text-ink-3">{m.note}</span>{/if}
 						</td>
 					</tr>
 				{/each}

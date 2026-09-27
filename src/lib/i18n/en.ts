@@ -575,6 +575,8 @@ export const en = {
 			z: 'Standard deviations from each series’ own mean. Shows shape, hides magnitude.'
 		},
 		inside: 'Inside reference range',
+		insideRange: '0 – 100 %',
+		yTitles: { range: '% of range', index: 'index', z: 'z' },
 		dropped: 'Not shown on this scale (no usable reference or spread):',
 		empty: 'Add values with results in the current date range.',
 		ownUnits: 'Same series in their own units',
@@ -615,9 +617,12 @@ export const en = {
 		},
 		limit: 'reporting limit'
 	},
+	customInfo: 'A value you added yourself. It only carries the range your lab printed.',
 	chart: {
 		lab: 'Lab range',
 		derived: 'computed',
+		from: 'Computed from',
+		inputs: { age: (n: string) => `age ${n}`, height: 'height', assumed: 'assumed' },
 		suspect: 'suspect',
 		censored: 'printed as a limit',
 		phase: 'Phase',

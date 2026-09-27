@@ -1,7 +1,8 @@
 import { SLUG } from './app';
-import { acceptUnit, analytes, cleanUnit, isIsoDate, parseNum, parseRange, parseValue, suggestUnit, unitFactor } from './data';
-import type { Analyte, Draw, Profile, Result, Sex } from './data/types';
+import { acceptUnit, analytes, cleanUnit, isIsoDate, parseNum, parseRange, parseValue, suggestUnit } from './data';
+import type { Analyte, Draw, Profile, Sex } from './data/types';
 import { fileKey, getFile, putFile } from './files';
+import { rowProblem, type EditRow, type RowProblem } from './rows';
 
 export const EXPORT_FORMAT = `${SLUG}/export`;
 export const DRAWS_FORMAT = `${SLUG}/draws`;
@@ -161,24 +162,12 @@ export function matchName(name: string | null | undefined): string | undefined {
 
 /* Import preview */
 
-export type RowProblem = 'value' | 'range' | 'unit' | 'confirm' | 'analyte' | 'duplicate';
-
-export interface PreviewRow {
-	key: string;
+export interface PreviewRow extends EditRow {
 	printed: string;
-	analyte: string | null;
-	value: string;
-	/** A unit the app accepts for the analyte, free text for a value of the user's own */
-	unit: string;
 	/** Unit as the assistant read it */
 	printedUnit: string;
 	/** Unit guessed from the value, waits for the user to confirm it */
 	suggested: boolean;
-	low: string;
-	high: string;
-	rangeNote: string;
-	flag: string;
-	note: string;
 	action: 'import' | 'custom' | 'drop';
 }
 
@@ -257,42 +246,16 @@ export function toPreview(file: DrawsFile, profile: Profile | null, lookup: (id:
 	});
 }
 
-export function rowProblem(row: PreviewRow, rows: PreviewRow[], lookup: (id: string) => Analyte | undefined): RowProblem | undefined {
+/** Row checks plus the unit guess that waits for a confirmation */
+export function previewProblem(row: PreviewRow, rows: PreviewRow[], lookup: (id: string) => Analyte | undefined): RowProblem | undefined {
 	if (row.action === 'drop') return undefined;
-	if (!parseValue(row.value)) return 'value';
-	if (rangeProblem(row.low, row.high)) return 'range';
-	if (row.action === 'custom') return undefined;
-	const a = row.analyte ? lookup(row.analyte) : undefined;
-	if (!a) return 'analyte';
-	if (!row.unit || unitFactor(a, row.unit) === undefined) return 'unit';
-	if (row.suggested) return 'confirm';
-	if (rows.some((r) => r !== row && r.action === 'import' && r.analyte === row.analyte)) return 'duplicate';
-	return undefined;
-}
-
-/** Bounds that are not numbers, or a lower bound above the upper one */
-export function rangeProblem(low: string, high: string): boolean {
-	const [l, h] = [parseNum(low.trim()), parseNum(high.trim())];
-	if ((low.trim() && l === undefined) || (high.trim() && h === undefined)) return true;
-	return l !== undefined && h !== undefined && l > h;
+	const target = row.action === 'custom' ? 'custom' : row.analyte ? lookup(row.analyte) : undefined;
+	const siblings = rows.filter((r) => r.action === 'import');
+	return rowProblem(row, target, siblings) ?? (row.suggested ? 'confirm' : undefined);
 }
 
 export function drawProblem(d: PreviewDraw): 'date' | undefined {
 	return isIsoDate(d.date) ? undefined : 'date';
-}
-
-/** The canonical unit is left out, like everywhere else in stored results */
-export function toResult(row: PreviewRow, analyte: string, canonical?: string): Result {
-	const r: Result = { analyte, value: row.value };
-	if (row.unit && row.unit !== canonical) r.unit = row.unit;
-	const [low, high] = [parseNum(row.low.trim()), parseNum(row.high.trim())];
-	if (low !== undefined) r.low = low;
-	if (high !== undefined) r.high = high;
-	if (row.rangeNote) r.rangeNote = row.rangeNote;
-	if (row.flag) r.flag = row.flag;
-	if (row.printed) r.printed = row.printed;
-	if (row.note) r.note = row.note;
-	return r;
 }
 
 export function newDraw(id: string, d: PreviewDraw): Draw {

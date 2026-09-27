@@ -576,6 +576,8 @@ export const de: Dict = {
 			z: 'Standardabweichungen vom eigenen Mittelwert jeder Reihe. Zeigt die Form, verbirgt die Größe.'
 		},
 		inside: 'Im Referenzbereich',
+		insideRange: '0 – 100 %',
+		yTitles: { range: '% des Bereichs', index: 'Index', z: 'z' },
 		dropped: 'Auf dieser Skala nicht darstellbar (keine nutzbare Referenz oder Streuung):',
 		empty: 'Füge Werte mit Ergebnissen im gewählten Zeitraum hinzu.',
 		ownUnits: 'Dieselben Reihen in eigenen Einheiten',
@@ -616,9 +618,12 @@ export const de: Dict = {
 		},
 		limit: 'Nachweisgrenze'
 	},
+	customInfo: 'Ein selbst angelegter Wert. Er trägt nur den Bereich, den dein Labor angegeben hat.',
 	chart: {
 		lab: 'Laborbereich',
 		derived: 'berechnet',
+		from: 'Berechnet aus',
+		inputs: { age: (n: string) => `Alter ${n}`, height: 'Größe', assumed: 'angenommen' },
 		suspect: 'verdächtig',
 		censored: 'als Grenze gedruckt',
 		phase: 'Phase',

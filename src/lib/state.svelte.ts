@@ -1,12 +1,13 @@
 import { SLUG } from './app';
-import { boundsFor, isoDate, statusOf, type Basis, type Kind, type Units } from './analysis';
-import { groupOrder, toTime } from './data';
+import { KIND_ORDER, boundsFor, isoDate, statusOf, type Basis, type Bounds, type Kind, type Status, type Units } from './analysis';
+import type { XMode } from './chart/types';
+import { DAY, groupOrder, toTime } from './data';
 import type { Analyte, GroupId, Measurement } from './data/types';
 import { nameOf } from './i18n';
 import { current } from './profiles.svelte';
 
 export type View = 'grid' | 'compare' | 'matrix' | 'table';
-export type XMode = 'time' | 'draws' | 'points';
+export type { XMode };
 export type Sort = 'group' | 'name' | 'count' | 'status' | 'recent';
 export type DatePreset = 'all' | 'pre' | 'hrt' | 'latest' | 'year' | 'custom';
 
@@ -18,7 +19,7 @@ const defaults = {
 	yFit: 'refs' as 'data' | 'refs',
 	units: 'conv' as Units,
 	basis: 'primary' as Basis,
-	kinds: ['lab', 'target', 'context', 'trans', 'clinical', 'female', 'male', 'adult'] as Kind[],
+	kinds: [...KIND_ORDER] as Kind[],
 	bandFill: 'primary' as 'primary' | 'all' | 'none',
 	showPhases: true,
 	showEvents: true,
@@ -89,8 +90,6 @@ export function resetProfileFilters() {
 	Object.assign(settings, { datePreset: 'all', from: null, to: null, hiddenLabs: [], hiddenPhases: [] });
 }
 
-const DAY = 86_400_000;
-
 export function applyDatePreset(preset: DatePreset) {
 	settings.datePreset = preset;
 	const start = current.built.hrtStart ?? null;
@@ -114,7 +113,29 @@ function matches(a: Analyte, q: string): boolean {
 		.every((word) => hay.includes(word));
 }
 
+interface Judged {
+	bounds?: Bounds;
+	status: Status;
+}
+
+const UNJUDGED: Judged = { status: 'none' };
+
 class Filtered {
+	/** Every value of the profile judged once against the current basis */
+	judged = $derived(
+		new Map(
+			current.built.measurements.map((m): [Measurement, Judged] => {
+				const a = current.lookup(m.analyte);
+				const bounds = a && boundsFor(a, m, settings.basis, current.subject);
+				return [m, { bounds, status: statusOf(m, bounds) }];
+			})
+		)
+	);
+
+	judge(m: Measurement): Judged {
+		return this.judged.get(m) ?? UNJUDGED;
+	}
+
 	/** Values that pass date, lab, phase and quality filters */
 	measurements = $derived.by(() => {
 		const from = settings.from ? toTime(settings.from, '00:00') : -Infinity;
@@ -145,16 +166,12 @@ class Filtered {
 	});
 
 	outOfRange = $derived.by(() => {
-		const outside = [...this.byAnalyte].filter(([id, list]) => {
-			const a = current.lookup(id);
-			return (
-				a &&
-				list.some((m) => {
-					const s = statusOf(m, boundsFor(a, m, settings.basis));
-					return s === 'low' || s === 'high';
-				})
-			);
-		});
+		const outside = [...this.byAnalyte].filter(([, list]) =>
+			list.some((m) => {
+				const s = this.judge(m).status;
+				return s === 'low' || s === 'high';
+			})
+		);
 		return new Set(outside.map(([id]) => id));
 	});
 
@@ -171,10 +188,10 @@ class Filtered {
 	});
 }
 
-function latestStatusRank(a: Analyte, list: Measurement[] | undefined): number {
+function latestStatusRank(list: Measurement[] | undefined): number {
 	const last = list?.at(-1);
 	if (!last) return 3;
-	const s = statusOf(last, boundsFor(a, last, settings.basis));
+	const s = filtered.judge(last).status;
 	return s === 'high' || s === 'low' ? 0 : s === 'none' ? 2 : 1;
 }
 
@@ -185,16 +202,13 @@ function sortAnalytes(list: Analyte[], byAnalyte: Map<string, Measurement[]>): A
 		group: (a, b) => groupOrder(a.group) - groupOrder(b.group) || catalogue.get(a.id)! - catalogue.get(b.id)!,
 		name: (a, b) => nameOf(a).localeCompare(nameOf(b)),
 		count: (a, b) => (byAnalyte.get(b.id)?.length ?? 0) - (byAnalyte.get(a.id)?.length ?? 0),
-		status: (a, b) => latestStatusRank(a, byAnalyte.get(a.id)) - latestStatusRank(b, byAnalyte.get(b.id)),
+		status: (a, b) => latestStatusRank(byAnalyte.get(a.id)) - latestStatusRank(byAnalyte.get(b.id)),
 		recent: (a, b) => (byAnalyte.get(b.id)?.at(-1)?.t ?? 0) - (byAnalyte.get(a.id)?.at(-1)?.t ?? 0)
 	};
 	return [...list].sort((a, b) => Number(pinned.has(b.id)) - Number(pinned.has(a.id)) || key[settings.sort](a, b));
 }
 
 export const filtered = new Filtered();
-
-/** Shared crosshair so every chart highlights the same blood draw */
-export const hover: { t: number | null; source: string | null } = $state({ t: null, source: null });
 
 export function toggle<T>(list: T[], item: T): T[] {
 	return list.includes(item) ? list.filter((x) => x !== item) : [...list, item];

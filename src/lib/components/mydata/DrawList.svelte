@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { boundsFor, fmtDay, fmtHrt, monthsOnHrt, phaseName, statusOf } from '../../analysis';
+	import { fmtDay } from '../../analysis';
 	import { toTime } from '../../data';
 	import type { Draw, Measurement, Profile } from '../../data/types';
 	import { deleteFile, fileKey, openFile, putFile } from '../../files';
 	import { t } from '../../i18n';
 	import { current, deleteDraw, lookup, newId } from '../../profiles.svelte';
-	import { settings } from '../../state.svelte';
+	import { hrtLabel, judge, phaseLabel } from '../../view.svelte';
 
 	let { profile }: { profile: Profile } = $props();
 
@@ -19,9 +19,8 @@
 		let high = 0;
 		let low = 0;
 		for (const m of ms) {
-			const a = lookup(m.analyte);
-			if (!a || m.derived) continue;
-			const s = statusOf(m, boundsFor(a, m, settings.basis));
+			if (!lookup(m.analyte) || m.derived) continue;
+			const s = judge(m).status;
 			if (s === 'high') high++;
 			else if (s === 'low') low++;
 		}
@@ -67,11 +66,11 @@
 					{const s = $derived(summary(ms))}
 					{const time = $derived(toTime(d.date, d.time))}
 					{const report = $derived(profile.reports.find((r) => r.id === d.report))}
-					{const phase = $derived(ms[0] && profile.phases.length ? phaseName(ms[0].phase) : '')}
+					{const phase = $derived(ms[0] && profile.phases.length ? phaseLabel(ms[0].phase) : '')}
 					<li style:--i={i + 3} class="rise grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-3 hover:bg-hover @2xl:grid-cols-[4.25rem_minmax(0,1fr)_9.5rem_auto]">
 						<div class="num">
 							<div class="text-sm font-semibold text-ink">{fmtDay(time)}</div>
-							<div class="text-[11px] text-ink-3">{d.time ?? (monthsOnHrt(time) !== undefined ? fmtHrt(time) : '')}</div>
+							<div class="text-[11px] text-ink-3">{d.time ?? (current.hrtStart !== undefined ? hrtLabel(time) : '')}</div>
 						</div>
 
 						<div class="min-w-0">

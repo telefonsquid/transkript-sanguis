@@ -1,4 +1,4 @@
-import { ckdEpi2009 } from './data/build';
+import { ckdEpi2009 } from './data/formulas';
 import { ageAt, parseRange } from './data/parse';
 import type { Draw, Profile, Result, Sex } from './data/types';
 

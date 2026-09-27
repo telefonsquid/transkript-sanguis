@@ -12,6 +12,9 @@ export const t: Dict = new Proxy({} as Dict, {
 
 export const tx = (text: Text | undefined): string => (text ? (text[prefs.lang] ?? text.en) : '');
 
+/** A text in every language, for places that store or pass on both */
+export const both = (pick: (d: Dict) => string): Text => ({ en: pick(en), de: pick(de) });
+
 export const nameOf = (a: Analyte): string => tx(a.name);
 
 /** The name in the second language, when it adds something */

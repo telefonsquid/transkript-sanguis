@@ -1,124 +1,13 @@
-import { BASELINE, toTime } from './data';
-import type { Analyte, Measurement, Range, RefKind, Reference, Therapy } from './data/types';
-import { locale, t, tx } from './i18n';
-import { current, lookup } from './profiles.svelte';
+import { BASELINE, MONTH, YEAR, analyteById, printedDecimals, toTime, type Bounds, type ResolvedPhase } from './data';
+import type { Analyte, Input, Measurement, Range, Therapy } from './data/types';
+import { locale, nameOf, t, tx } from './i18n';
 
-export type Basis = 'primary' | 'lab' | 'target' | 'trans' | 'female' | 'male' | 'adult' | 'clinical';
+export * from './data/judge';
+
 export type Units = 'conv' | 'si';
-export type Status = 'low' | 'in' | 'high' | 'none';
-export type Kind = RefKind | 'lab';
 
-export interface Bounds {
-	low?: number;
-	high?: number;
-	label: string;
-	kind: Kind;
-}
-
-export const BASES: Basis[] = ['primary', 'lab', 'target', 'trans', 'female', 'male', 'adult', 'clinical'];
-
-/** Fixed legend order, validated as a palette in this order */
-export const KIND_ORDER: Kind[] = ['lab', 'target', 'context', 'trans', 'clinical', 'female', 'male', 'adult'];
-
-/** References that apply to the active profile's therapy, age and height */
-export function refsFor(a: Analyte, therapy: Therapy = current.therapy, age = current.age, height = current.profile?.height): Reference[] {
-	const fits = a.refs.filter(
-		(r) => (!r.therapy || r.therapy === therapy) && (!r.age || age === undefined || (age >= r.age[0] && age <= r.age[1]))
-	);
-	if (!fits.some((r) => r.perHeight)) return fits;
-
-	// Ranges per height² need a height to become a range
-	const m2 = height ? (height / 100) ** 2 : 0;
-	const scale = (v: number | undefined) => (v === undefined ? v : Math.round(v * m2 * 10) / 10);
-	return fits.flatMap((r) => (!r.perHeight ? [r] : m2 ? [{ ...r, low: scale(r.low), high: scale(r.high) }] : []));
-}
-
-function labBounds(m: Measurement): Bounds | undefined {
-	if (!m.labRef || (m.labRef.low === undefined && m.labRef.high === undefined)) return undefined;
-	return { low: m.labRef.low, high: m.labRef.high, label: t.kind.lab, kind: 'lab' };
-}
-
-/** The reference "best fit" stands for on this profile, before falling back to the lab range */
-export function primaryRef(a: Analyte, therapy: Therapy = current.therapy): Reference | undefined {
-	const refs = refsFor(a, therapy);
-	const id = a.primary?.[therapy] ?? a.primary?.any;
-	if (id) {
-		const exact = refs.find((r) => r.id === id);
-		if (exact) return exact;
-
-		// The chosen range may exist only for another age band, take the visible one of the same kind
-		const kind = a.refs.find((r) => r.id === id)?.kind;
-		const sibling = refs.find((r) => r.kind === kind);
-		if (sibling) return sibling;
-	}
-	if (therapy === 'none') {
-		const sex = current.profile?.sex;
-		return refs.find((r) => r.kind === sex) ?? refs.find((r) => r.kind === 'adult');
-	}
-	return undefined;
-}
-
-/**
- * Reference used when no default exists, a cohort on the same therapy first. Sex specific ranges
- * never qualify on HRT, a suppressed LH judged against cis men would read as a false "low".
- */
-export function fallbackRef(a: Analyte): Reference | undefined {
-	const refs = refsFor(a).filter((r) => r.low !== undefined || r.high !== undefined);
-	const kinds: RefKind[] = ['trans', 'adult', 'clinical', 'target'];
-	for (const kind of kinds) {
-		const ref = refs.find((r) => r.kind === kind);
-		if (ref) return ref;
-	}
-}
-
-/** Curated reference "best fit" judges against, the printed lab range only steps in without one */
-export function bestRef(a: Analyte): Reference | undefined {
-	return primaryRef(a) ?? fallbackRef(a);
-}
-
-const asBounds = (r: Reference): Bounds => ({ low: r.low, high: r.high, label: tx(r.label), kind: r.kind });
-
-/** Reference a value is judged against, the printed lab range when no curated one fits */
-export function boundsFor(a: Analyte, m: Measurement | undefined, basis: Basis): Bounds | undefined {
-	const lab = m ? labBounds(m) : undefined;
-	if (basis === 'lab') return lab;
-
-	const ref = basis === 'primary' ? bestRef(a) : refsFor(a).find((r) => r.kind === basis);
-	return ref ? asBounds(ref) : lab;
-}
-
-export function statusOf(m: Measurement, b: Bounds | undefined): Status {
-	if (!b) return 'none';
-	const { low, high } = b;
-	const v = m.value;
-
-	if (m.censor === '<') {
-		if (low !== undefined && v <= low) return 'low';
-		if (high === undefined || v <= high) return 'in';
-		return 'none';
-	}
-	if (m.censor === '>') {
-		if (high !== undefined && v >= high) return 'high';
-		if (low === undefined || v >= low) return 'in';
-		return 'none';
-	}
-
-	if (low !== undefined && v < low) return 'low';
-	if (high !== undefined && v > high) return 'high';
-	return 'in';
-}
-
-/**
- * Position inside a range: 0 at the lower limit, 1 at the upper limit.
- * One sided limits use 0 as the missing lower bound, or twice the limit as the missing upper bound.
- */
-export function position(v: number, b: Bounds | undefined): number | undefined {
-	if (!b) return undefined;
-	const low = b.low ?? 0;
-	const high = b.high ?? (b.low !== undefined ? b.low * 2 : undefined);
-	if (high === undefined || high === low) return undefined;
-	return (v - low) / (high - low);
-}
+/** Name of the reference behind some limits, the lab range has none of its own */
+export const boundsLabel = (b: Bounds): string => (b.ref ? tx(b.ref.label) : t.kind.lab);
 
 export function convert(a: Analyte, v: number, units: Units): number {
 	return units === 'si' && a.si ? v * a.si.factor : v;
@@ -136,15 +25,8 @@ export function fmtNum(v: number, decimals: number): string {
 	return v.toLocaleString(locale(), { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: false });
 }
 
-/** Decimals a printed value was given with, "12,50" has two */
-function printedDecimals(raw: string): number {
-	const m = raw.match(/[.,](\d+)\s*$/);
-	return m ? m[1].length : 0;
-}
-
 /** Printed values keep their printed precision, anything converted or computed uses the analyte's */
-export function fmtValue(m: Measurement, units: Units): string {
-	const a = lookup(m.analyte);
+export function fmtValue(a: Analyte | undefined, m: Measurement, units: Units): string {
 	const prefix = m.censor ?? '';
 	if (!a) return prefix + m.raw;
 	if ((units === 'conv' || !a.si) && !m.derived && !m.printedUnit) {
@@ -201,27 +83,40 @@ export const fmtMonth = (t: number) => dateFormat('short').format(t);
 export const fmtDay = (t: number) => dateFormat('day').format(t);
 export const fmtIso = (date: string) => fmtDate(toTime(date));
 
-const MONTH = 30.4375 * 86_400_000;
-
 export const isoDate = (t: number) => new Date(t).toISOString().slice(0, 10);
 
-export function hrtStartTime(): number | undefined {
-	const start = current.built.hrtStart;
-	return start ? toTime(start) : undefined;
-}
+export const monthsOnHrt = (time: number, start: number | undefined): number | undefined =>
+	start === undefined ? undefined : (time - start) / MONTH;
 
-export function monthsOnHrt(time: number): number | undefined {
-	const start = hrtStartTime();
-	return start === undefined ? undefined : (time - start) / MONTH;
-}
-
-export function fmtHrt(time: number): string {
-	const mo = monthsOnHrt(time);
+/** Time since the HRT start, or the month when there is none */
+export function fmtHrt(time: number, start: number | undefined): string {
+	const mo = monthsOnHrt(time, start);
 	if (mo === undefined) return fmtMonth(time);
 	if (Math.abs(mo) < 0.5) return t.chart.hrtStart;
 	const sign = mo > 0 ? '+' : '−';
 	const abs = Math.abs(mo);
 	return abs >= 12 ? `${sign}${t.years(fmtNum(abs / 12, 1))}` : `${sign}${t.months(Math.round(abs))}`;
+}
+
+export function phaseName(p: ResolvedPhase | undefined, therapy: Therapy): string {
+	if (!p) return '';
+	if (p.implicit) return therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt;
+	return p.label;
+}
+
+/** Values a computed measurement was made from, like "creatinine 0.9 mg/dl · age 31" */
+export function fmtInputs(inputs: Input[], units: Units): string {
+	return inputs
+		.map((i) => {
+			if (i.of === 'age') return t.chart.inputs.age(String(i.value));
+			if (i.of === 'height') return `${t.chart.inputs.height} ${fmtNum(i.value, 0)} cm`;
+			const a = analyteById.get(i.of);
+			if (!a) return '';
+			const value = `${i.censor ?? ''}${fmtNum(convert(a, i.value, units), decimalsOf(a, units))} ${unitOf(a, units)}`;
+			return `${nameOf(a)} ${value}${i.assumed ? ` (${t.chart.inputs.assumed})` : ''}`;
+		})
+		.filter(Boolean)
+		.join(' · ');
 }
 
 export interface Stats {
@@ -257,7 +152,7 @@ export function stats(ms: Measurement[]): Stats {
 	// Least squares slope after the first phase start, only with enough points to mean anything
 	let slopePerYear: number | undefined;
 	if (hrt.length >= 3) {
-		const xs = hrt.map((m) => m.t / (365.25 * 86_400_000));
+		const xs = hrt.map((m) => m.t / YEAR);
 		const mx = xs.reduce((s, x) => s + x, 0) / xs.length;
 		const my = avg(hrt)!;
 		const num = xs.reduce((s, x, i) => s + (x - mx) * (hrt[i].value - my), 0);
@@ -280,11 +175,4 @@ export function stats(ms: Measurement[]): Stats {
 		hrtMean: avg(hrt),
 		slopePerYear
 	};
-}
-
-export function phaseName(id: string): string {
-	const p = current.built.phases.find((x) => x.id === id);
-	if (!p) return '';
-	if (p.implicit) return current.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt;
-	return p.label;
 }

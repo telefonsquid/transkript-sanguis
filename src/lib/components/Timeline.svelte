@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { scaleUtc } from 'd3-scale';
-	import { fmtDate, fmtHrt, fmtMonth } from '../analysis';
-	import { toTime } from '../data';
+	import { fmtDate, fmtMonth, phaseName } from '../analysis';
+	import { DAY, toTime } from '../data';
 	import { t } from '../i18n';
 	import { current } from '../profiles.svelte';
-	import { hover, settings } from '../state.svelte';
+	import { hover } from '../chart/hover.svelte';
+	import { settings } from '../state.svelte';
+	import { hrtLabel } from '../view.svelte';
 
 	let width = $state(0);
 	const height = 64;
 	const m = { left: 12, right: 12, top: 20, bottom: 16 };
-
-	const DAY = 86_400_000;
 
 	const draws = $derived(current.profile?.draws ?? []);
 	const phases = $derived(current.built.phases);
@@ -25,7 +25,6 @@
 	const counts = $derived(Map.groupBy(current.built.measurements, (mm) => mm.drawId));
 	const drawList = $derived(draws.map((d) => ({ ...d, lab: d.lab?.trim() ?? '', t: toTime(d.date, d.time), n: counts.get(d.id)?.length ?? 0 })));
 
-	const baseline = $derived(current.therapy === 'none' ? t.data.baseline.none : t.data.baseline.hrt);
 
 	const segments = $derived(
 		phases.map((p, i) => {
@@ -130,7 +129,7 @@
 					class="pointer-events-none"
 				/>
 				{#if s.x1 - s.x0 > 50}
-					{const name = $derived(s.p.implicit ? baseline : s.p.label)}
+					{const name = $derived(phaseName(s.p, current.therapy))}
 					{const room = $derived(Math.floor((s.x1 - s.x0 - 8) / 5.8))}
 					<text x={s.x0 + 2} y={m.top + 8} class="pointer-events-none fill-ink-3 text-[10px] font-medium">
 						{name.length > room ? name.slice(0, room - 1) + '…' : name}{s.p.approx ? ' ≈' : ''}
@@ -173,7 +172,7 @@
 						paint-order="stroke"
 						class="glide"
 					/>
-					<title>{fmtDate(d.t)} · {d.lab || t.common.noLab} · {t.data.values(d.n)}{current.built.hrtStart ? ` · ${fmtHrt(d.t)}` : ''}</title>
+					<title>{fmtDate(d.t)} · {d.lab || t.common.noLab} · {t.data.values(d.n)}{current.hrtStart !== undefined ? ` · ${hrtLabel(d.t)}` : ''}</title>
 				</g>
 			{/each}
 		</svg>

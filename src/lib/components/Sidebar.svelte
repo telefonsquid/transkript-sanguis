@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { boundsFor, statusOf } from '../analysis';
 	import { groups, presets } from '../data';
 	import type { Analyte, GroupId, Preset } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { slide } from '../motion.svelte';
 	import { current } from '../profiles.svelte';
 	import { filtered, settings, toggle } from '../state.svelte';
+	import { judge } from '../view.svelte';
 
 	interface Props {
 		active?: string;
@@ -66,7 +66,7 @@
 	function latest(a: Analyte) {
 		const last = filtered.byAnalyte.get(a.id)?.at(-1);
 		if (!last) return 'none';
-		return statusOf(last, boundsFor(a, last, settings.basis));
+		return judge(last).status;
 	}
 
 	function onkeydown(e: KeyboardEvent) {

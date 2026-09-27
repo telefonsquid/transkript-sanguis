@@ -4,17 +4,16 @@
 	import {
 		KIND_ORDER,
 		bestRef,
-		boundsFor,
+		boundsLabel,
 		convert,
 		decimalsOf,
 		fmtBounds,
 		fmtDate,
-		fmtHrt,
+		fmtInputs,
 		fmtLabRef,
 		fmtNum,
 		fmtValue,
-		hrtStartTime,
-		phaseName,
+		refBounds,
 		refsFor,
 		statusOf,
 		stats,
@@ -27,8 +26,8 @@
 	import { fly, pop, slide } from '../motion.svelte';
 	import { prefs } from '../prefs.svelte';
 	import { current, lookup } from '../profiles.svelte';
-	import { bandsFor, positionsFor, seriesFor, useLog } from '../series';
 	import { filtered, settings, toggle } from '../state.svelte';
+	import { bandsFor, chartProps, hrtLabel, judge, phaseLabel, seriesFor, useLog } from '../view.svelte';
 	import Card from './Card.svelte';
 
 	interface Props {
@@ -50,25 +49,25 @@
 	const all = $derived(current.built.measurements.filter((m) => m.analyte === a.id));
 	const hiddenCount = $derived(all.length - ms.length);
 	const st = $derived(stats(ms));
-	const start = $derived(hrtStartTime());
+	const start = $derived(current.hrtStart);
 
 	let highlight: string | null = $state(null);
 
 	/** Bands switched on or off by hand, the rest follow the display setting */
 	let shown: Record<string, boolean> = $state({});
 
-	const bands = $derived(bandsFor(a).map((b) => ({ ...b, filled: shown[b.id] ?? b.filled })));
-	const labOn = $derived(shown.lab ?? settings.kinds.includes('lab'));
+	const bands = $derived(bandsFor(a.id).map((b) => ({ ...b, filled: shown[b.id] ?? b.filled })));
+	const labOn = $derived(!!bands.find((b) => b.id === 'lab')?.filled);
 
 	function toggleBand(id: string) {
-		shown[id] = id === 'lab' ? !labOn : !bands.find((b) => b.id === id)?.filled;
+		shown[id] = !bands.find((b) => b.id === id)?.filled;
 	}
-	const refs = $derived([...refsFor(a)].sort((x, y) => KIND_ORDER.indexOf(x.kind) - KIND_ORDER.indexOf(y.kind)));
-	const primary = $derived(bestRef(a));
+	const refs = $derived([...refsFor(a, current.subject)].sort((x, y) => KIND_ORDER.indexOf(x.kind) - KIND_ORDER.indexOf(y.kind)));
+	const primary = $derived(bestRef(a, current.subject));
 
 	const last = $derived(st.last);
-	const lastBounds = $derived(last ? boundsFor(a, last, settings.basis) : undefined);
-	const lastStatus = $derived(last ? statusOf(last, lastBounds) : 'none');
+	const lastBounds = $derived(last ? judge(last).bounds : undefined);
+	const lastStatus = $derived(last ? judge(last).status : 'none');
 
 	const reports = $derived(new Map((current.profile?.reports ?? []).map((r) => [r.id, r])));
 
@@ -109,7 +108,7 @@
 
 	function hrtText(time: number): string {
 		if (start === undefined) return '';
-		return time < start ? phaseName('baseline') : fmtHrt(time);
+		return time < start ? phaseLabel('baseline') : hrtLabel(time);
 	}
 
 	function onkeydown(e: KeyboardEvent) {
@@ -167,8 +166,8 @@
 		{#if last}
 			<div class="text-right">
 				<div class="flex items-baseline justify-end gap-2">
-					{#key fmtValue(last, units)}
-						<span class="text-5xl font-semibold tracking-tight text-ink" in:fly={{ y: 14, duration: 320 }}>{fmtValue(last, units)}</span>
+					{#key fmtValue(a, last, units)}
+						<span class="text-5xl font-semibold tracking-tight text-ink" in:fly={{ y: 14, duration: 320 }}>{fmtValue(a, last, units)}</span>
 					{/key}
 					<span class="text-sm text-ink-3">{unit}</span>
 				</div>
@@ -176,7 +175,7 @@
 					{#if lastStatus === 'high' || lastStatus === 'low'}
 						<span style:color="var(--{lastStatus})">{lastStatus === 'high' ? '▲' : '▼'}</span>
 					{/if}
-					{lastStatus === 'none' ? t.focus.status.none : t.focus.status[lastStatus](lastBounds?.label ?? '')}
+					{lastStatus === 'none' ? t.focus.status.none : t.focus.status[lastStatus](lastBounds ? boundsLabel(lastBounds) : '')}
 					{#if lastBounds}<span class="num text-ink-3">({fmtBounds(a, lastBounds, units)})</span>{/if}
 				</div>
 				<div class="num mt-0.5 text-[11px] text-ink-3">
@@ -199,19 +198,11 @@
 				<Chart
 					series={[series]}
 					{bands}
-					labBand={labOn}
+					{...chartProps([series])}
 					height={400}
 					rails
-					log={useLog(a)}
-					fitBands={settings.yFit === 'refs'}
-					xMode={settings.xMode}
-					positions={positionsFor([series])}
-					domain={filtered.domain}
-					xLabel={settings.xLabel}
-					showPhases={settings.showPhases}
-					showEvents={settings.showEvents}
+					log={useLog(a.id)}
 					labels={settings.labels === 'last' ? 'all' : settings.labels}
-					curve={settings.curve}
 					yTitle={unit}
 					{highlight}
 					onbandhover={(b) => (highlight = b)}
@@ -277,7 +268,7 @@
 						{/if}
 						{#each refs as r (r.id)}
 							{const b = $derived(bands.find((x) => x.id === r.id))}
-							{const s = $derived(last ? statusOf(last, { low: r.low, high: r.high, label: tx(r.label), kind: r.kind }) : 'none')}
+							{const s = $derived(last ? statusOf(last, refBounds(r)) : 'none')}
 							{const src = $derived(sourceById.get(r.source))}
 							{const on = $derived(!!b?.filled)}
 							<tr
@@ -352,12 +343,12 @@
 					</thead>
 					<tbody>
 						{#each [...ms].reverse() as m (m.drawId)}
-							{const s = $derived(statusOf(m, boundsFor(a, m, settings.basis)))}
+							{const s = $derived(judge(m).status)}
 							{const report = $derived(m.report ? reports.get(m.report) : undefined)}
 							<tr class="border-b border-line align-top last:border-0 hover:bg-hover">
 								<td class="px-3 py-1.5 whitespace-nowrap text-ink">{fmtDate(m.t)}</td>
 								{#if start !== undefined}<td class="px-2 py-1.5 whitespace-nowrap text-ink-3">{hrtText(m.t)}</td>{/if}
-								<td class="px-2 py-1.5 text-right font-semibold whitespace-nowrap text-ink">{fmtValue(m, units)} <span class="font-normal text-ink-3">{unit}</span></td>
+								<td class="px-2 py-1.5 text-right font-semibold whitespace-nowrap text-ink">{fmtValue(a, m, units)} <span class="font-normal text-ink-3">{unit}</span></td>
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if s === 'high' || s === 'low'}<span style:color="var(--{s})">{s === 'high' ? '▲' : '▼'} {t.status[s]}</span>{:else if s === 'in'}<span class="text-ink-3">{t.status.in}</span>{/if}
 								</td>
@@ -365,7 +356,7 @@
 									{fmtLabRef(m.labRef)}{#if m.printedUnit}<span class="text-ink-3"> {m.printedUnit}</span>{/if}{#if m.labRef && m.rangesFor}<span class="text-ink-3"> ({t.profile.sexes[m.rangesFor]})</span>{/if}{#if m.labFlag}<span class="ml-1 text-ink-3">[{m.labFlag}]</span>{/if}
 								</td>
 								<td class={['px-2 py-1.5 whitespace-nowrap', m.lab ? 'text-ink-2' : 'text-ink-3']}>{m.lab || '—'}</td>
-								<td class="max-w-40 truncate px-2 py-1.5 whitespace-nowrap text-ink-2">{phaseName(m.phase)}</td>
+								<td class="max-w-40 truncate px-2 py-1.5 whitespace-nowrap text-ink-2">{phaseLabel(m.phase)}</td>
 								<td class="px-2 py-1.5 whitespace-nowrap">
 									{#if report?.file && current.profile}
 										{const key = $derived(fileKey(current.profile.id, report.id))}
@@ -373,7 +364,9 @@
 									{/if}
 								</td>
 								<td class="max-w-md px-3 py-1.5 font-sans text-ink-2">
-									{#if m.derived}<div>◇ {tx(m.derived)}{m.note ? ` · ${m.note}` : ''}</div>{:else if m.note}<div>{m.note}</div>{/if}
+									{#if m.derived}<div>◇ {tx(m.derived)}</div>{/if}
+									{#if m.inputs?.length}<div class="text-ink-3">{t.chart.from}: {fmtInputs(m.inputs, units)}</div>{/if}
+									{#if m.note}<div>{m.note}</div>{/if}
 									{#if m.suspect}<div style:color="var(--serious)">⚠ {m.suspect}</div>{/if}
 									{#if m.censor}<div class="text-ink-3">{t.focus.censoredNote(m.raw)}</div>{/if}
 								</td>
@@ -453,8 +446,8 @@
 				<dl class="num grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
 					<dt class="text-ink-3">{t.focus.stats.n}</dt><dd class="text-right text-ink">{st.n}</dd>
 					<dt class="text-ink-3">{t.focus.stats.first}</dt><dd class="text-right text-ink">{st.first ? fmtDate(st.first.t) : '—'}</dd>
-					<dt class="text-ink-3">{t.focus.stats.min}</dt><dd class="text-right text-ink">{st.min ? fmtValue(st.min, units) : '—'} <span class="text-ink-3">{st.min ? fmtDate(st.min.t) : ''}</span></dd>
-					<dt class="text-ink-3">{t.focus.stats.max}</dt><dd class="text-right text-ink">{st.max ? fmtValue(st.max, units) : '—'} <span class="text-ink-3">{st.max ? fmtDate(st.max.t) : ''}</span></dd>
+					<dt class="text-ink-3">{t.focus.stats.min}</dt><dd class="text-right text-ink">{st.min ? fmtValue(a, st.min, units) : '—'} <span class="text-ink-3">{st.min ? fmtDate(st.min.t) : ''}</span></dd>
+					<dt class="text-ink-3">{t.focus.stats.max}</dt><dd class="text-right text-ink">{st.max ? fmtValue(a, st.max, units) : '—'} <span class="text-ink-3">{st.max ? fmtDate(st.max.t) : ''}</span></dd>
 					<dt class="text-ink-3">{t.focus.stats.mean}</dt><dd class="text-right text-ink">{conv(st.mean)}{st.sd !== undefined ? ` ± ${conv(st.sd)}` : ''}</dd>
 					<dt class="text-ink-3">{t.focus.stats.median}</dt><dd class="text-right text-ink">{conv(st.median)}</dd>
 					{#if start !== undefined}

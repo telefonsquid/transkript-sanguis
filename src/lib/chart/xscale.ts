@@ -1,7 +1,8 @@
 import { bisectRight } from 'd3-array';
 import { scaleUtc } from 'd3-scale';
-import { fmtHrt, fmtMonth, hrtStartTime } from '../analysis';
-import type { XMode } from '../state.svelte';
+import { fmtHrt, fmtMonth } from '../analysis';
+import { DAY, MONTH } from '../data/parse';
+import type { XMode } from './types';
 
 export interface Tick {
 	t: number;
@@ -17,10 +18,14 @@ export interface XScale {
 	nearest: (px: number, times: number[]) => number | undefined;
 }
 
-const MONTH = 30.4375 * 86_400_000;
-
-function timeTicks(domain: [number, number], range: [number, number], labelMode: 'date' | 'hrt', maxTicks: number, x: (t: number) => number): Tick[] {
-	const start = hrtStartTime();
+function timeTicks(
+	domain: [number, number],
+	range: [number, number],
+	labelMode: 'date' | 'hrt',
+	start: number | undefined,
+	maxTicks: number,
+	x: (t: number) => number
+): Tick[] {
 	if (labelMode === 'hrt' && start !== undefined) {
 		const [m0, m1] = [(domain[0] - start) / MONTH, (domain[1] - start) / MONTH];
 		const span = Math.max(1, m1 - m0);
@@ -28,7 +33,7 @@ function timeTicks(domain: [number, number], range: [number, number], labelMode:
 		const ticks: Tick[] = [];
 		for (let k = Math.ceil(m0 / step) * step; k <= m1; k += step) {
 			const t = start + k * MONTH;
-			ticks.push({ t, x: x(t), label: fmtHrt(t), major: k % 12 === 0 });
+			ticks.push({ t, x: x(t), label: fmtHrt(t, start), major: k % 12 === 0 });
 		}
 		return ticks;
 	}
@@ -41,6 +46,19 @@ function timeTicks(domain: [number, number], range: [number, number], labelMode:
 	});
 }
 
+/** Nearest time to a pixel position under a mapping */
+function nearestBy(x: (t: number) => number) {
+	return (px: number, times: number[]) => {
+		let best: number | undefined;
+		let dist = Infinity;
+		for (const t of times) {
+			const d = Math.abs(x(t) - px);
+			if (d < dist) [best, dist] = [t, d];
+		}
+		return best;
+	};
+}
+
 /**
  * Builds the horizontal mapping. "time" is proportional to calendar time, "draws" and
  * "points" put every sample one step apart and interpolate anything in between.
@@ -51,6 +69,7 @@ export function makeX(
 	domain: [number, number],
 	range: [number, number],
 	labelMode: 'date' | 'hrt',
+	hrtStart: number | undefined,
 	compact: boolean
 ): XScale {
 	const [r0, r1] = range;
@@ -58,18 +77,9 @@ export function makeX(
 	const maxTicks = Math.max(2, Math.floor(width / (compact ? 90 : 72)));
 
 	if (mode === 'time' || positions.length < 2) {
-		const [d0, d1] = domain[0] === domain[1] ? [domain[0] - 30 * 86_400_000, domain[1] + 30 * 86_400_000] : domain;
+		const [d0, d1] = domain[0] === domain[1] ? [domain[0] - 30 * DAY, domain[1] + 30 * DAY] : domain;
 		const x = (t: number) => r0 + ((t - d0) / (d1 - d0)) * width;
-		const nearest = (px: number, times: number[]) => {
-			let best: number | undefined;
-			let dist = Infinity;
-			for (const t of times) {
-				const d = Math.abs(x(t) - px);
-				if (d < dist) [best, dist] = [t, d];
-			}
-			return best;
-		};
-		return { x, ticks: timeTicks([d0, d1], range, labelMode, maxTicks, x), nearest };
+		return { x, ticks: timeTicks([d0, d1], range, labelMode, hrtStart, maxTicks, x), nearest: nearestBy(x) };
 	}
 
 	const n = positions.length;
@@ -87,18 +97,8 @@ export function makeX(
 
 	const every = Math.max(1, Math.ceil(n / maxTicks));
 	const ticks: Tick[] = positions
-		.map((t, i) => ({ t, x: xi(i), label: labelMode === 'hrt' ? fmtHrt(t) : fmtMonth(t), major: i === 0 || i === n - 1 }))
+		.map((t, i) => ({ t, x: xi(i), label: labelMode === 'hrt' ? fmtHrt(t, hrtStart) : fmtMonth(t), major: i === 0 || i === n - 1 }))
 		.filter((_, i) => i % every === 0 || (compact && i === n - 1));
 
-	const nearest = (px: number, times: number[]) => {
-		let best: number | undefined;
-		let dist = Infinity;
-		for (const t of times) {
-			const d = Math.abs(x(t) - px);
-			if (d < dist) [best, dist] = [t, d];
-		}
-		return best;
-	};
-
-	return { x, ticks, nearest };
+	return { x, ticks, nearest: nearestBy(x) };
 }

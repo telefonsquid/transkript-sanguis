@@ -1,8 +1,9 @@
 import { SLUG } from './app';
-import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, parseRange, todayIso, type Built } from './data';
+import { ageAt, analyteById, analytes as catalogue, buildProfile, customToAnalyte, nowIso, parseRange, todayIso, toTime, type Built, type Subject } from './data';
 import type { Analyte, CustomAnalyte, Draw, Phase, Profile, Result, Sex, Therapy } from './data/types';
 import { DEMO_IDS, DEMO_VERSION, demoProfiles } from './demo';
 import { deleteProfileFiles } from './files';
+import { both } from './i18n';
 
 interface Db {
 	profiles: Profile[];
@@ -186,7 +187,7 @@ export function addCustom(profile: Profile, name: string, unit: string): CustomA
 class Current {
 	profile = $derived(db.profiles.find((p) => p.id === db.active) ?? null);
 
-	custom = $derived(new Map((this.profile?.custom ?? []).map((c) => [c.id, customToAnalyte(c)])));
+	custom = $derived(new Map((this.profile?.custom ?? []).map((c) => [c.id, customToAnalyte(c, both((d) => d.customInfo))])));
 
 	/** Catalogue plus the profile's own values */
 	analytes: Analyte[] = $derived([...catalogue, ...this.custom.values()]);
@@ -195,7 +196,17 @@ class Current {
 
 	age = $derived(ageAt(this.profile?.birth, todayIso()));
 
+	/** Who values are judged for */
+	subject: Subject = $derived({ therapy: this.therapy, sex: this.profile?.sex, age: this.age, height: this.profile?.height });
+
 	built: Built = $derived(buildProfile(this.profile, (id) => this.lookup(id)));
+
+	/** First phase start as a time, only on HRT profiles */
+	hrtStart = $derived(this.built.hrtStart ? toTime(this.built.hrtStart) : undefined);
+
+	phase(id: string) {
+		return this.built.phases.find((p) => p.id === id);
+	}
 
 	lookup(id: string): Analyte | undefined {
 		return analyteById.get(id) ?? this.custom.get(id);

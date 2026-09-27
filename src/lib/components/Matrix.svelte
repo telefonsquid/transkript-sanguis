@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { boundsFor, fmtBounds, fmtDate, fmtHrt, fmtLabRef, fmtValue, hrtStartTime, phaseName, position, statusOf, unitOf } from '../analysis';
+	import { boundsLabel, fmtBounds, fmtDate, fmtInputs, fmtLabRef, fmtValue, position, unitOf } from '../analysis';
 	import { groupById, toTime } from '../data';
 	import type { Measurement } from '../data/types';
 	import { altNameOf, nameOf, t, tx } from '../i18n';
 	import { current, lookup } from '../profiles.svelte';
-	import { filtered, hover, settings } from '../state.svelte';
+	import { hover } from '../chart/hover.svelte';
+	import { filtered, settings } from '../state.svelte';
+	import { hrtLabel, judge, phaseLabel } from '../view.svelte';
 
 	const columns = $derived(
 		(current.profile?.draws ?? []).map((d) => ({ d, t: toTime(d.date, d.time) })).filter((c) => filtered.drawTimes.includes(c.t))
@@ -21,16 +23,14 @@
 	);
 
 	const phaseOfDraw = $derived(new Map(filtered.measurements.map((m) => [m.drawId, m.phase])));
-	const start = $derived(hrtStartTime());
+	const start = $derived(current.hrtStart);
 
 	/**
 	 * Diverging colour: blue below, red above, neutral inside.
 	 * Strength grows with the distance from the nearest limit, measured in range widths.
 	 */
 	function cellStyle(m: Measurement): string {
-		const a = lookup(m.analyte)!;
-		const b = boundsFor(a, m, settings.basis);
-		const s = statusOf(m, b);
+		const { bounds: b, status: s } = judge(m);
 		const pos = position(m.value, b);
 		if (s === 'none' || pos === undefined) return 'background: transparent';
 		if (s === 'in') return 'background: color-mix(in srgb, var(--div-mid) 70%, transparent)';
@@ -41,13 +41,14 @@
 
 	function title(m: Measurement): string {
 		const a = lookup(m.analyte)!;
-		const b = boundsFor(a, m, settings.basis);
+		const b = judge(m).bounds;
 		const lines = [
 			`${nameOf(a)} · ${fmtDate(m.t)}`,
-			`${fmtValue(m, settings.units)} ${unitOf(a, settings.units)}`,
-			b ? `${b.label}: ${fmtBounds(a, b, settings.units)}` : t.matrix.noRef,
+			`${fmtValue(a, m, settings.units)} ${unitOf(a, settings.units)}`,
+			b ? `${boundsLabel(b)}: ${fmtBounds(a, b, settings.units)}` : t.matrix.noRef,
 			m.labRef ? `${t.matrix.printed}: ${fmtLabRef(m.labRef)}${m.rangesFor ? ` (${t.profile.sexes[m.rangesFor]})` : ''}` : '',
 			m.derived ? `${t.matrix.computed}: ${tx(m.derived)}` : '',
+			m.inputs?.length ? `${t.chart.from}: ${fmtInputs(m.inputs, settings.units)}` : '',
 			m.suspect ? `${t.matrix.suspect}: ${m.suspect}` : ''
 		];
 		return lines.filter(Boolean).join('\n');
@@ -87,9 +88,9 @@
 						>
 							<div class="text-ink">{fmtDate(c.t)}</div>
 							<div class="text-[10px] font-normal text-ink-3">
-								{c.d.lab || t.common.noLab}{#if start !== undefined} · {c.t < start ? t.data.baseline.hrt : fmtHrt(c.t)}{/if}
+								{c.d.lab || t.common.noLab}{#if start !== undefined} · {c.t < start ? t.data.baseline.hrt : hrtLabel(c.t)}{/if}
 							</div>
-							<div class="max-w-32 truncate text-[10px] font-normal text-ink-3">{phaseName(phaseOfDraw.get(c.d.id) ?? '')}</div>
+							<div class="max-w-32 truncate text-[10px] font-normal text-ink-3">{phaseLabel(phaseOfDraw.get(c.d.id) ?? '')}</div>
 						</th>
 					{/each}
 				</tr>
@@ -122,7 +123,7 @@
 									onclick={() => goto(resolve('/analyte/[id]', { id: a.id }))}
 								>
 									{#if m.suspect}<span class="mr-0.5" style:color="var(--serious)">⚠</span>{/if}
-									<span class={m.derived ? 'text-ink-2 italic' : 'font-medium'}>{fmtValue(m, settings.units)}</span>
+									<span class={m.derived ? 'text-ink-2 italic' : 'font-medium'}>{fmtValue(a, m, settings.units)}</span>
 									{#if m.derived}<span class="text-ink-3">◇</span>{/if}
 								</td>
 							{:else}

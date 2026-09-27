@@ -124,7 +124,19 @@ export interface Measurement {
 	phase: string;
 	suspect?: string;
 	derived?: Text;
+	/** Values a computed measurement was made from */
+	inputs?: Input[];
 	note?: string;
+}
+
+/** One value behind a computed measurement, in the canonical unit of its analyte */
+export interface Input {
+	/** Analyte id, or age and height from the profile */
+	of: string;
+	value: number;
+	censor?: '<' | '>';
+	/** Not measured, a standard value stands in */
+	assumed?: boolean;
 }
 
 export interface Source {

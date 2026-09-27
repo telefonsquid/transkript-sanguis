@@ -5,26 +5,17 @@
 	import { untrack } from 'svelte';
 	import { fmtIso } from '#lib/analysis.js';
 	import AnalytePicker from '#lib/components/AnalytePicker.svelte';
-	import { acceptUnit, isIsoDate, parseNum, parseValue, unitChoices, unitFactor } from '#lib/data/index.js';
+	import { isIsoDate, unitChoices } from '#lib/data/index.js';
 	import type { Analyte, Draw, Result, Sex } from '#lib/data/types.js';
 	import { fileKey, putFile } from '#lib/files.js';
 	import { t } from '#lib/i18n/index.js';
-	import { rangeProblem } from '#lib/io.js';
 	import { slide } from '#lib/motion.svelte.js';
 	import { addCustom, current, deleteDraw, newId, saveDraw } from '#lib/profiles.svelte.js';
+	import { fromResult, rowProblem, toResult, type EditRow } from '#lib/rows.js';
 
-	interface Row {
-		key: string;
-		analyte: string | null;
+	interface Row extends EditRow {
 		/** Name of a value that does not exist yet, created on save */
 		custom?: string;
-		value: string;
-		unit: string;
-		low: string;
-		high: string;
-		rangeNote: string;
-		flag: string;
-		note: string;
 	}
 
 	const PANELS: Record<keyof typeof t.manual.panels, string[]> = {
@@ -51,21 +42,13 @@
 	let fasting: 'unknown' | 'yes' | 'no' = $state(editing?.fasting === undefined ? 'unknown' : editing.fasting ? 'yes' : 'no');
 	let notes = $state(editing?.notes?.join('\n') ?? '');
 	let file: File | null = $state(null);
-	let rows: Row[] = $state(editing?.results.map(fromResult) ?? [blank()]);
+	let rows: Row[] = $state(editing?.results.map((r) => fromResult(r, current.lookup(r.analyte), newId('row'))) ?? [blank()]);
 	let tried = $state(false);
 	let saving = $state(false);
 
 	function blank(analyte: string | null = null): Row {
 		const a = analyte ? current.lookup(analyte) : undefined;
 		return { key: newId('row'), analyte, value: '', unit: a?.unit ?? '', low: '', high: '', rangeNote: '', flag: '', note: '' };
-	}
-
-	/** A stored result without a unit is in the canonical one */
-	function fromResult(r: Result): Row {
-		const a = current.lookup(r.analyte);
-		const unit = a && r.unit ? (acceptUnit(a, r.unit) ?? r.unit) : (r.unit ?? a?.unit ?? '');
-		const bound = (v?: number) => (v === undefined ? '' : String(v));
-		return { key: newId('row'), analyte: r.analyte, value: r.value, unit, low: bound(r.low), high: bound(r.high), rangeNote: r.rangeNote ?? '', flag: r.flag ?? '', note: r.note ?? '' };
 	}
 
 	function unitOptions(a: Analyte, unit: string): string[] {
@@ -78,15 +61,11 @@
 
 	const filled = $derived(rows.filter((r) => r.analyte || r.custom || r.value.trim()));
 
+	/** A value of the user's own needs a unit here, unlike one read from a report */
 	function problem(row: Row): string | undefined {
-		if (!row.analyte && !row.custom) return t.manual.errors.analyte;
-		if (!parseValue(row.value)) return t.manual.errors.value;
-		if (rangeProblem(row.low, row.high)) return t.manual.errors.range;
-		if (row.custom) return row.unit.trim() ? undefined : t.manual.errors.unit;
-		const a = current.lookup(row.analyte!);
-		if (!a || unitFactor(a, row.unit) === undefined) return t.manual.errors.unit;
-		if (filled.some((r) => r !== row && r.analyte && r.analyte === row.analyte)) return t.manual.errors.duplicate;
-		return undefined;
+		const target = row.custom ? 'custom' : row.analyte ? current.lookup(row.analyte) : undefined;
+		const p = rowProblem(row, target, filled) ?? (row.custom && !row.unit.trim() ? 'unit' : undefined);
+		return p && t.manual.errors[p];
 	}
 
 	const errors = $derived(new Map(filled.map((r) => [r.key, problem(r)])));
@@ -121,16 +100,8 @@
 		}
 
 		const results: Result[] = filled.map((row) => {
-			const analyte = row.custom ? addCustom(profile, row.custom, row.unit).id : row.analyte!;
-			const r: Result = { analyte, value: row.value.trim() };
-			const [low, high] = [parseNum(row.low.trim()), parseNum(row.high.trim())];
-			if (row.unit.trim() && row.unit.trim() !== current.lookup(analyte)?.unit) r.unit = row.unit.trim();
-			if (low !== undefined) r.low = low;
-			if (high !== undefined) r.high = high;
-			if (row.rangeNote.trim()) r.rangeNote = row.rangeNote.trim();
-			if (row.flag.trim()) r.flag = row.flag.trim();
-			if (row.note.trim()) r.note = row.note.trim();
-			return r;
+			const analyte = row.custom ? addCustom(profile, row.custom, row.unit.trim()).id : row.analyte!;
+			return toResult(row, analyte, current.lookup(analyte)?.unit);
 		});
 
 		const draw: Draw = { id: editing?.id ?? newId('draw'), date, results };

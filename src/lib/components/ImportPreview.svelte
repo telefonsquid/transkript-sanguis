@@ -2,8 +2,9 @@
 	import { unitChoices } from '../data';
 	import type { Draw, Result } from '../data/types';
 	import { t } from '../i18n';
-	import { drawProblem, newDraw, normName, resolveUnit, rowProblem, toResult, type PreviewDraw, type PreviewRow, type RowProblem } from '../io';
+	import { drawProblem, newDraw, normName, previewProblem, resolveUnit, type PreviewDraw, type PreviewRow } from '../io';
 	import { addCustom, current, newId, saveDraw } from '../profiles.svelte';
+	import { toResult, type RowProblem } from '../rows';
 	import AnalytePicker from './AnalytePicker.svelte';
 
 	interface Props {
@@ -33,7 +34,7 @@
 	const active = $derived(draws.filter((d) => d.mode !== 'skip'));
 	const guessed = $derived(active.flatMap((d) => d.rows.filter((r) => r.suggested && r.action === 'import')));
 	const problems = $derived(
-		active.reduce((n, d) => n + (drawProblem(d) ? 1 : 0) + d.rows.filter((r) => rowProblem(r, d.rows, current.lookup)).length, 0)
+		active.reduce((n, d) => n + (drawProblem(d) ? 1 : 0) + d.rows.filter((r) => previewProblem(r, d.rows, current.lookup)).length, 0)
 	);
 
 	function doImport() {
@@ -114,7 +115,7 @@
 					</thead>
 					<tbody>
 						{#each d.rows as row (row.key)}
-							{const p = $derived(rowProblem(row, d.rows, current.lookup))}
+							{const p = $derived(previewProblem(row, d.rows, current.lookup))}
 							<tr class={['border-t border-line align-top', row.action === 'drop' && 'opacity-45']}>
 								<td class="w-[40%] px-4 py-1.5">
 									{#if row.action === 'custom'}
