@@ -1,7 +1,11 @@
 import { APP_NAME } from '../app';
+import { desktop } from '../desktop';
 import type { Dict } from './en';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+// Where the data is kept, worded for the web or the desktop app
+const here = desktop ? { in: 'auf diesem Gerät', from: 'von diesem Gerät' } : { in: 'in diesem Browser', from: 'aus diesem Browser' };
 
 export const de: Dict = {
 	locale: 'de-DE',
@@ -72,7 +76,9 @@ export const de: Dict = {
 		languageSecondHint: 'Zeigt jeden Laborwert zusätzlich unter einem zweiten Namen, praktisch wenn deine Befunde eine andere Sprache nutzen.',
 		languageNone: 'Keine zweite Sprache',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'Abnahme', 'Abnahmen')} · ${plural(values, 'Wert', 'Werte')} · ${span}`,
-		storageError: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.',
+		storageError: desktop
+			? 'Die App konnte nicht speichern. Deine letzten Änderungen gehen beim Schließen womöglich verloren. Exportiere eine Sicherung unter Meine Daten.'
+			: 'Dieser Browser hat das Speichern verweigert. Deine letzten Änderungen gehen beim Schließen des Tabs womöglich verloren. Exportiere eine Sicherung unter Meine Daten.',
 		changelog: 'Änderungen',
 		desktopApp: 'Desktop-App',
 		webVersion: 'Webversion',
@@ -82,8 +88,9 @@ export const de: Dict = {
 	},
 	disclaimer: {
 		localTitle: 'Deine Daten bleiben auf diesem Gerät',
-		localBody:
-			'Alles, was du eingibst, wird nur in diesem Browser gespeichert. Nichts wird jemals an den Server geschickt, von dem die App geladen wird, es gibt keine Konten, kein Tracking und keine Analyse. Wenn du die Browserdaten löschst, ist alles weg, exportiere daher ab und zu eine Sicherung.',
+		localBody: desktop
+			? 'Alles, was du eingibst, wird nur auf diesem Gerät gespeichert. Nichts davon wird jemals verschickt, es gibt keine Konten, kein Tracking und keine Analyse. Beim Deinstallieren der App kann alles verloren gehen, exportiere daher ab und zu eine Sicherung.'
+			: 'Alles, was du eingibst, wird nur in diesem Browser gespeichert. Nichts wird jemals an den Server geschickt, von dem die App geladen wird, es gibt keine Konten, kein Tracking und keine Analyse. Wenn du die Browserdaten löschst, ist alles weg, exportiere daher ab und zu eine Sicherung.',
 		medicalTitle: 'Das ist keine medizinische Beratung',
 		medicalBody:
 			'Die Erklärungen und Referenzbereiche stammen aus veröffentlichten Leitlinien, Studien und Methodenblättern der Testhersteller und sind bei jedem Wert zitiert. Sie dienen der allgemeinen Orientierung, nicht der Diagnose. Labore, Methoden und deine Situation unterscheiden sich: sprich mit deiner Ärztin oder deinem Arzt, bevor du etwas änderst.',
@@ -94,12 +101,11 @@ export const de: Dict = {
 			'Sprich mit deiner Ärztin oder deinem Arzt, bevor du etwas änderst.'
 		],
 		localPoints: [
-			'Alles, was du eingibst, bleibt nur in diesem Browser. Nichts wird jemals an den Server geschickt.',
+			desktop ? 'Alles, was du eingibst, bleibt nur auf diesem Gerät. Nichts davon wird jemals verschickt.' : 'Alles, was du eingibst, bleibt nur in diesem Browser. Nichts wird jemals an den Server geschickt.',
 			'Keine Konten, kein Tracking, keine Analyse.',
-			'Wenn du die Browserdaten löschst, ist alles weg. Exportiere ab und zu eine Sicherung.'
+			desktop ? 'Beim Deinstallieren der App kann alles verloren gehen. Exportiere ab und zu eine Sicherung.' : 'Wenn du die Browserdaten löschst, ist alles weg. Exportiere ab und zu eine Sicherung.'
 		],
-		footer: 'Keine medizinische Beratung · Nur in diesem Browser gespeichert',
-		footerDesktop: 'Keine medizinische Beratung · Nur auf diesem Gerät gespeichert',
+		footer: `Keine medizinische Beratung · Nur ${here.in} gespeichert`,
 		agentPrivacy:
 			'Beim Agent-Weg gibst du deine PDFs einem KI-Assistenten deiner Wahl. Deine Dateien gehen dann an diesen Anbieter, nicht an diese App. Das Importformat enthält keine Namen oder Kennungen, und du kannst persönliche Angaben vor dem Hochladen schwärzen.'
 	},
@@ -107,7 +113,7 @@ export const de: Dict = {
 		about: 'Über die App',
 		aboutText: [
 			'Transkript Sanguis ist eine Open-Source-Anwendung, mit der du deine Blutwerte erfassen und auswerten kannst. Sie zeigt jeden Wert im Verlauf neben Referenzbereichen aus veröffentlichter Forschung, jeweils mit Quelle, und erklärt, was der Wert misst und was eine Abweichung nach oben oder unten bedeuten kann.',
-			'Hormontherapie ist umfassend eingebunden: feminisierende und maskulinisierende Profile, Bereiche aus Studien an trans Personen und Therapieziele, eine Medikationszeitleiste über den Diagrammen und Hinweise, wie die Therapie jeden Wert beeinflusst. Alles, was du eingibst, bleibt in deinem Browser.'
+			`Hormontherapie ist umfassend eingebunden: feminisierende und maskulinisierende Profile, Bereiche aus Studien an trans Personen und Therapieziele, eine Medikationszeitleiste über den Diagrammen und Hinweise, wie die Therapie jeden Wert beeinflusst. Alles, was du eingibst, bleibt ${desktop ? 'auf deinem Gerät' : 'in deinem Browser'}.`
 		],
 		step: (n: number, of: number) => `${n} von ${of}`,
 		demo: 'Demo ansehen',
@@ -133,7 +139,7 @@ export const de: Dict = {
 		demoBadge: 'Demo',
 		active: 'Aktiv',
 		name: 'Name',
-		nameHint: 'Beliebiger Name oder Spitzname. Er erscheint nur in diesem Browser.',
+		nameHint: `Beliebiger Name oder Spitzname. Er erscheint nur ${here.in}.`,
 		therapy: 'Hormontherapie',
 		therapyHint: 'Bestimmt, welche Zielwerte und Referenzbereiche angezeigt werden.',
 		therapies: {
@@ -163,8 +169,8 @@ export const de: Dict = {
 		approx: 'Datum ist ungefähr',
 		created: 'Profil angelegt',
 		deleteTitle: 'Profil löschen',
-		deleteBody: (name: string) => `„${name}“ mit allen Werten und angehängten PDFs aus diesem Browser löschen?`,
-		deleteHint: 'Löscht dieses Profil mit allen Werten und angehängten PDFs aus diesem Browser.',
+		deleteBody: (name: string) => `„${name}“ mit allen Werten und angehängten PDFs ${here.from} löschen?`,
+		deleteHint: `Löscht dieses Profil mit allen Werten und angehängten PDFs ${here.from}.`,
 		resetDemo: 'Demo zurücksetzen',
 		resetHint: 'Demo-Profile lassen sich nicht löschen. Zurücksetzen holt die ursprünglichen Werte zurück und verwirft deine Änderungen.',
 		resetBody: (name: string) => `„${name}“ auf die ursprünglichen Werte zurücksetzen? Deine Änderungen daran gehen verloren.`,
@@ -180,7 +186,7 @@ export const de: Dict = {
 	},
 	ingest: {
 		title: 'Werte hinzufügen',
-		intro: 'Drei Wege, einen Laborbefund hineinzubekommen. Alle enden ausschließlich in diesem Browser.',
+		intro: `Drei Wege, einen Laborbefund hineinzubekommen. Alle enden ausschließlich ${here.in}.`,
 		manualTitle: 'Von Hand',
 		manualShort: 'Werte selbst eintippen.',
 		agentTitle: 'Mit KI',
@@ -207,7 +213,7 @@ export const de: Dict = {
 		notes: 'Notizen',
 		notesHint: 'Alles, was später hilft, z. B. „3 Tage nach der Spritze“.',
 		report: 'Befund-PDF',
-		reportHint: 'Optional. Bleibt in diesem Browser, damit die Werte darauf verweisen können.',
+		reportHint: `Optional. Bleibt ${here.in}, damit die Werte darauf verweisen können.`,
 		results: 'Werte',
 		analyte: 'Wert',
 		printedValue: 'Ergebnis',
@@ -319,7 +325,7 @@ export const de: Dict = {
 		values: (n: number) => plural(n, 'Wert', 'Werte'),
 		attachPdf: 'PDF anhängen',
 		removePdf: 'PDF entfernen',
-		removePdfConfirm: 'Das angehängte PDF aus diesem Browser entfernen?',
+		removePdfConfirm: `Das angehängte PDF ${here.from} entfernen?`,
 		phases: 'Medikationsverlauf',
 		phasesIntro: 'Jede Phase beginnt an einem Datum und dauert bis zur nächsten. Diagramme schattieren sie und teilen Statistiken in vor und unter HRT.',
 		addPhase: 'Phase hinzufügen',
@@ -349,7 +355,7 @@ export const de: Dict = {
 		noneOut: 'keiner außerhalb',
 		withComputed: (n: number) => `dazu ${plural(n, 'berechneter Wert', 'berechnete Werte')}`,
 		rangesFor: (sex: string) => `Bereiche: ${sex.toLowerCase()}`,
-		storage: (kb: number) => `Etwa ${kb} kB in diesem Browser gespeichert`,
+		storage: (kb: number) => `Etwa ${kb} kB ${here.in} gespeichert`,
 		checkNames: {
 			mcv: 'MCV = Hkt ÷ Ery',
 			mch: 'MCH = Hb ÷ Ery',

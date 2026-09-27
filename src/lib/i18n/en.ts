@@ -1,6 +1,10 @@
 import { APP_NAME } from '../app';
+import { desktop } from '../desktop';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+// Where the data is kept, worded for the web or the desktop app
+const here = desktop ? { in: 'on this device', from: 'from this device' } : { in: 'in this browser', from: 'from this browser' };
 
 export const en = {
 	locale: 'en-GB',
@@ -71,7 +75,9 @@ export const en = {
 		languageSecondHint: 'Shows every lab value under a second name too, handy when your reports use another language.',
 		languageNone: 'No second language',
 		summary: (draws: number, values: number, span: string) => `${plural(draws, 'draw', 'draws')} · ${plural(values, 'value', 'values')} · ${span}`,
-		storageError: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.',
+		storageError: desktop
+			? 'The app could not save. Your latest changes may be lost when you close it. Export a backup under My data.'
+			: 'This browser refused to save. Your latest changes may be lost when you close the tab. Export a backup under My data.',
 		changelog: 'Changelog',
 		desktopApp: 'Desktop app',
 		webVersion: 'Web version',
@@ -81,8 +87,9 @@ export const en = {
 	},
 	disclaimer: {
 		localTitle: 'Your data stays on this device',
-		localBody:
-			'Everything you enter is stored only in this browser. Nothing is ever sent to the server this app is loaded from, there are no accounts, no tracking and no analytics. Clearing your browser data deletes it, so export a backup file now and then.',
+		localBody: desktop
+			? 'Everything you enter is stored only on this device. None of it is ever sent anywhere, there are no accounts, no tracking and no analytics. Uninstalling the app can delete it, so export a backup file now and then.'
+			: 'Everything you enter is stored only in this browser. Nothing is ever sent to the server this app is loaded from, there are no accounts, no tracking and no analytics. Clearing your browser data deletes it, so export a backup file now and then.',
 		medicalTitle: 'This is not medical advice',
 		medicalBody:
 			'The explanations and reference ranges are collected from published guidelines, studies and lab method sheets, cited on every value. They are general orientation, not a diagnosis. Labs, methods and your situation differ: talk to your doctor before changing anything.',
@@ -93,12 +100,11 @@ export const en = {
 			'Talk to your doctor before changing anything.'
 		],
 		localPoints: [
-			'Everything you enter is stored only in this browser. Nothing is ever sent to the server.',
+			desktop ? 'Everything you enter is stored only on this device. None of it is ever sent anywhere.' : 'Everything you enter is stored only in this browser. Nothing is ever sent to the server.',
 			'No accounts, no tracking, no analytics.',
-			'Clearing your browser data deletes it, so export a backup now and then.'
+			desktop ? 'Uninstalling the app can delete it, so export a backup now and then.' : 'Clearing your browser data deletes it, so export a backup now and then.'
 		],
-		footer: 'Not medical advice · Stored only in this browser',
-		footerDesktop: 'Not medical advice · Stored only on this device',
+		footer: `Not medical advice · Stored only ${here.in}`,
 		agentPrivacy:
 			'The agent route means you hand your PDFs to an AI assistant of your choice. Your files then go to that provider, not to this app. The import format carries no names or identifiers, and you can black out personal details before uploading.'
 	},
@@ -106,7 +112,7 @@ export const en = {
 		about: 'About',
 		aboutText: [
 			'Transkript Sanguis is an open source application for tracking and analyzing blood tests. It charts every value over time against reference ranges from published research, each with its source, and explains what the value measures and what a shift up or down can mean.',
-			'It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.'
+			`It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays ${desktop ? 'on your device' : 'in your browser'}.`
 		],
 		step: (n: number, of: number) => `${n} of ${of}`,
 		demo: 'View demo',
@@ -132,7 +138,7 @@ export const en = {
 		demoBadge: 'Demo',
 		active: 'Active',
 		name: 'Name',
-		nameHint: 'Any name or nickname. It only appears in this browser.',
+		nameHint: `Any name or nickname. It only appears ${here.in}.`,
 		therapy: 'Hormone therapy',
 		therapyHint: 'Decides which targets and reference ranges are shown.',
 		therapies: {
@@ -162,8 +168,8 @@ export const en = {
 		approx: 'Date is approximate',
 		created: 'Profile created',
 		deleteTitle: 'Delete profile',
-		deleteBody: (name: string) => `Delete "${name}" with all its results and attached PDFs from this browser?`,
-		deleteHint: 'Deletes this profile with all its results and attached PDFs from this browser.',
+		deleteBody: (name: string) => `Delete "${name}" with all its results and attached PDFs ${here.from}?`,
+		deleteHint: `Deletes this profile with all its results and attached PDFs ${here.from}.`,
 		resetDemo: 'Reset demo',
 		resetHint: 'Demo profiles cannot be deleted. Resetting brings back the original results and undoes your changes.',
 		resetBody: (name: string) => `Reset "${name}" to its original results? Your changes to it are lost.`,
@@ -179,7 +185,7 @@ export const en = {
 	},
 	ingest: {
 		title: 'Add results',
-		intro: 'Three ways to get a lab report in. All of them end in this browser only.',
+		intro: `Three ways to get a lab report in. All of them end ${here.in} only.`,
 		manualTitle: 'By hand',
 		manualShort: 'Manually type in values.',
 		agentTitle: 'With AI',
@@ -206,7 +212,7 @@ export const en = {
 		notes: 'Notes',
 		notesHint: 'Anything that helps later, e.g. "3 days after injection".',
 		report: 'Report PDF',
-		reportHint: 'Optional. Kept in this browser, so the values can link back to it.',
+		reportHint: `Optional. Kept ${here.in}, so the values can link back to it.`,
 		results: 'Results',
 		analyte: 'Value',
 		printedValue: 'Result',
@@ -318,7 +324,7 @@ export const en = {
 		values: (n: number) => plural(n, 'value', 'values'),
 		attachPdf: 'Attach PDF',
 		removePdf: 'Remove PDF',
-		removePdfConfirm: 'Remove the attached PDF from this browser?',
+		removePdfConfirm: `Remove the attached PDF ${here.from}?`,
 		phases: 'Medication timeline',
 		phasesIntro: 'Each phase starts on a date and lasts until the next one. Charts shade them and split statistics before and on HRT.',
 		addPhase: 'Add phase',
@@ -348,7 +354,7 @@ export const en = {
 		noneOut: 'none out of range',
 		withComputed: (n: number) => `plus ${plural(n, 'computed value', 'computed values')}`,
 		rangesFor: (sex: string) => `ranges: ${sex.toLowerCase()}`,
-		storage: (kb: number) => `About ${kb} kB stored in this browser`,
+		storage: (kb: number) => `About ${kb} kB stored ${here.in}`,
 		checkNames: {
 			mcv: 'MCV = Hct ÷ RBC',
 			mch: 'MCH = Hb ÷ RBC',
