@@ -51,6 +51,15 @@
 	const flag = $derived(flagged ? [...name.slice(0, 5)] : []);
 	const rest = $derived([...name.slice(flag.length)]);
 
+	// Swash draws itself again once per hover, never cut off while still drawing
+	let runs = $state(0);
+	let drawing = true;
+	function redraw() {
+		if (!flourish || drawing) return;
+		drawing = true;
+		runs++;
+	}
+
 	// Flag stripes as a highlight inside the drop, only drawn where it is big enough to read
 	const STRIPES = ['#5bcefa', '#f5a9b8', '#ffffff', '#f5a9b8', '#5bcefa'];
 	function arc(r: number) {
@@ -65,14 +74,24 @@
 			></span
 		>{:else}{c}{/if}{/snippet}
 
-{#snippet swash()}<svg class="flourish" viewBox="0 0 761 100" preserveAspectRatio="none"
-		><mask id="{uid}-swash"><path class="draw" d={MIDDLE} pathLength="1" stroke="white" stroke-width="14" fill="none" stroke-linecap="round" /></mask
-		><path d={SWASH} mask="url(#{uid}-swash)" /></svg
-	>{/snippet}
+{#snippet swash()}{#key runs}<svg class="flourish" viewBox="0 0 761 100" preserveAspectRatio="none"
+			><mask id="{uid}-swash"
+				><path
+					class="draw"
+					d={MIDDLE}
+					pathLength="1"
+					stroke="white"
+					stroke-width="14"
+					fill="none"
+					stroke-linecap="round"
+					onanimationend={() => (drawing = false)}
+				/></mask
+			><path d={SWASH} mask="url(#{uid}-swash)" /></svg
+		>{/key}{/snippet}
 
 <span class={['logo', flagged && 'flag-name', klass]}>
 	<span class="sr-only">{name}</span>
-	<span aria-hidden="true" class={[flourish && 'flourished']}
+	<span aria-hidden="true" class={[flourish && 'flourished']} onpointerenter={redraw}
 		>{#if flourish}{@render swash()}{/if}{#if flag.length}<span class="trans-flag"
 				>{#each flag as c, i (i)}<span>{@render letter(c, i)}</span>{/each}</span
 			>{/if}{#each rest as c, i (i)}{@render letter(c, flag.length + i)}{/each}</span

@@ -113,6 +113,23 @@ test('reference rails and table rows switch the same band', async ({ page }) => 
 	await expect(page.getByRole('button', { name: /Monotherapy suppression zone/ })).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('results of one value are edited in place from the focus view', async ({ page }) => {
+	await demo(page);
+	await page.goto('/analyte/estradiol');
+	await page.getByRole('button', { name: 'Edit', exact: true }).click();
+
+	const newest = page.getByRole('textbox', { name: 'Value', exact: true }).first();
+	await newest.fill('abc');
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
+	await expect(page.getByText(/^Not a number/)).toBeVisible();
+
+	await newest.fill('205');
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
+	await expect(page.getByRole('row', { name: /205 pg\/ml/ })).toBeVisible();
+	await page.reload();
+	await expect(page.getByRole('row', { name: /205 pg\/ml/ })).toBeVisible();
+});
+
 test('reduce motion can be forced and is remembered', async ({ page }) => {
 	await demo(page);
 	await expect(page.locator('html')).toHaveAttribute('data-motion', 'full');

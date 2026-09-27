@@ -515,6 +515,7 @@ export const en = {
 		latestInside: 'latest inside',
 		noRefs: 'No reference ranges for this value.',
 		yourData: 'Your data',
+		editHint: 'One row per blood draw, values as printed on the report. Clear a value to remove it from that draw.',
 		cols: {
 			date: 'Date',
 			hrt: 'HRT',

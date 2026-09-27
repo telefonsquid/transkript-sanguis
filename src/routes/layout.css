@@ -55,8 +55,10 @@
 	--fem-ink: #b83d68;
 	--masc-ink: #1a76a3;
 	--flag-chip: #1b1b1a;
+	--flag-halo: #1b1b1a;
 	--flag-chip-ink: #fcfcfb;
 	--flag-pad: 1px 7px;
+	--flag-pad-swash: 1px 7px 0.24em;
 	--blood: #a8172b;
 }
 
@@ -104,8 +106,10 @@
 		--fem-ink: #f5a9b8;
 		--masc-ink: #5bcefa;
 		--flag-chip: transparent;
+		--flag-halo: var(--surface);
 		--flag-chip-ink: var(--ink);
 		--flag-pad: 0;
+		--flag-pad-swash: 0;
 		--blood: #d93a45;
 	}
 }
@@ -153,8 +157,10 @@
 	--fem-ink: #f5a9b8;
 	--masc-ink: #5bcefa;
 	--flag-chip: transparent;
+	--flag-halo: var(--surface);
 	--flag-chip-ink: var(--ink);
 	--flag-pad: 0;
+	--flag-pad-swash: 0;
 	--blood: #d93a45;
 }
 
@@ -262,15 +268,16 @@ body {
 }
 .flag-name {
 	--blood: #d93a45;
+	--logo-ground: var(--flag-halo);
 }
 
-/* Pen swash behind the hero wordmark, a halo in the page colour fades it evenly around every letter */
+/* Pen swash behind the wordmark, a halo in the colour behind it fades it evenly around every letter */
 .logo .flourished {
 	position: relative;
 	display: inline-block;
 	isolation: isolate;
 	line-height: 1;
-	-webkit-text-stroke: 0.12em color-mix(in srgb, var(--page) 72%, transparent);
+	-webkit-text-stroke: 0.12em color-mix(in srgb, var(--logo-ground, var(--page)) 72%, transparent);
 	paint-order: stroke fill;
 }
 .logo .flourish {
@@ -291,6 +298,10 @@ body {
 	border-radius: 6px;
 	background: var(--flag-chip);
 	color: var(--flag-chip-ink);
+}
+/* Room below for the swash and the descenders of its halo */
+.flag-name:has(.flourished) {
+	padding: var(--flag-pad-swash);
 }
 .trans-flag > :nth-child(1),
 .trans-flag > :nth-child(5) {

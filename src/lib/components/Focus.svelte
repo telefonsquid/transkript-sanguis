@@ -29,6 +29,7 @@
 	import { filtered, settings, toggle } from '../state.svelte';
 	import { bandsFor, chartProps, hrtLabel, judge, phaseLabel, seriesFor, useLog } from '../view.svelte';
 	import Card from './Card.svelte';
+	import FocusEditor from './FocusEditor.svelte';
 
 	interface Props {
 		id: string;
@@ -101,6 +102,9 @@
 	);
 	const cited = $derived((a.cites ?? []).map((c) => sourceById.get(c)!));
 	const paragraphs = (text: string) => text.split('\n\n');
+
+	/** Value whose results are being edited, moving to another value leaves the form */
+	let editing: string | null = $state(null);
 
 	/** Value whose background is unfolded, so moving to another value folds it again */
 	let unfolded: string | null = $state(null);
@@ -326,7 +330,15 @@
 			</section>
 
 			<section class="rise overflow-x-auto rounded-lg border border-line bg-surface" style:--i="4">
-				<h2 class="border-b border-line px-3 py-2 text-sm font-semibold">{t.focus.yourData}</h2>
+				<div class="flex items-center border-b border-line px-3 py-2">
+					<h2 class="text-sm font-semibold">{t.focus.yourData}</h2>
+					{#if current.profile?.draws.length && !editing}
+						<button type="button" onclick={() => (editing = a.id)} class="ml-auto rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-2 hover:bg-hover hover:text-ink">{t.common.edit}</button>
+					{/if}
+				</div>
+				{#if editing === a.id}
+					<FocusEditor {a} ondone={() => (editing = null)} />
+				{:else}
 				<table class="num w-full text-xs">
 					<thead class="text-left text-ink-3">
 						<tr class="border-b border-line">
@@ -374,6 +386,7 @@
 						{/each}
 					</tbody>
 				</table>
+				{/if}
 			</section>
 		</div>
 

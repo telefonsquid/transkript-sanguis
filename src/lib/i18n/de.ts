@@ -516,6 +516,7 @@ export const de: Dict = {
 		latestInside: 'zuletzt im Bereich',
 		noRefs: 'Keine Referenzbereiche für diesen Wert.',
 		yourData: 'Deine Daten',
+		editHint: 'Eine Zeile pro Blutabnahme, Werte wie auf dem Befund gedruckt. Leere einen Wert, um ihn aus der Abnahme zu entfernen.',
 		cols: {
 			date: 'Datum',
 			hrt: 'HRT',
