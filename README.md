@@ -13,7 +13,6 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-a8172b?style=flat-square)](LICENSE)
 ![Languages](https://img.shields.io/badge/lang-EN%20%7C%20DE-a8172b?style=flat-square)
-![Offline](https://img.shields.io/badge/PWA-works%20offline-a8172b?style=flat-square)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/overview-dark.png">
@@ -26,19 +25,23 @@ Transkript Sanguis is an open source application for tracking and analyzing bloo
 
 It comes with extensive support for hormone therapy: feminizing and masculinizing profiles, ranges from trans cohorts and treatment targets, a medication timeline laid over the charts and notes on how the therapy affects each value. Everything you enter stays in your browser.
 
+> [!IMPORTANT]
+> **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor.
+
+
 ## Features
 
-- Charts each value over time.
+- Collects and charts blood test results over time
 - Reference ranges for cis women, cis men, feminizing and masculinizing HRT, trans cohorts, clinical cutoffs and the lab's printed range. Each range cites its source.
-- 103 values. Each has a description in English and German.
-- Medication timeline shown on all charts.
-- Values stored as printed. Conversion between conventional and SI units on display.
-- Computed values: eGFR, calculated free testosterone, free androgen index, HOMA-IR and others.
-- Consistency checks for typing errors.
-- Manual entry. Import of PDF reports transcribed by an AI assistant.
-- Multiple profiles per browser.
-- All data is stored in the browser. Nothing is sent to a server.
-- Runs offline. Installable as a PWA.
+- All data is stored in the browser. Nothing is sent to a server
+- 100+ values and reference ranges
+- Customizable medication timeline
+- Consistency checks for typing and parsing errors
+- Enter values by hand or let your AI Agent handle it
+- Multiple profiles support
+- Installable as a PWA
+- Conversion between conventional and SI units
+- Computed values: eGFR, calculated free testosterone, free androgen index, HOMA-IR and others
 
 ## Screenshots
 
@@ -61,9 +64,6 @@ It comes with extensive support for hormone therapy: feminizing and masculinizin
   </picture>
 </p>
 
-> [!IMPORTANT]
-> **Not medical advice.** The ranges and texts are collected from guidelines, studies and assay method sheets and cited on every value. They do not replace your doctor.
-
 ## Host it yourself
 
 The build is a static single page app. With Docker:
@@ -76,7 +76,7 @@ The image builds with bun and serves the files from an unprivileged nginx with S
 
 ## AI disclosure
 
-This project was built with a lot of help from Claude (Anthropic). I set the direction, researched and checked the medical side, reviewed the code and tested it with my own results. Every reference range still has to cite a real source, no model guessed a single number.
+> This project was supported by AI-assisted coding tools. In fact, about ~90% of the code was generated using Claude Opus 5.5. I am a full stack developer and have been working with SvelteKit for years, so there was a lot of direction and code review involved. I'm all too aware and concerned about the negative effects of AI on society, the environment, and the world as a whole and in no way endorse it. Yet, while I had a project like this planned for years now, I would've never found the required time to see it through. So take it with a grain of salt but AI allowed this project to exist in the first place.
 
 ## Development
 
