@@ -7,7 +7,7 @@ COPY . .
 RUN bun run build
 
 # Serve it as plain files, nothing but nginx runs in the container
-FROM nginxinc/nginx-unprivileged:1.29-alpine
+FROM nginxinc/nginx-unprivileged:1.30-alpine
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
